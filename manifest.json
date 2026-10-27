@@ -1,0 +1,11 @@
+{
+  "name": "Caminatas de la Tribu de Los Libres",
+  "short_name": "Agenda Tribu",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#f97316",
+  "icons": [
+    { "src": "img/icon-agenda.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,16 @@
+@font-face {
+    font-family: 'Tribu Acadian';
+    src: url('../vendor/acadian-runes.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+#app-title {
+    font-family: 'Tribu Acadian', system-ui, sans-serif;
+    overflow-wrap: anywhere;
+}
+
+#app-title .marca-tribu {
+    font-size: 135%;
+}

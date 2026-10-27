@@ -1,0 +1,14 @@
+/* tema.css — variables de color de AgendaTribu (modificar a gusto) */
+:root {
+  --tribu-primario: #f97316;
+  --tribu-acento: #4ade80;
+  --tribu-fondo: #1a1a1a;
+  --tribu-panel: #2a2a2a;
+  --tribu-texto: #eeeeee;
+  --tribu-borde: #333333;
+}
+body { background: var(--tribu-fondo); color: var(--tribu-texto); }
+.tribu-primario { color: var(--tribu-primario); }
+.tribu-panel { background: var(--tribu-panel); border: 1px solid var(--tribu-borde); border-radius: 12px; padding: 16px; }
+.tribu-btn { background: var(--tribu-primario); color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; font-weight: bold; }
+.tribu-btn-sec { background: transparent; color: var(--tribu-acento); border: 1px solid var(--tribu-acento); border-radius: 8px; padding: 8px 14px; }

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plantilla Tribu — Conectividad</title>
+<link rel="stylesheet" href="css/tema.css">
+<style>
+body{font-family:system-ui,sans-serif;margin:0;display:flex;justify-content:center;padding:20px}
+.card{max-width:520px;width:100%}
+input{width:100%;box-sizing:border-box;padding:8px;margin:4px 0;border-radius:6px;border:1px solid var(--tribu-borde);background:var(--tribu-panel);color:var(--tribu-texto)}
+.btn-row{display:flex;gap:6px;margin:8px 0}
+.btn-row button{flex:1}
+.radio-row{display:flex;gap:6px;margin:4px 0 8px}
+.radio-row label{flex:1;text-align:center;padding:8px;border:1px solid var(--tribu-borde);border-radius:6px;cursor:pointer}
+.radio-row input{display:none}
+.radio-row input:checked+span{color:var(--tribu-primario);font-weight:bold}
+#sync-log{background:#000;border:1px solid var(--tribu-borde);border-radius:8px;padding:8px;max-height:220px;overflow-y:auto;font-family:monospace;font-size:.72rem;margin-top:10px}
+.sync-estado{display:block;margin-top:8px;font-size:.85rem}
+.text-muted{color:#888}.text-success{color:#4ade80}.text-danger{color:#f87171}.text-warning{color:#facc15}
+h3{color:var(--tribu-primario)}
+</style>
+</head>
+<body>
+<div class="card tribu-panel">
+    <h3>⚡ Sincronización Global — Plantilla Tribu</h3>
+    <div style="font-size:.75rem;color:#888;margin-bottom:10px">ID de esta app: <code id="app-id">…</code></div>
+
+    <label class="text-muted">Servidor preferido</label>
+    <div class="radio-row">
+        <label><input type="radio" name="sync-servidor" id="sync-srv-ts" value="tailscale" checked><span>A · Tailscale</span></label>
+        <label><input type="radio" name="sync-servidor" id="sync-srv-pa" value="pythonanywhere"><span>B · Nube</span></label>
+    </div>
+    <input id="sync-maquina" placeholder="Máquina Tailscale (ej. latribu)" style="font-family:monospace">
+    <input id="sync-tailnet" placeholder="Tailnet (ej. tailb81e5f.ts.net)" style="font-family:monospace">
+    <input id="sync-nube" placeholder="Cuenta nube PythonAnywhere" style="font-family:monospace">
+    <div class="text-muted" style="font-size:.75rem">Servidor: <span id="sync-url-res">…</span></div>
+    <input id="sync-usuario" placeholder="Usuario" style="text-transform:uppercase">
+    <input id="sync-clave" type="password" placeholder="Contraseña" style="text-transform:uppercase">
+
+    <div class="btn-row">
+        <button class="tribu-btn" onclick="syncConectar()">Conectar</button>
+        <button class="tribu-btn-sec" onclick="syncRegistro()">Registrar</button>
+        <button class="tribu-btn-sec" onclick="syncProbar()">Probar</button>
+        <button class="tribu-btn-sec" onclick="syncVerificarAmbos()">A+B</button>
+        <button class="tribu-btn-sec" onclick="syncDesconectar()">✕</button>
+    </div>
+    <span id="sync-estado" class="sync-estado text-muted">Sin conectar</span>
+    <div id="sync-log"></div>
+</div>
+<script src="js/sync.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{ document.getElementById('app-id').textContent = SYNC_APP_ID; });
+// Repintá tu app cuando lleguen cambios remotos:
+function onSyncCambio(){ console.log('cambios remotos aplicados'); }
+</script>
+</body>
+</html>

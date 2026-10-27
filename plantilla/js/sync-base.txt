@@ -1,0 +1,60 @@
+/* ==========================================================================
+ * ARCHIVO: js/sync.js — sincronización global con el mini servidor
+ * Push en cada saveData, pull al recibir aviso por WebSocket.
+ * ========================================================================== */
+
+const SYNC_KEY = 'tribu_sync_cfg_v1';
+const SYNC_COLLECTIONS = ['caminatas', 'directorioPersonas', 'personasGlobales', 'notas', 'preciosBuseta', 'historialRetiros', 'historialAsistencia'];
+
+const SYNC_MAQUINA_DEFECTO = 'latribu';
+const SYNC_TAILNET_DEFECTO = 'tailb81e5f.ts.net';
+const SYNC_NUBE_DEFECTO = 'kenth1977';
+function syncURLNube() { let h = (syncCfg.nube || SYNC_NUBE_DEFECTO).replace(/^https?:\/\//, '').replace(/\/$/, ''); if (!h.includes('.')) h += '.pythonanywhere.com'; return 'https://' + h; }
+const SYNC_URL_FALLBACK = 'https://kenth1977.pythonanywhere.com';
+const SYNC_APP_ID = 'com.tribu.tablamagica';
+let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
+if (!syncCfg.maquina) syncCfg.maquina = SYNC_MAQUINA_DEFECTO;
+if (!syncCfg.tailnet) syncCfg.tailnet = SYNC_TAILNET_DEFECTO;
+
+function syncURL() { return 'https://' + syncCfg.maquina + '.' + syncCfg.tailnet; }
+let syncToken = localStorage.getItem('tribu_sync_token') || '';
+let syncWS = null, syncPushTimer = null, syncPullInFlight = false, syncPoll = null, syncActivoURL = '', syncFallos = 0;
+let syncAplicando = false; // flag: no re-empujar lo que viene del servidor
+
+function syncGuardarCfg() { localStorage.setItem(SYNC_KEY, JSON.stringify(syncCfg)); }
+function syncUltimoTs() { return Number(localStorage.getItem('tribu_sync_ts') || 0); }
+
+function syncEstado(txt, tipo = 'info') {
+    const el = document.getElementById('sync-estado');
+    if (el) { el.textContent = txt; el.className = 'small d-block mt-2 text-' + tipo; }
+    syncLog(txt, tipo);
+}
+
+function syncLog(msg, tipo = 'info') {
+    const box = document.getElementById('sync-log');
+    if (!box) return;
+    const col = tipo === 'danger' || tipo === 'err' ? '#f87171' : tipo === 'success' ? '#4ade80' : tipo === 'warning' ? '#facc15' : '#7dd3fc';
+    const d = document.createElement('div');
+    d.innerHTML = '<span style="color:#555">' + new Date().toLocaleTimeString('es-CR') + '</span> <span style="color:' + col + '">' + String(msg).replace(/</g,'&lt;') + '</span>';
+    box.appendChild(d);
+    while (box.children.length > 100) box.removeChild(box.firstChild);
+    box.scrollTop = box.scrollHeight;
+}
+
+window.addEventListener('error', (e) => { try { syncLog('JS error: ' + (e.message || 'error'), 'err'); } catch(_){} });
+
+function getColeccion(nom) {
+    switch (nom) {
+        case 'caminatas': return typeof caminatas !== 'undefined' ? caminatas : [];
+        case 'directorioPersonas': return typeof directorioPersonas !== 'undefined' ? directorioPersonas : [];
+        case 'personasGlobales': return typeof personasGlobales !== 'undefined' ? personasGlobales : [];
+        case 'notas': return typeof notas !== 'undefined' ? notas : [];
+        case 'preciosBuseta': return typeof preciosBuseta !== 'undefined' ? preciosBuseta : [];
+        case 'historialRetiros': return typeof historialRetiros !== 'undefined' ? historialRetiros : [];
+        case 'historialAsistencia': return typeof historialAsistencia !== 'undefined' ? historialAsistencia : [];
+        default: return [];
+    }
+}
+
+async function syncFetch(path, body) {
+    const preferido = syncCfg.servidorPreferido === 'pythonanywhere' ? syncURLNube() : syncURL();

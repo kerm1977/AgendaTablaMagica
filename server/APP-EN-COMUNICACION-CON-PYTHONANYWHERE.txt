@@ -1,0 +1,13 @@
+App en comunicación con Python Anywhere
+========================================
+
+Aplicación:  AgendaTribu  (com.tribu.tablamagica)
+Servidor B:  https://kenth1977.pythonanywhere.com
+Archivo servidor: wsgi_app.py  (espejo del sync server — SQLite, sin dependencias)
+Base de datos:  tribu_com_tribu_tablamagica.db  (se crea sola al primer push)
+
+Estado verificado: 2026-10-27 — el dominio responde HTTPS correctamente.
+Pendiente: subir wsgi_app.py como WSGI app y darle Reload.
+
+Endpoints espejo disponibles una vez desplegado:
+  /registro  /login  /push  /pull  /snapshot  /ping  /actividad  /

@@ -1,0 +1,680 @@
+    ║  3. HTML <body>          -> Modulo: vistas.html  (fragmentos por sección)                         ║
+    ║  4. JS <script>          -> Módulos listados abajo.                                               ║
+    ║                                                                                                   ║
+    ║  MÓDULOS JAVASCRIPT (dentro del tag <script> principal):                                          ║
+    ║                                                                                                   ║
+    ║  - MÓDULO: constantes-estado       -> let/const globales, config default.                         ║
+    ║  - MÓDULO: inicializacion          -> DOMContentLoaded, listeners iniciales.                      ║
+    ║  - MÓDULO: base-datos              -> loadData, saveData, localforage.                            ║
+    ║  - MÓDULO: utilidades              -> escapeHtml, showToast, confirm, etc.                        ║
+    ║  - MÓDULO: navegacion              -> navigate, view management, FAB.                             ║
+    ║  - MÓDULO: home                    -> renderHome, createNewCaminata, buscador, paginación.        ║
+    ║  - MÓDULO: caminata                -> CRUD caminatas, form header, asistencia.                    ║
+    ║  - MÓDULO: caminantes-pagos        -> inscripciones, pagos, facturas, reversión.                  ║
+    ║  - MÓDULO: buseta-precios          -> transporte, precios de buseta.                              ║
+    ║  - MÓDULO: directorio              -> personas, grupos, cumpleaños, vCard.                        ║
+    ║  - MÓDULO: notas                   -> editor WYSIWYG, checklist, recordatorios.                   ║
+    ║  - MÓDULO: ajustes-tema            -> tema, títulos, grupos, formas de pago.                       ║
+    ║  - MÓDULO: respaldo-import-export  -> JSON, WhatsApp, merge.                                      ║
+    ║  - MÓDULO: oracion-tribu           -> modal de oración.                                           ║
+    ║  - MÓDULO: editor-flyers           -> canvas, export PNG/PDF.                                     ║
+    ║  - MÓDULO: estadisticas            -> contadores, historial permanente, tarjeta de cuentas.       ║
+    ║                                                                                                   ║
+    ║  BASE DE DATOS SQLITE (esquema para Flask o Capacitor con SQLite):                                ║
+    ║  TABLAS Y CAMPOS PRINCIPALES (extraer fielmente del JSON actual):                                 ║
+    ║                                                                                                   ║
+    ║  1. caminatas                                                                                     ║
+    ║     - id (TEXT PK), nombre (TEXT), actividad (TEXT), tipo (TEXT), lugar (TEXT),                   ║
+    ║       provincia (TEXT), pais (TEXT), dificultad (TEXT), km (TEXT), transporte (TEXT),            ║
+    ║       precio (REAL), moneda (TEXT), reserva_monto (REAL), reserva_fecha (TEXT),                   ║
+    ║       fecha_local (TEXT), fecha_ida (TEXT), fecha_regreso (TEXT), hora_salida (TEXT),            ║
+    ║       lugar_salida (TEXT), lugares_recoger (TEXT), etapa (TEXT), parque (TEXT),                  ║
+    ║       usar_buseta (INTEGER), precio_buseta (REAL), cantidad_buses (INTEGER),                     ║
+    ║       cantidad_guias (INTEGER), incluye (TEXT), otros_descripcion (TEXT),                        ║
+    ║       formas_pago (TEXT), mostrar_incluye (INTEGER), mostrar_formas_pago (INTEGER),              ║
+    ║       mostrar_instrucciones (INTEGER), mostrar_urls (INTEGER), mostrar_caminantes (INTEGER),     ║
+    ║       equipo (TEXT), notas_adicionales (TEXT), urls (TEXT), vuelo_numero (TEXT),                 ║
+    ║       vuelo_fecha_salida (TEXT), vuelo_hora_salida (TEXT), vuelo_fecha_regreso (TEXT),           ║
+    ║       vuelo_hora_regreso (TEXT), vuelo_lugar_salida (TEXT), pasajeros (TEXT JSON),               ║
+    ║       created_at, updated_at                                                                      ║
+    ║                                                                                                   ║
+    ║  2. pasajeros (1:N o guardar como JSON dentro de caminatas)                                       ║
+    ║     - id (TEXT PK), caminata_id (FK), nombre (TEXT), cedula (TEXT), telefono (TEXT),             ║
+    ║       correo (TEXT), acompanantes (INTEGER), notas (TEXT), monto (REAL),                         ║
+    ║       estado (TEXT), abono (REAL), pendiente (REAL), asistencia (TEXT),                          ║
+    ║       pago_incluye_buseta (INTEGER), pago_incluye_guia (INTEGER), pago_incluye_otro (TEXT)        ║
+    ║                                                                                                   ║
+    ║  3. directorio_personas                                                                           ║
+    ║     - id (TEXT PK), nombre (TEXT), tipo (TEXT), cedula (TEXT), pasaporte (TEXT),                 ║
+    ║       telefono (TEXT), correo (TEXT), notas (TEXT), pais (TEXT), lugar (TEXT),                   ║
+    ║       fecha_nacimiento (TEXT), tipo_sangre (TEXT), contacto_emergencia_nombre (TEXT),            ║
+    ║       telefono_emergencia (TEXT)                                                                  ║
+    ║                                                                                                   ║
+    ║  4. notas                                                                                         ║
+    ║     - id (TEXT PK), titulo (TEXT), contenido (TEXT), recordatorio_fecha (TEXT),                  ║
+    ║       recordatorio_completado (INTEGER), created_at (TEXT)                                        ║
+    ║                                                                                                   ║
+    ║  5. precios_buseta                                                                                ║
+    ║     - id (TEXT PK), tipo (TEXT), provincia (TEXT), nombre (TEXT), monto (REAL)                   ║
+    ║                                                                                                   ║
+    ║  6. historial_retiros                                                                             ║
+    ║     - id INTEGER PK AUTOINCREMENT, nombre (TEXT), cam_id (TEXT FK), cam_nombre (TEXT),           ║
+    ║       fecha (TEXT)                                                                                ║
+    ║                                                                                                   ║
+    ║  7. historial_asistencia (nuevo - persistencia al eliminar caminatas)                            ║
+    ║     - id INTEGER PK AUTOINCREMENT, nombre (TEXT), cam_id (TEXT), cam_nombre (TEXT),              ║
+    ║       cam_actividad (TEXT), cam_lugar (TEXT), cam_pais (TEXT), cam_dificultad (TEXT),            ║
+    ║       cam_km (TEXT), cam_transporte (TEXT), cam_precio (REAL), cam_formas_pago (TEXT),           ║
+    ║       asistencia (TEXT), fecha (TEXT), fecha_registro (TEXT)                                      ║
+    ║                                                                                                   ║
+    ║  8. config_tema                                                                                   ║
+    ║     - id INTEGER PK, titulo_app (TEXT), titulo_directorio (TEXT), tema_color (TEXT),             ║
+    ║       grupos_personalizados (TEXT), formas_pago_sinpe (TEXT JSON),                               ║
+    ║       formas_pago_cuentas (TEXT JSON), equipo_requerido (TEXT JSON),                             ║
+    ║       instrucciones_otras (TEXT JSON), instrucciones_normas (TEXT JSON),                         ║
+    ║       instrucciones_seguridad (TEXT JSON)                                                         ║
+    ║                                                                                                   ║
+    ║  9. consecutivo_factura / ultimo_respaldo (tablas auxiliares de 1 registro)                       ║
+    ║                                                                                                   ║
+    ║  ÍCONOS FONT AWESOME PRINCIPALES (conservar nombres de clases):                                   ║
+    ║  fa-hiking, fa-users, fa-tag, fa-bus, fa-calendar-alt, fa-check-circle, fa-user-check,           ║
+    ║  fa-user-times, fa-user-minus, fa-credit-card, fa-mobile-alt, fa-university, fa-whatsapp,        ║
+    ║  fa-search, fa-trash, fa-pen, fa-plus, fa-chart-bar, fa-chart-pie, fa-database, fa-file-export,  ║
+    ║  fa-address-card, fa-info-circle, fa-chevron-right, fa-chevron-left, fa-chevron-down,            ║
+    ║  fa-hotel, fa-utensils, fa-bed, fa-tree, fa-map-signs, fa-ship, fa-tractor, fa-praying-hands    ║
+    ║                                                                                                   ║
+    ║  REGLAS DE EXTRACCIÓN:                                                                            ║
+    ║  - Mantener las variables compartidas (caminatas, directorioPersonas, etc.) en state.js.         ║
+    ║  - Cada módulo exporta funciones; main.js importa y expone en window.                             ║
+    ║  - Los event listeners onclic en HTML requieren funciones globales asignadas a window.            ║
+    ║  - Las referencias a elementos HTML (getElementById) no cambian; verificar IDs.                   ║
+    ║  - Los modales de Bootstrap se inicializan en main.js; no mover a módulos.                        ║
+    ║  - Localforage config debe ejecutarse una sola vez antes de loadData.                             ║
+    ║  - Al migrar a Flask: replicar mismos estilos CSS, misma estructura de modales, misma fuente.     ║
+    ║  - Al migrar a Capacitor: replicar vistas, almacenar SQLite nativo, conservar colores/tipografía. ║
+    ╚════════════════════════════════════════════════════════════════════════════════════════════════════╝
+    -->
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <!-- LocalForage for IndexedDB -->
+    <script src="vendor/localforage/localforage.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #f97316; /* Naranja Brillante */
+            --primary-dark: #ea580c; /* Naranja Oscuro */
+            --bg-light: #f0f2f5;
+            --text-dark: #111b21;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding-bottom: 70px; /* Space for bottom nav */
+            padding-top: 60px; /* Space for top header */
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--primary-dark);
+            color: white;
+            z-index: 1030;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            text-align: center;
+        }
+
+        .app-header h5 {
+            width: 100%;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            padding-bottom: env(safe-area-inset-bottom, 10px);
+            z-index: 1030;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        #vistaCaminatas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 56px;
+            background-color: #fff;
+            z-index: 1040;
+            display: none;
+        }
+
+        #vistaCaminatas iframe, #vistaTablaMagica iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        #vistaTablaMagica {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 56px;
+            background-color: #fff;
+            z-index: 1040;
+            display: none;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #667781;
+            text-decoration: none;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-dark);
+        }
+
+        /* Floating Action Button (FAB) */
+        .fab {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: none;
+            border: none;
+            z-index: 1020;
+            transition: transform 0.1s;
+        }
+
+        /* Quitar cualquier halo/sombra de color al tocar botones (evita el
+           efecto de "botón fantasma" detrás de los botones de WhatsApp). */
+        .btn:focus,
+        .btn:active,
+        .btn.focus,
+        .btn:focus-visible {
+            box-shadow: none !important;
+        }
+        .fab:focus,
+        .fab:active {
+            box-shadow: none !important;
+        }
+        
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Views management */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Acordeón de Ajustes: mismo color del tema de la app */
+        #ajustes-accordion .accordion-button:not(.collapsed) {
+            background-color: #fff7ed;
+            color: var(--primary-dark);
+            box-shadow: none;
+        }
+        #ajustes-accordion .accordion-button:focus {
+            box-shadow: none;
+        }
+
+        /* Selector de color de tema (Ajustes) */
+        .tema-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .tema-swatch.activo {
+            border-color: #111b21;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111b21;
+        }
+
+        /* Tema Oscuro: fondos oscuros, íconos y texto en blanco */
+        body.tema-oscuro {
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+        body.tema-oscuro .bottom-nav {
+            background-color: #1f2937;
+            border-top-color: #374151;
+        }
+        body.tema-oscuro .nav-item {
+            color: #d1d5db;
+        }
+        body.tema-oscuro .card,
+        body.tema-oscuro .modal-content,
+        body.tema-oscuro .list-group-item,
+        body.tema-oscuro .accordion-item,
+        body.tema-oscuro .accordion-body {
+            background-color: #1f2937;
+            color: #f3f4f6;
+        }
+        body.tema-oscuro .accordion-button {
+            background-color: #1f2937;
+            color: #f3f4f6;
+        }
+        body.tema-oscuro .text-dark,
+        body.tema-oscuro .fw-medium,
+        body.tema-oscuro .fw-bold,
+        body.tema-oscuro h4, body.tema-oscuro h5, body.tema-oscuro h6 {
+            color: #f3f4f6 !important;
+        }
+        body.tema-oscuro .text-muted {
+            color: #9ca3af !important;
+        }
+        body.tema-oscuro input,
+        body.tema-oscuro select,
+        body.tema-oscuro textarea,
+        body.tema-oscuro .form-control,
+        body.tema-oscuro .form-select {
+            background-color: #374151;
+            color: #f3f4f6;
+            border-color: #4b5563;
+        }
+        body.tema-oscuro .form-control::placeholder {
+            color: #9ca3af;
+        }
+        body.tema-oscuro .btn-light {
+            background-color: #374151;
+            color: #f3f4f6;
+            border-color: #4b5563;
+        }
+        body.tema-oscuro .directorio-tipo-icon {
+            background-color: #374151 !important;
+        }
+
+        /* Modal de recordatorios con animación llamativa */
+        .recordatorio-icono {
+            animation: campana-llamativa 1.5s ease-in-out infinite;
+            transform-origin: top center;
+        }
+        @keyframes campana-llamativa {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(18deg); }
+            20% { transform: rotate(-14deg); }
+            30% { transform: rotate(10deg); }
+            40% { transform: rotate(-6deg); }
+            50% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .recordatorio-icono i {
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+        }
+
+        /* Directorio cards */
+        .list-group-directorio .directorio-tipo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff7ed;
+            color: var(--primary-dark);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .directorio-telefono-link {
+            color: #6c757d;
+            text-decoration: none;
+        }
+        .directorio-telefono-link.whatsapp-activo {
+            color: #25D366;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Status Colors */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-pendiente { background-color: #dc3545; } /* 🔴 Rojo */
+        .status-reservado { background-color: #ffc107; } /* 🟡 Amarillo */
+        .status-reserva-parcial { background-color: #0d6efd; } /* 🔵 Azul */
+        .status-pago-parcial { background-color: #6f42c1; } /* 🟣 Morado */
+        .status-abono { background-color: #fd7e14; } /* 🟠 Naranja */
+        .status-cancelado { background-color: #198754; } /* 🟢 Verde */
+
+        /* Checklist Editor */
+        .checklist-nota {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist-nota li {
+            margin-bottom: 6px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .checklist-nota input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.2em;
+            height: 1.2em;
+            border: 0.125em solid #999;
+            border-radius: 0.1875em;
+            margin-right: 0.5rem;
+            margin-top: 0.2rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            background: transparent;
+            position: relative;
+            font-size: inherit;
+        }
+        .checklist-nota input[type="checkbox"]:checked {
+            background: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .checklist-nota input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            left: 0.25em;
+            top: 0.05em;
+            width: 0.25em;
+            height: 0.5em;
+            border: solid white;
+            border-width: 0 0.15em 0.15em 0;
+            transform: rotate(45deg);
+        }
+
+        /* Lists Styling */
+        .list-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .caminante-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer; /* Hace que se vea como botón interactivo */
+        }
+        .caminante-item:active {
+            background-color: #f8f9fa; /* Feedback visual al tocar */
+        }
+        .caminante-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Custom Modal overrides */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            border-bottom: 1px solid #eee;
+            background-color: var(--primary-dark);
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* Utilities */
+        .required-field::after {
+            content: "*";
+            color: red;
+            margin-left: 4px;
+        }
+        
+        .abono-badge {
+            font-size: 0.7rem;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
+        /* Editor Toolbar */
+        .editor-toolbar {
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            border-bottom: none;
+        }
+        .editor-content {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .editor-content:empty:before {
+            content: attr(data-placeholder);
+            color: #aaa;
+            pointer-events: none;
+            display: block; /* For Firefox */
+        }
+        
+        .action-icon {
+            transition: transform 0.1s;
+        }
+        .action-icon:active {
+            transform: scale(0.8);
+        }
+
+        /* Resultados calculados grandes y visibles */
+        #cam-total-transporte,
+        #cam-cantidad-participantes,
+        #cam-total-personas-pagan {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            background-color: rgba(234, 88, 12, 0.12) !important;
+            border: 1px solid rgba(234, 88, 12, 0.4);
+            text-align: center;
+            padding: 0.6rem;
+            border-radius: 0.5rem;
+        }
+
+        #cam-dinero-menos-transporte.text-danger {
+            color: #dc3545 !important;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: rgba(220, 53, 69, 0.15);
+            border: 0.25rem solid rgba(220, 53, 69, 0.25);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.8rem;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .check-btn-wrapper input:checked + label {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        /* Scrollbar oculto pero funcional */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Imágenes en notas */
+        #nota-contenido {
+            position: relative;
+            text-align: left;
+            line-height: 1 !important;
+        }
+        #nota-contenido p, #nota-contenido div, #nota-contenido li, #nota-contenido h1, #nota-contenido h2, #nota-contenido h3, #nota-contenido h4, #nota-contenido h5, #nota-contenido h6 {
+            position: relative;
+            z-index: 1;
+            background: transparent;
+            line-height: 1 !important;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+        }
+        #nota-contenido img.nota-img {
+            max-width: 100%;
+            height: auto;
+            cursor: grab;
+            transition: opacity 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            transform-origin: top left;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 0;
+        }
+        #nota-contenido img.nota-img.arrastrando {
+            cursor: grabbing !important;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: none;
+        }
+        #nota-contenido img.nota-img.seleccionada {
+            outline: 3px dashed var(--primary-dark);
+            outline-offset: 4px;
+            z-index: 2;
+            opacity: 0.85;
+        }
+        .nota-img-wrap {
+            position: relative;
+            text-align: left;
+            background: transparent;
+            line-height: 1 !important;
+            min-height: 0;
+        }
+
+        /* Menú de preferencias de imagen en notas */
+        #nota-img-contextmenu {
+            position: fixed;
+            display: none;
+            flex-direction: column;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            min-width: 180px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow: auto;
+            top: 110px;
+            right: 10px;
+        }
+        body.tema-oscuro #nota-img-contextmenu {
+            background: #1f2937;
+            border-color: #374151;
+            color: #f3f4f6;
+        }
+        #nota-img-contextmenu button {
+            border: none;
+            background: transparent;
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #nota-img-contextmenu button:hover {
+            background: #fff7ed;
+            color: var(--primary-dark);
+        }
+        body.tema-oscuro #nota-img-contextmenu button:hover {
+            background: #374151;
+            color: #fff;
+        }
+        #nota-img-contextmenu button + button {
+            border-top: 1px solid #eee;
+        }
+        body.tema-oscuro #nota-img-contextmenu button + button {
+            border-top-color: #374151;
+        }
+
+        /* Modal ver imagen nota */
+        #modalImagenNota .modal-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: #000;
+        }
+        #modalImagenNota img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
