@@ -92,7 +92,7 @@
          * ------------------- */
         /* Migajas de navegación bajo el título */
         .tabs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;margin-bottom:1.25rem;padding:0}
-        .tab-link{display:inline-flex;align-items:center;padding:.35rem .8rem;cursor:pointer;font-weight:600;border:none;background:none;color:#6c757d;font-size:.85rem;opacity:1;border-bottom:none;border-radius:999px}
+        .tab-link{display:inline-flex;align-items:center;padding:.65rem .95rem;cursor:pointer;font-weight:600;border:none;background:none;color:#6c757d;font-size:.85rem;opacity:1;border-bottom:none;border-radius:10px}
         .tab-link i{display:none}
         .tab-link.active{color:#fff;background-color:var(--color-primario)}
         .tab-link + .tab-link::before{content:'›';margin-right:4px;color:var(--color-secundario);font-weight:400}

@@ -3665,8 +3665,30 @@ Nueva versión: ${j.version}${j.cambios ? '
             } catch (e) { }
         }
 
+        async function mostrarCambiosActualizacion() {
+            try {
+                const pend = await localforage.getItem('update_instalada_pendiente');
+                if (!pend || pend.version !== APP_VERSION) return;
+                await localforage.removeItem('update_instalada_pendiente');
+                const cuando = pend.fecha ? new Date(pend.fecha).toLocaleString() : 'ahora';
+                showConfirm(
+                    'Actualización instalada',
+                    `La app se actualizó a la versión ${APP_VERSION}.
+
+Cambios aplicados:
+${pend.cambios || 'Mejoras generales'}
+
+Descargada: ${cuando}`,
+                    () => {},
+                    'Entendido',
+                    'btn-success'
+                );
+            } catch (e) { }
+        }
+
         function descargarActualizacion() {
             if (!updateInfo || !updateInfo.apk) return;
+            try { localforage.setItem('update_instalada_pendiente', { version: updateInfo.version, cambios: updateInfo.cambios || '', fecha: new Date().toISOString() }); } catch (e) { }
             const a = document.createElement('a');
             a.href = updateInfo.apk + '?v=' + Date.now();
             a.download = 'agendatribu-update.apk';
@@ -3680,7 +3702,8 @@ Nueva versión: ${j.version}${j.cambios ? '
         document.addEventListener('DOMContentLoaded', async () => {
             try { if (typeof respaldoAutomaticoAlAbrir === 'function') setTimeout(respaldoAutomaticoAlAbrir, 8000); } catch (e) { }
             try { const v = document.getElementById('app-version-actual'); if (v) v.textContent = APP_VERSION; } catch (e) { }
-            try { setTimeout(verificarActualizacionAutomatica, 12000); } catch (e) { }
+            try { setTimeout(verificarActualizacionAutomatica, 12000); setInterval(verificarActualizacionAutomatica, 3600000); } catch (e) { }
+            try { setTimeout(mostrarCambiosActualizacion, 6000); } catch (e) { }
             // Inicializar instancias de modales
             modalCaminante = new bootstrap.Modal(document.getElementById('modalCaminante'));
             modalCalendario = new bootstrap.Modal(document.getElementById('modalCalendario'));
