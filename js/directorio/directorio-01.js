@@ -45,6 +45,7 @@
             document.getElementById('directorio-telefono-emergencia').value = persona ? (persona.telefonoEmergencia || '') : '';
             document.getElementById('directorio-notas').value = persona ? (persona.notas || '') : '';
             document.getElementById('directorio-tipo').value = persona ? (persona.tipo || 'Persona') : 'Persona';
+            const ofEl = document.getElementById('directorio-oficio'); if (ofEl) ofEl.value = persona ? (persona.oficio || '') : '';
             document.getElementById('directorio-pais').value = persona ? (persona.pais || 'Costa Rica') : 'Costa Rica';
             const paisCargado = persona ? (persona.pais || 'Costa Rica') : 'Costa Rica';
             document.getElementById('directorio-lugar').value = (persona && paisCargado === 'Costa Rica') ? (persona.lugar || '') : '';

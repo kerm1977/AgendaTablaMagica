@@ -456,7 +456,7 @@ function renderChat() {
     if (firma === chatFirma) return;
     chatFirma = firma;
     const html = chatMensajes.slice().sort((a, b) => (a._ts || 0) - (b._ts || 0)).map(m => {
-        const mio = m.de === syncCfg.usuario;
+        const mio = String(m.de || '').toUpperCase() === String(syncCfg.usuario || '').toUpperCase() || m.de === 'YO';
         let cuerpo = '';
         if (m.archivo) {
             const t = (m.archivo.tipo || '').split('/')[0];

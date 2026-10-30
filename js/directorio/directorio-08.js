@@ -186,6 +186,7 @@
                 participacionesPaginacion.style.display = 'none';
             }
 
+            try { const p = (typeof directorioPersonas !== 'undefined' ? directorioPersonas : []).find(x => String(x.id) === String(directorioViendoId)); if (p) { p.visitas = (p.visitas || 0) + 1; saveData().catch(()=>{}); } } catch (e) { }
             modalVerDirectorio.show();
         }
 

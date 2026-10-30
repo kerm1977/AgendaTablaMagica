@@ -152,7 +152,7 @@
             background-color: var(--bg-light);
             color: var(--text-dark);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding-bottom: 70px; /* Space for bottom nav */
+            padding-bottom: 120px; /* Space for bottom nav + acordeon final */
             padding-top: calc(60px + env(safe-area-inset-top, 0px)); /* Space for top header + barra de estado */
             overflow-x: hidden;
         }
@@ -187,6 +187,7 @@
             right: 0;
             background-color: white;
             border-top: 1px solid #ddd;
+            border-radius: 18px 18px 0 0;
             display: flex;
             justify-content: space-around;
             padding: 8px 0;
@@ -1613,122 +1614,17 @@
         <!-- VIEW: Configuración / Data Management -->
         <div id="view-settings" class="view-section">
             <h4 class="mb-4">Configuración y Respaldo</h4>
-
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body">
-                    <h6 class="fw-bold mb-0" data-bs-toggle="collapse" data-bs-target="#sync-panel" style="cursor:pointer" aria-expanded="false"><i class="fas fa-globe text-primary"></i> Sincronización Global <i class="fas fa-chevron-down small text-muted"></i></h6>
-                    <div class="collapse mt-3" id="sync-panel">
-                    <label class="small text-muted mb-1">Servidor preferido</label>
-                    <div class="btn-group w-100 mb-2">
-                        <input type="radio" class="btn-check" name="sync-servidor" id="sync-srv-ts" value="tailscale" checked>
-                        <label class="btn btn-outline-primary btn-sm" for="sync-srv-ts">A · Tailscale (PC)</label>
-                        <input type="radio" class="btn-check" name="sync-servidor" id="sync-srv-pa" value="pythonanywhere">
-                        <label class="btn btn-outline-primary btn-sm" for="sync-srv-pa">B · Nube (PythonAnywhere)</label>
+                    <h6 class="fw-bold mb-2"><i class="fas fa-cloud-download-alt text-primary"></i> Actualización de la app</h6>
+                    <div class="small text-muted mb-2">Versión instalada: <b id="app-version-actual">…</b></div>
+                    <div class="small mb-2" id="app-version-msg"></div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="buscarActualizacion()"><i class="fas fa-sync-alt"></i> Buscar actualización</button>
+                        <button class="btn btn-success btn-sm d-none" id="btn-descargar-update" onclick="descargarActualizacion()"><i class="fas fa-download"></i> Descargar e instalar actualización</button>
                     </div>
-                    <label class="small text-muted mb-1">Cuenta nube (PythonAnywhere)</label>
-                    <input type="text" class="form-control form-control-sm mb-2" id="sync-nube" value="kenth1977" placeholder="kenth1977" style="font-family:monospace">
-                    <label class="small text-muted mb-1">Máquina Tailscale (servidor)</label>
-                    <input type="text" class="form-control form-control-sm mb-2" id="sync-maquina" value="latribu" placeholder="nombre de la máquina">
-                    <label class="small text-muted mb-1">Tailnet (cuenta Tailscale)</label>
-                    <input type="text" class="form-control form-control-sm mb-2" id="sync-tailnet" value="tailb81e5f.ts.net" placeholder="xxxx.ts.net">
-                    <div class="small text-muted mb-2">Servidor: <span id="sync-url-res" class="fw-bold text-success">—</span></div>
-                    <input type="hidden" id="sync-url">
-                    <input type="text" class="form-control form-control-sm mb-2" id="sync-usuario" placeholder="Usuario" style="text-transform:uppercase">
-                    <div class="input-group input-group-sm mb-3">
-                        <input type="password" class="form-control" id="sync-clave" placeholder="Contraseña" style="text-transform:uppercase">
-                        <button class="btn btn-outline-secondary" type="button" onclick="const c=document.getElementById('sync-clave');c.type=c.type==='password'?'text':'password';this.querySelector('i').className=c.type==='password'?'fas fa-eye':'fas fa-eye-slash'"><i class="fas fa-eye"></i></button>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm flex-fill" onclick="syncConectar()"><i class="fas fa-link"></i> Conectar</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="syncRegistro()">Registrar</button>
-                        <button class="btn btn-outline-info btn-sm" onclick="syncProbar()"><i class="fas fa-satellite-dish"></i></button>
-                        <button class="btn btn-outline-info btn-sm" onclick="syncVerificarAmbos()" title="Verificar A+B"><i class="fas fa-link"></i></button>
-                        <button class="btn btn-outline-danger btn-sm" onclick="syncDesconectar()"><i class="fas fa-unlink"></i></button>
-                    </div>
-                    <button class="btn btn-outline-success btn-sm w-100 mt-2" onclick="compartirLogSync()"><i class="fab fa-whatsapp"></i> Compartir log por WhatsApp</button>
-                    <button class="btn btn-outline-warning btn-sm w-100 mt-1" onclick="syncBarrerBasura()"><i class="fas fa-broom"></i> Limpiar basura local</button>
-                    <button class="btn btn-outline-info btn-sm w-100 mt-1" type="button" data-bs-toggle="collapse" data-bs-target="#sync-usuarios" onclick="syncListaUsuarios()"><i class="fas fa-users-cog"></i> Usuarios (admin)</button>
-                    <div class="collapse mt-2" id="sync-usuarios">
-                        <div class="d-flex gap-1 mb-2">
-                            <input id="sync-nuevo-usuario" class="form-control form-control-sm" placeholder="Usuario" style="text-transform:uppercase;font-size:.75rem">
-                            <input id="sync-nuevo-clave" class="form-control form-control-sm" placeholder="Clave" style="text-transform:uppercase;font-size:.75rem">
-                            <button class="btn btn-success btn-sm" style="font-size:.7rem" onclick="syncAgregarUsuario()">+</button>
-                        </div>
-                        <div id="sync-usuarios-list" style="max-height:180px;overflow-y:auto"></div>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm w-100 mt-1" onclick="syncRestaurarTodo()"><i class="fas fa-cloud-download-alt"></i> Restaurar todo del servidor</button>
-                    <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="descargarServidorBat()"><i class="fas fa-download"></i> Descargar instalador de servidor</button>
-                    <a class="btn btn-outline-info btn-sm w-100 mt-2" href="vendor/plantilla-tribu.zip" download="plantilla-tribu.zip" style="display:flex;align-items:center;justify-content:center;gap:6px"><i class="fas fa-file-archive"></i> Descargar plantilla Tribu</a>
-                    <button class="btn btn-outline-info btn-sm w-100 mt-1" type="button" data-bs-toggle="collapse" data-bs-target="#sync-guia"><i class="fas fa-book-open"></i> Guía paso a paso</button>
-                    <div class="collapse mt-2" id="sync-guia">
-                    <div class="d-grid gap-1 mb-2">
-                        <button class="btn btn-success btn-sm" onclick="descargarServidorBat()"><i class="fas fa-box-open"></i> Paquete OFFLINE TODO-EN-UNO (ZIP ~66 MB)</button>
-                        <button class="btn btn-warning btn-sm" onclick="descargarPlantilla()"><i class="fas fa-file-code"></i> Plantilla base (solo conectividad + tema)</button>
-                    </div>
-                    <button class="btn btn-warning btn-sm w-100 mb-1" type="button" data-bs-toggle="collapse" data-bs-target="#guia-usb"><i class="fas fa-plug"></i> PASO INICIAL — llevar el server por USB a una PC sin nada</button>
-                    <div class="collapse" id="guia-usb">
-                    <div class="small border rounded p-2 mb-2" style="background:#fff8e1;line-height:1.7">
-                        <b>Escenario:</b> tu teléfono + cable USB → computadora sin nada instalado.<br>
-                        <b>1. En el teléfono:</b> tocá <b>📦 Paquete OFFLINE</b> → el ZIP (~66 MB) queda en Documentos/Descargas del teléfono.<br>
-                        <b>2. USB a la PC:</b> conectá el cable → en el teléfono elegí <b>Transferir archivos (MTP)</b> → en la PC: Este equipo → tu teléfono → Documents → copiá <code>instalador-offline.zip</code> → descomprimí.<br>
-                        <b>3. Instalar:</b> doble clic <code>instalar-offline.bat</code> → instala Tailscale desde el paquete (sin internet) → login con kenth1977@gmail.com (único paso que usa internet, 1 min) → activa funnel + autoarranque + levanta el servidor → <b>[OK] SERVIDOR ACTIVO</b>.<br>
-                        <b>4. Sin internet del todo:</b> <code>correr-servidor.bat</code> levanta igual y funciona por IP local en el mismo WiFi.<br>
-                        <b>5. En la app:</b> "Máquina Tailscale" = nombre de esa PC → <b>Conectar</b> → 📡 En línea.
-                    </div>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm w-100 mb-1" type="button" data-bs-toggle="collapse" data-bs-target="#guia-ts"><i class="fas fa-server"></i> A · Guía Tailscale (PC propia)</button>
-                    <div class="collapse" id="guia-ts">
-                    <div class="d-grid gap-1 mb-1">
-                        <button class="btn btn-outline-success btn-sm" onclick="descargarInstaladorBat()"><i class="fas fa-file-download"></i> Instalador .bat (descarga del servidor)</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="window.open('https://nodejs.org/es/download','_blank')"><i class="fas fa-download"></i> Node.js</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="window.open('https://tailscale.com/download','_blank')"><i class="fas fa-download"></i> Tailscale</button>
-                        <button class="btn btn-outline-warning btn-sm" onclick="syncActualizarEnlaces()"><i class="fas fa-rotate"></i> Verificar enlaces y versiones</button>
-                    </div>
-                    <div class="small border rounded p-2 mb-2" style="background:#f8f9fa;line-height:1.7">
-                        <b>Cómo funciona:</b> tu PC corre el servidor; Tailscale Funnel lo expone con URL fija <code>https://{máquina}.{tailnet}</code>.<br>
-                        <b>Pasos:</b><br>
-                        • Descargá el paquete TODO-EN-UNO → cable/Bluetooth a la PC<br>
-                        • Descomprimí → <code>instalar-offline.bat</code> → Tailscale con kenth1977@gmail.com<br>
-                        • En la app: "Máquina Tailscale" = nombre de esa PC<br>
-                        • Conectar → 📡 En línea → sincroniza en vivo por WebSocket<br>
-                        • Si Tailscale está bloqueado en el país → usar B
-                    </div>
-                    </div>
-                    <button class="btn btn-outline-info btn-sm w-100" type="button" data-bs-toggle="collapse" data-bs-target="#guia-pa"><i class="fas fa-cloud"></i> B · Guía PythonAnywhere (nube)</button>
-                    <div class="collapse" id="guia-pa">
-                    <div class="d-grid gap-1 mb-1">
-                        <button class="btn btn-outline-info btn-sm" onclick="descargarWsgiApp()"><i class="fas fa-file-code"></i> Descargar wsgi_app.py</button>
-                        <button class="btn btn-outline-info btn-sm" onclick="syncProbarNube()"><i class="fas fa-satellite-dish"></i> Probar conexión con la nube</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="window.open('https://www.pythonanywhere.com','_blank')"><i class="fas fa-external-link-alt"></i> pythonanywhere.com</button>
-                    </div>
-                    <div class="small border rounded p-2" style="background:#f8f9fa;line-height:1.7">
-                        <b>Cómo funciona:</b> espejo del servidor en la nube (Python + SQLite) — no necesita Tailscale ni PC encendida.<br>
-                        <b>Pasos (una sola vez):</b><br>
-                        • Entrá a pythonanywhere.com con TU cuenta (cualquiera)<br>
-                        • Crear Web app (Flask/manual → cualquier Python 3)<br>
-                        • En el archivo WSGI, pegar el contenido de <code>wsgi_app.py</code> → Reload<br>
-                        • En la app: "Cuenta nube" = tu usuario PA (ej. lospatitosfeos)<br>
-                        • "Servidor preferido" → <b>B · Nube</b><br>
-                        • Cada app manda su identificador → crea su propio <code>tribu_com_tribu_tablamagica.db</code> — nada se mezcla<br>
-                        • Sin WebSocket en gratis: el polling cada 60s trae los cambios igual
-                    </div>
-                    </div>
-</div>
-                    </div>
-                    <script>
-                    setTimeout(function(){
-                        var el = document.getElementById('sync-estado');
-                        if (el && typeof syncConectar !== 'function') {
-                            el.textContent = 'ERROR: sync.js no cargó — los botones no responden';
-                            el.className = 'small d-block mt-2 text-danger fw-bold';
-                        }
-                    }, 1200);
-                    </script>
-                    <span id="sync-estado" class="small d-block mt-2 text-muted">Sin conectar — solo datos locales</span>
-                    <div id="sync-log" style="background:#111;color:#0f0;border:1px solid #333;border-radius:8px;padding:8px;margin-top:8px;max-height:180px;overflow-y:auto;font-family:monospace;font-size:.72rem;text-align:left"></div>
                 </div>
             </div>
-
 
             <div class="accordion mb-3" id="ajustes-accordion">
                 <div class="accordion-item">
@@ -1841,6 +1737,17 @@
                                 </button>
                                 <button class="btn btn-outline-success" onclick="exportDataWhatsApp()">
                                     <i class="fab fa-whatsapp"></i> Exportar Respaldo a WhatsApp
+                                </button>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="correo-respaldo" placeholder="correo donde respaldar" onfocus="cargarCorreoRespaldo(this)" onchange="localforage.setItem('correo_respaldo', this.value.trim())">
+                                </div>
+                                <div class="form-check form-switch d-flex align-items-center gap-2 ms-1">
+                                    <input class="form-check-input" type="checkbox" id="correo-automatico" onchange="toggleRespaldoAutomatico(this.checked)">
+                                    <label class="form-check-label small text-muted" for="correo-automatico">Respaldo automático al correo (diario al abrir)</label>
+                                </div>
+                                <button class="btn btn-outline-info" onclick="enviarRespaldoPorCorreo()">
+                                    <i class="fas fa-paper-plane"></i> Enviar Respaldo por Correo
                                 </button>
                                 <!-- NO MODIFICAR: Botón exportar respaldo a TXT -->
                                 <button class="btn btn-outline-dark" onclick="exportarRespaldoTXT()">
@@ -2447,6 +2354,13 @@
                         <select class="form-select form-select-sm" id="directorio-tipo" onchange="toggleCamposDirectorioPorTipo()">
                             <!-- Opciones generadas por JS para incluir los grupos personalizados del usuario -->
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Oficio / Emprendimiento</label>
+                        <input type="text" class="form-control form-control-sm" id="directorio-oficio" list="oficios-tribu" placeholder="Ej: Charlista, Repostería, Guía…">
+                        <datalist id="oficios-tribu">
+                            <option value="Guía de caminatas"><option value="Charlista / Conferencista"><option value="Artesano / Amigurumi"><option value="Repostería / Panadería"><option value="Comidas / Catering"><option value="Pizzería"><option value="Marisquería"><option value="Taquería"><option value="Comida china"><option value="Sushi"><option value="Heladería"><option value="Camisas / Sublimación"><option value="Músico / Animador"><option value="Fotógrafo / Videógrafo"><option value="Diseñador gráfico"><option value="Costura / Modista"><option value="Transporte / Busetas"><option value="Taxi"><option value="Transporte de estudiantes"><option value="Transporte de turismo"><option value="Hospedaje / Cabinas"><option value="Servicio de Airbnb"><option value="Barbería / Belleza"><option value="Clases / Talleres"><option value="Cafetería / Barista"><option value="Jardinería / Viveros"><option value="Masajes / Aromaterapia"><option value="Ventas / Tienda"><option value="Carpintería / Herrería"><option value="Bazar"><option value="Impresiones en papel"><option value="Impresiones 3D"><option value="Impresiones láser"><option value="Ciclismo de ruta"><option value="Mountain bike"><option value="Cuidador de personas enfermas"><option value="Cuidador de niños"><option value="Cuidador de adultos mayores"><option value="Centro diurno"><option value="Enfermero personal"><option value="Empleado(a) doméstico(a)"><option value="Enderezado y pintura"><option value="Mecánica / Taller">
+                        </datalist>
                     </div>
 
                     <div class="mb-3 d-none" id="directorio-campo-pais">
@@ -3181,11 +3095,9 @@
                         <button type="button" class="btn btn-sm btn-success" style="background-color: #25D366; border-color: #25D366;" onclick="compartirNotaWhatsApp()" title="Compartir por WhatsApp">
                             <i class="fab fa-whatsapp me-1"></i> Compartir
                         </button>
-                        <!-- NO MODIFICAR: Botón exportar notas a TXT -->
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportarNotasTXT()" title="Exportar todas las notas a TXT">
-                            <i class="fas fa-file-alt me-1"></i> TXT
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportarNotaJSONWhatsApp()" title="Exportar esta nota a JSON y abrir WhatsApp">
+                            <i class="fas fa-file-code me-1"></i> JSON
                         </button>
-                        <!-- /NO MODIFICAR: Botón exportar notas a TXT -->
                     </div>
                     <!-- Área de escritura tipo hoja -->
                     <div class="flex-grow-1 p-3" style="overflow-y: auto;">
@@ -3287,25 +3199,6 @@
         <button type="button" class="fab-listas" onclick="createNewCaminata()" title="Agregar caminata"><i class="fas fa-plus"></i></button>
     <button type="button" class="fab-dir" onclick="openAgregarDirectorioModal()" title="Agregar contacto"><i class="fas fa-plus"></i></button>
     <button type="button" class="fab-notas" onclick="abrirEditorNota()" title="Agregar nota"><i class="fas fa-plus"></i></button>
-    <button type="button" onclick="toggleChat()" title="Chat colaborativo" style="position:fixed;bottom:calc(76px + env(safe-area-inset-bottom, 0px));left:20px;width:56px;height:56px;border-radius:12px;background:var(--primary-dark,#ea580c);color:#fff;border:none;z-index:1020;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;font-size:20px;line-height:0;padding:0;"><i class="fas fa-comment-dots"></i><span id="chat-badge" style="display:none;position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:.65rem;font-weight:bold;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 6px rgba(0,0,0,.4)">0</span></button>
-    <div id="chat-panel" style="display:none;position:fixed;inset:0;z-index:1050;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
-    <div style="width:100%;height:100%;max-width:none;background:#111;display:flex;flex-direction:column">
-        <div style="padding:10px 14px;padding-top:calc(34px + 10px);border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center">
-            <button onclick="toggleChat()" style="background:none;border:none;color:#4ade80;font-size:20px;cursor:pointer;margin-right:10px"><i class="fas fa-arrow-left"></i></button>
-            <b style="color:#4ade80;flex:1"><i class="fas fa-comment-dots"></i> Chat de la Tribu</b>
-            <button onclick="verConsolaChat()" style="background:none;border:none;color:#4ade80;font-size:16px;cursor:pointer;margin-right:8px" title="Ver consola"><i class="fas fa-terminal"></i></button>
-            <button onclick="vaciarChat()" style="background:none;border:none;color:#f87171;font-size:16px;cursor:pointer;margin-right:8px" title="Vaciar chat"><i class="fas fa-trash"></i></button>
-            <button onclick="toggleChat()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="chat-online" style="padding:4px 14px;font-size:.68rem;color:#888;border-bottom:1px solid #333">⚪ Solo vos conectado</div>
-        <div id="chat-lista" style="flex:1;overflow-y:auto;padding:12px"></div>
-        <div style="padding:10px;border-top:1px solid #333;display:flex;gap:8px;align-items:center;padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px))">
-            <label style="cursor:pointer;font-size:22px;color:#888" title="Adjuntar"><i class="fas fa-paperclip"></i><input type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.json,.xlsx,.pptx" style="display:none" onchange="adjuntarChat(this)"></label>
-            <input id="chat-input" placeholder="Escribí un mensaje…" onkeydown="if(event.key==='Enter')enviarChat()" style="flex:1;background:#1c1c1c;color:#eee;border:1px solid #333;border-radius:20px;padding:10px 14px;font-size:.9rem">
-            <button onclick="enviarChat()" style="background:var(--primary-dark,#ea580c);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
-    </div>
     <nav class="bottom-nav">
         <a href="#" class="nav-item active" id="nav-home" onclick="navigate('home'); return false;">
             <i class="fas fa-list-alt"></i>
@@ -3454,7 +3347,6 @@
     <script src="vendor/sqljs/sql-wasm.js"></script>
     <script src="js/tribu-db.js?v=integral1"></script>
     <script src="js/respaldos.js?v=integral1"></script>
-    <script src="js/sync.js?v=sync10"></script>
     <script src="js/calendario.js?v=festivos-20261026-5"></script>
 
     <script>
@@ -3720,7 +3612,46 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
+        const APP_VERSION = '2026.10.30-1';
+        const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
+        let updateInfo = null;
+
+        async function buscarActualizacion() {
+            const msg = document.getElementById('app-version-msg');
+            const btn = document.getElementById('btn-descargar-update');
+            try {
+                msg.textContent = 'Consultando GitHub…'; msg.className = 'small mb-2 text-muted';
+                const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (!r.ok) throw new Error('sin respuesta');
+                const j = await r.json();
+                updateInfo = j;
+                if (j.version && j.version !== APP_VERSION) {
+                    msg.innerHTML = `Hay nueva versión: <b>${j.version}</b>${j.cambios ? ' — ' + j.cambios : ''}`; msg.className = 'small mb-2 text-success fw-bold';
+                    btn.classList.remove('d-none');
+                } else {
+                    msg.textContent = 'La app está actualizada (v' + APP_VERSION + ')'; msg.className = 'small mb-2 text-muted';
+                    btn.classList.add('d-none');
+                }
+            } catch (e) {
+                msg.textContent = 'No se pudo consultar (sin internet o GitHub caído)'; msg.className = 'small mb-2 text-danger';
+            }
+        }
+
+        function descargarActualizacion() {
+            if (!updateInfo || !updateInfo.apk) return;
+            const a = document.createElement('a');
+            a.href = updateInfo.apk + '?v=' + Date.now();
+            a.download = 'agendatribu-update.apk';
+            a.target = '_blank';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => { location.href = a.href; }, 800);
+            const msg = document.getElementById('app-version-msg');
+            msg.innerHTML = 'Descargando… Cuando termine, tocá la notificación de descarga e instalá — <b>se actualiza encima, no hace falta desinstalar</b>.';
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
+            try { if (typeof respaldoAutomaticoAlAbrir === 'function') setTimeout(respaldoAutomaticoAlAbrir, 8000); } catch (e) { }
+            try { const v = document.getElementById('app-version-actual'); if (v) v.textContent = APP_VERSION; } catch (e) { }
             // Inicializar instancias de modales
             modalCaminante = new bootstrap.Modal(document.getElementById('modalCaminante'));
             modalCalendario = new bootstrap.Modal(document.getElementById('modalCalendario'));

@@ -1,7 +1,7 @@
 # wsgi_app.py — AgendaTribu Sync (espejo PythonAnywhere, SQLite, cero dependencias)
 # Subir como la WSGI app de kenth1977.pythonanywhere.com
 # Cada app queda aislada en su propio .db: tribu_<identificador>.db (cabecera x-app)
-import sqlite3, os, re, json, time, hmac, secrets
+import sqlite3, os, re, json, time, hmac, secrets, gzip
 from urllib.parse import parse_qs
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +42,11 @@ def app(env, start):
             ('Access-Control-Allow-Headers', 'Content-Type, x-token, x-app'),
             ('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')]
     def out(code, data, ctype='application/json'):
+        body = json.dumps(data).encode() if isinstance(data, (dict, list)) else (data if isinstance(data, bytes) else str(data).encode())
+        if 'gzip' in (env.get('HTTP_ACCEPT_ENCODING') or '') and ctype == 'application/json':
+            return [code, [('Content-Type', ctype), ('Content-Encoding', 'gzip'), ('Access-Control-Allow-Origin', '*'), ('Access-Control-Allow-Headers', 'Content-Type, x-token, x-app')], [gzip.compress(body)]]
+        return [code, [('Content-Type', ctype), ('Access-Control-Allow-Origin', '*'), ('Access-Control-Allow-Headers', 'Content-Type, x-token, x-app')], [body]]
+    def out2(code, data, ctype='application/json'):
         b = data if isinstance(data, str) else json.dumps(data)
         start(code, [('Content-Type', ctype)] + cors)
         return [b.encode()]
@@ -49,6 +54,9 @@ def app(env, start):
     d = db_of(env)
     try:
         if path == '/ping' and m == 'GET': return out('200 OK', {'ok': True, 'ahora': now()})
+        if path == '/conexion.txt' and m == 'GET':
+            txt = 'App en comunicacion con Python Anywhere\nServidor B: kenth1977.pythonanywhere.com\nDB: ' + os.path.basename(dbpath(env)) + '\nFecha servidor: ' + str(now())
+            return out('200 OK', txt, 'text/plain; charset=utf-8')
         if path == '/' and m == 'GET':
             it = d.execute('SELECT COUNT(*) FROM items').fetchone()[0]
             us = d.execute('SELECT COUNT(*) FROM usuarios').fetchone()[0]
@@ -91,10 +99,17 @@ def app(env, start):
             d.commit(); log(d, env, 'push', usuario, f"{col} +{len(items)} items")
             return out('200 OK', {'ok': True, 'recibidos': len(items)})
         if path == '/pull' and m == 'GET':
-            desde = int((parse_qs(env.get('QUERY_STRING', '')).get('desde') or ['0'])[0] or 0)
-            rows = d.execute('SELECT coleccion,id,data,ts,borrado,autor FROM items WHERE ts>?', (desde,)).fetchall()
+            qs = parse_qs(env.get('QUERY_STRING', ''))
+            desde = int((qs.get('desde') or ['0'])[0] or 0)
+            limite = min(int((qs.get('limit') or ['0'])[0] or 0), 500)
+            col = (qs.get('coleccion') or [''])[0]
+            sql = 'SELECT coleccion,id,data,ts,borrado,autor FROM items WHERE ts>?'
+            args = [desde]
+            if col: sql += ' AND coleccion=?'; args.append(col)
+            sql += ' ORDER BY ts' + (f' LIMIT {limite}' if limite else '')
+            rows = d.execute(sql, args).fetchall()
             if rows: log(d, env, 'pull', usuario, f'{len(rows)} items')
-            return out('200 OK', {'ok': True, 'items': [dict(zip(('coleccion','id','data','ts','borrado','autor'), (r[0], r[1], json.loads(r[2]), r[3], r[4], r[5]))) for r in rows]})
+            return out('200 OK', {'ok': True, 'items': [dict(zip(('coleccion','id','data','ts','borrado','autor'), (r[0], r[1], json.loads(r[2]), r[3], r[4], r[5]))) for r in rows], 'ahora': int(time.time()*1000), 'mas': bool(limite and len(rows) == limite)})
         if path == '/snapshot' and m == 'GET':
             rows = d.execute('SELECT coleccion,id,data,ts,borrado,autor FROM items').fetchall()
             log(d, env, 'snapshot', usuario, f'{len(rows)} items')

@@ -7,9 +7,23 @@
         function renderPaginaDirectorio(pagina) {
             const f = directorioUltimosFiltros;
             directorioPaginaActual = pagina;
+            renderMasSolicitados();
             renderDirectorioList(f.filterText, f.filterTipo, f.filterPais, pagina);
         }
 
+        function renderMasSolicitados() {
+            const cont = document.getElementById('lista-directorio');
+            if (!cont) return;
+            let ov = document.getElementById('mas-solicitados');
+            if (!ov) { ov = document.createElement('div'); ov.id = 'mas-solicitados'; cont.parentNode.insertBefore(ov, cont); }
+            const top = (typeof directorioPersonas !== 'undefined' ? directorioPersonas : []).slice().sort((a,b)=>(b.visitas||0)-(a.visitas||0)).filter(p=>(p.visitas||0)>0).slice(0,8);
+            if (!top.length) { ov.innerHTML=''; return; }
+            ov.innerHTML = '<div class="mb-3"><div class="small fw-bold text-muted mb-2"><i class="fas fa-fire text-danger"></i> Los más solicitados</div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px">'
+                + top.map(p => '<div style="flex:0 0 auto;background:#fff3e6;border:1px solid #fed7aa;border-radius:10px;padding:8px 12px;cursor:pointer;min-width:120px;text-align:center" onclick="verInformacionContacto(String(" + JSON.stringify(p.id) + "))">'
+                  + '<div class="fw-bold" style="font-size:.78rem">' + String(p.nombre||'?').replace(/</g,'&lt;') + '</div>'
+                  + '<div style="font-size:.62rem;color:#c2410c">' + (p.oficio ? String(p.oficio).replace(/</g,'&lt;')+' · ' : '') + '👁 ' + (p.visitas||0) + '</div></div>').join('')
+                + '</div></div>';
+        }
         function renderDirectorioList(filterText = "", filterTipo = "", filterPais = "", pagina = 1) {
             directorioUltimosFiltros = { filterText, filterTipo, filterPais };
             directorioPaginaActual = pagina;
@@ -124,7 +138,6 @@
                         <div class="d-flex gap-2 ms-2 align-items-center">
                             ${esCumpleProximo(p.fechaNacimiento) ? '<i class="fas fa-cake-candles text-warning" title="¡Cumpleaños próximo!"></i>' : ''}
                             ${cantListas > 0 ? `<span style="color: var(--primary-dark); font-weight: 700; font-size:0.8rem;" title="Pertenece a ${cantListas} lista${cantListas !== 1 ? 's' : ''} de caminata">${cantListas}</span>` : ''}
-                            <i class="fas fa-share-alt action-icon" style="cursor:pointer; opacity: 0.7; margin-right:8px" onclick="event.stopPropagation(); compartirContactoAlChat('${safeId}')" title="Compartir al chat"></i>
                             <i class="fas fa-trash text-danger action-icon" style="cursor:pointer; opacity: 0.7;" onclick="event.stopPropagation(); borrarDirectorio('${safeId}')" title="Eliminar del Directorio"></i>
                         </div>
                     </div>

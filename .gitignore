@@ -19,3 +19,13 @@ _extract*.js
 _cal*.js
 _temp*
 *.tmp
+
+respaldo-sincronizacion/
+respaldo-sincronizacion.zip
+Emprende-*.apk
+*.log
+respaldos/
+node_modules/
+*.db
+*.db-shm
+*.db-wal

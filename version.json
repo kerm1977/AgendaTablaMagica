@@ -1,0 +1,6 @@
+{
+  "app": "AgendaTribu",
+  "version": "2026.10.30-1",
+  "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
+  "cambios": "Modo local puro + respaldo por correo + notas JSON"
+}

@@ -76,6 +76,28 @@
         }
 
 
+        // Exporta SOLO la nota abierta como JSON + abre WhatsApp con el archivo
+        async function exportarNotaJSONWhatsApp() {
+            const nota = notas.find(n => n.id === currentNotaId);
+            if (!nota) { showToast('Guardá la nota antes de exportarla', 'warning'); return; }
+            const titulo = (document.getElementById('nota-titulo')?.value || nota.titulo || 'nota').trim() || 'nota';
+            const data = { tipo: 'nota-agendatribu', notas: [nota], exportDate: new Date().toISOString() };
+            const content = JSON.stringify(data, null, 2);
+            const fileName = 'Nota_' + titulo.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ _-]/g, '').trim().replace(/\s+/g, '_').slice(0, 40) + '.json';
+            const file = new File([content], fileName, { type: 'application/json' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try { await navigator.share({ files: [file], title: 'Nota: ' + titulo, text: 'Nota de AgendaTribu: ' + titulo }); } catch (e) { if (e && e.name !== 'AbortError') throw e; }
+                return;
+            }
+            const blob = new Blob([content], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = fileName;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            window.open('https://wa.me/?text=' + encodeURIComponent('Nota de AgendaTribu: ' + titulo + ' — adjunto el JSON para importarla'), '_blank');
+            showToast('JSON descargado — adjuntalo en WhatsApp', 'success');
+        }
+
         // NO MODIFICAR: Función para exportar notas a TXT
         function exportarNotasTXT() {
             if (!notas || notas.length === 0) {

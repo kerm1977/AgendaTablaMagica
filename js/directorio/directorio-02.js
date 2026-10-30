@@ -2,6 +2,7 @@
 
         async function guardarPersonaDirectorio() {
             const nombre = document.getElementById('directorio-nombre').value.trim();
+            const oficio = (document.getElementById('directorio-oficio')?.value || '').trim();
             const tipo = document.getElementById('directorio-tipo').value || 'Persona';
             const esPersona = tipo === 'Persona';
             const esCamino = tipo === 'El Camino de Costa Rica';
@@ -48,7 +49,8 @@
                 horario,
                 terreno,
                 precio,
-                etapaCamino
+                etapaCamino,
+                oficio
             };
 
             if (!nombre) {

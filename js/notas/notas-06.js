@@ -170,7 +170,6 @@
 
                 col.innerHTML = `
                     <div class="card border-0 shadow-sm" style="cursor: pointer;" onclick="abrirEditorNota('${escapeJsString(nota.id)}')">
-                    <i class="fas fa-share-alt" style="position:absolute;top:8px;right:8px;color:var(--primary-color);font-size:.8rem" onclick="event.stopPropagation();compartirNotaAlChat('${escapeJsString(nota.id)}')" title="Compartir al chat"></i>
                         <div class="card-body p-3">
                             <div class="d-flex justify-content-between align-items-start gap-2">
                                 <div class="flex-grow-1">

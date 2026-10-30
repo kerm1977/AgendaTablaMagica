@@ -842,8 +842,6 @@ function menuDiaCalendario(fecha){
     '<div style="font-weight:bold;margin-bottom:0.75rem;">'+escapeHtml(ev.nombre)+' · '+fecha+'</div>'+
     '<button class="btn w-100 mb-2" style="background:#f97316;border-color:#f97316;color:white;" onclick="cerrarMenuDia();'+(ev.caminataId?'openCaminata(\''+ev.caminataId+'\')':'abrirModalCalendario(\''+ev.id+'\')')+'">Editar evento</button>'+
     '<button class="btn w-100" style="border-color:#f97316;color:#c2410c;" onclick="cerrarMenuDia();cambiarFechaEventoCalendario(\''+ev.id+'\')">Cambiar fecha del evento</button>'+
-    '<button class="btn w-100 mb-2" style="border-color:#0ea5e9;color:#0284c7;" onclick="cerrarMenuDia();compartirEventoAlChat("+ev.id+")"><i class="fas fa-share-alt"></i> Compartir evento al chat</button>'+
-    '<button class="btn w-100 mb-2" style="border-color:#0ea5e9;color:#0284c7;" onclick="cerrarMenuDia();compartirCalendarioAlChat()"><i class="fas fa-calendar-alt"></i> Compartir calendario completo</button>'+
     '<button class="btn btn-link w-100 mt-1" onclick="cerrarMenuDia()">Cancelar</button></div>';
   ov.onclick=(e)=>{if(e.target===ov)ov.remove();};
   document.body.appendChild(ov);

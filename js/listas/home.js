@@ -89,7 +89,6 @@
                     card.innerHTML = `
                         <div class="d-flex justify-content-between align-items-start">
                             <div onclick="openCaminata('${safeId}')" style="cursor:pointer; flex-grow:1;">
-                                <i class="fas fa-share-alt" style="position:absolute;top:8px;right:8px;color:var(--primary-color);font-size:.85rem" onclick="event.stopPropagation();compartirCaminataAlChat('${safeId}')" title="Compartir al chat"></i>
                                 <h6 class="mb-1 fw-bold text-primary-dark">${escapeHtml(cam.nombre)}</h6>
                                 <div class="text-muted small mb-2">
                                     <i class="far fa-calendar-alt me-1"></i> ${fechaText || 'Fecha no definida'} <br>

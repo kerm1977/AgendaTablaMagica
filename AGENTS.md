@@ -11,7 +11,20 @@
 **Excepción ya aplicada por orden explícita:** el título del header pasó de
 "Gestión de Pagos JyK" a "Gestión de Pagos" (h4, font-size 1.5rem) — solo ese texto/tamaño.
 
-## ⛔ BLINDADO — CHAT + CONECTIVIDAD + COMPARTIR (nunca más tocar)
+## 🚫 MODO LOCAL PURO (30/oct/2026 — orden del usuario)
+
+- La app NO se conecta a Tailscale ni PythonAnywhere. Todo queda local:
+  localForage + IndexedDB + espejo SQLite (TribuDB). No hay push/pull ni WS.
+- sync.js fue RETIRADO del HTML junto con la tarjeta Sincronización Global,
+  el 💬 chat, el panel, la consola y todos los iconos 🔗 de compartir.
+- Motivo: la sincronización sobreescribía datos entre dispositivos
+  (notas borradas reaparecían, datos de un teléfono pisaban los de otro).
+- RESPALDO COMPLETO de la infraestructura: `respaldo-sincronizacion.zip`
+  (+ carpeta `respaldo-sincronizacion/` con LEEME-RESPALDO-SYNC.txt que
+  documenta URLs, máquina, tailnet, puerto, colecciones y cómo restaurar).
+- No reintroducir conectividad sin orden explícita del usuario.
+
+## ⛔ BLINDADO — CHAT + CONECTIVIDAD + COMPARTIR (preservado en respaldo, no activo)
 
 - Botón 💬 (`<i class="fas fa-comment-dots">` flotante abajo-izquierda + `#chat-badge`), panel `#chat-panel` pantalla completa, `chatTransmitir`/`enviarChat`/`adjuntarChat`/`borrarMensaje`/`renderChat`/`toggleChat`/`renderConectados`/`vaciarChat` (solo local+tombstones, sin wipe broadcast — NUNCA autoborrado), `syncUsuarios` presencia, `chatMensajes` colección 'chat' — entrega WS directa. NUNCA modificar.
 - Compartir al chat: `compartirTextoAlChat`/`compartirImagenAlChat`/`compartirNotaAlChat`/`compartirContactoAlChat`/`compartirCaminataAlChat`/`compartirEventoAlChat`/`compartirCalendarioAlChat`/`compartirEventosTMAlChat` + iconos 🔗 en notas/contactos/caminatas/calendario. NUNCA modificar.
