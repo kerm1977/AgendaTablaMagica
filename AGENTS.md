@@ -11,6 +11,18 @@
 **Excepción ya aplicada por orden explícita:** el título del header pasó de
 "Gestión de Pagos JyK" a "Gestión de Pagos" (h4, font-size 1.5rem) — solo ese texto/tamaño.
 
+## ⛔ BLINDADO — SISTEMA DE ACTUALIZACIÓN (sagrado, nunca tocar)
+
+- `js/update.js` — sistema completo de actualización (version.json en GitHub,
+  DownloadManager del sistema, barra + consola, modal auto/manual/post-update).
+  PROHIBIDO modificar sin orden explícita del usuario.
+- PROHIBIDO reintroducir `REQUEST_INSTALL_PACKAGES` en el manifest — causa el
+  aviso "posiblemente dañina" de Play Protect. La instalación se hace vía
+  notificación del sistema del DownloadManager.
+- `MainActivity.TribuUpdateBridge` (descargar/progreso via DownloadManager)
+  es parte del sistema — no tocar.
+- Tarjeta "Actualización de la app" en view-settings — no tocar.
+
 ## 🚫 MODO LOCAL PURO (30/oct/2026 — orden del usuario)
 
 - La app NO se conecta a Tailscale ni PythonAnywhere. Todo queda local:
