@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-8",
+  "version": "2026.10.30-9",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Actualización silenciosa nativa + fix de script"
+  "cambios": "Actualización: barra de progreso + consola de eventos + permiso instalación (arregla instalador pegado)"
 }

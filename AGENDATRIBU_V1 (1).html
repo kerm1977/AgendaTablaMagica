@@ -1619,6 +1619,10 @@
                     <h6 class="fw-bold mb-2"><i class="fas fa-cloud-download-alt text-primary"></i> Actualización de la app</h6>
                     <div class="small text-muted mb-2">Versión instalada: <b id="app-version-actual">…</b></div>
                     <div class="small mb-2" id="app-version-msg"></div>
+                    <div class="progress mb-2 d-none" id="update-bar-wrap" style="height:14px;border-radius:8px;overflow:hidden;background:#eee">
+                        <div id="update-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%;background:linear-gradient(90deg,#f97316,#ea580c);font-size:.62rem;font-weight:bold;line-height:14px;transition:width .3s">0%</div>
+                    </div>
+                    <div id="update-consola" class="d-none" style="background:#111;color:#7dff9b;border:1px solid #333;border-radius:8px;padding:6px 8px;max-height:110px;overflow-y:auto;font-family:monospace;font-size:.66rem;text-align:left"></div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-outline-primary btn-sm" onclick="buscarActualizacion()"><i class="fas fa-sync-alt"></i> Buscar actualización ⚡</button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="probarConexionesUpdate()"><i class="fas fa-satellite-dish"></i> Probar conexión (GitHub)</button>
@@ -3612,7 +3616,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-8';
+        const APP_VERSION = '2026.10.30-9';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -3709,17 +3713,32 @@ Descargada: ${cuando}`,
             if (!updateInfo || !updateInfo.apk) return;
             const msg = document.getElementById('app-version-msg');
             // Ruta nativa APK: descarga en background, sin ventana del navegador
+            const updLog = (t) => {
+                const c = document.getElementById('update-consola');
+                c.classList.remove('d-none');
+                const h = new Date().toLocaleTimeString();
+                c.innerHTML += '<div>[' + h + '] ' + t + '</div>';
+                c.scrollTop = c.scrollHeight;
+            };
             if (window.TribuUpdate && typeof TribuUpdate.descargar === 'function') {
+                updLog('canal nativo listo — iniciando descarga');
                 window.tribuUpdateProgreso = function (pct) {
+                    const wrap = document.getElementById('update-bar-wrap');
+                    const bar = document.getElementById('update-bar');
+                    wrap.classList.remove('d-none');
+                    if (pct >= 0) { bar.style.width = pct + '%'; bar.textContent = pct + '%'; }
                     msg.innerHTML = pct >= 0 ? 'Descargando actualización… <b>' + pct + '%</b>' : 'Descargando actualización…';
                     msg.className = 'small mb-2 text-primary';
                 };
+                window.tribuUpdateLog = function (t) { updLog(t); };
                 window.tribuUpdateListo = function () {
+                    updLog('descarga verificada — lanzando instalador del sistema');
                     msg.innerHTML = '<b>Descarga completa — abriendo instalador…</b>';
                     msg.className = 'small mb-2 text-success fw-bold';
                     TribuUpdate.instalar();
                 };
                 window.tribuUpdateError = function (err) {
+                    updLog('ERROR: ' + (err || '?') + ' — fallback navegador');
                     msg.innerHTML = 'Error en descarga (' + (err || '?') + ') — reintentando por navegador…';
                     msg.className = 'small mb-2 text-danger';
                     window.TribuUpdate = null;
