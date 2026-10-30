@@ -1621,6 +1621,7 @@
                     <div class="small mb-2" id="app-version-msg"></div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-outline-primary btn-sm" onclick="buscarActualizacion()"><i class="fas fa-sync-alt"></i> Buscar actualización</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="probarConexionesUpdate()"><i class="fas fa-satellite-dish"></i> Probar conexiones (GitHub + nube)</button>
                         <button class="btn btn-success btn-sm d-none" id="btn-descargar-update" onclick="descargarActualizacion()"><i class="fas fa-download"></i> Descargar e instalar actualización</button>
                     </div>
                 </div>
@@ -3612,7 +3613,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-3';
+        const APP_VERSION = '2026.10.30-4';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -3659,6 +3660,25 @@
                     if (btnCancel) btnCancel.addEventListener('click', () => localforage.setItem('update_skip_version', j.version), { once: true });
                 } catch (e) { }
             } catch (e) { }
+        }
+
+        async function probarConexionesUpdate() {
+            const msg = document.getElementById('app-version-msg');
+            msg.textContent = 'Probando conexiones…'; msg.className = 'small mb-2 text-muted';
+            const ping = async (nombre, url) => {
+                const t0 = Date.now();
+                try {
+                    const r = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
+                    return nombre + ': ' + (r.ok ? 'OK (' + (Date.now() - t0) + 'ms)' : 'ERROR ' + r.status);
+                } catch (e) { return nombre + ': SIN RESPUESTA'; }
+            };
+            const [gh, pa] = await Promise.all([
+                ping('GitHub (versiones)', UPDATE_URL),
+                ping('PythonAnywhere (nube)', 'https://kenth1977.pythonanywhere.com/ping')
+            ]);
+            const todoOk = !gh.includes('SIN RESPUESTA') && !gh.includes('ERROR') && !pa.includes('SIN RESPUESTA') && !pa.includes('ERROR');
+            msg.innerHTML = gh + '<br>' + pa + (todoOk ? '<br><b>Canal de actualizaciones operativo</b>' : '<br><b>Revisar la conexión que falla</b>');
+            msg.className = 'small mb-2 ' + (todoOk ? 'text-success' : 'text-warning');
         }
 
         async function mostrarCambiosActualizacion() {
