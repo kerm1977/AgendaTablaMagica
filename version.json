@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-5",
+  "version": "2026.10.30-6",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Ajustes · Actualización de la app: el botón \"Buscar actualización\" ahora muestra el rayo ⚡ — prueba del sistema de versiones"
+  "cambios": "Actualización de la app: flujo limpio — un solo botón, el modal descarga e instala directo"
 }

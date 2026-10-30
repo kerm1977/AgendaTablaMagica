@@ -1622,7 +1622,6 @@
                     <div class="d-grid gap-2">
                         <button class="btn btn-outline-primary btn-sm" onclick="buscarActualizacion()"><i class="fas fa-sync-alt"></i> Buscar actualización ⚡</button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="probarConexionesUpdate()"><i class="fas fa-satellite-dish"></i> Probar conexión (GitHub)</button>
-                        <button class="btn btn-success btn-sm d-none" id="btn-descargar-update" onclick="descargarActualizacion()"><i class="fas fa-download"></i> Descargar e instalar actualización</button>
                     </div>
                 </div>
             </div>
@@ -3613,7 +3612,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-5';
+        const APP_VERSION = '2026.10.30-6';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -3625,17 +3624,22 @@
 
         async function buscarActualizacion() {
             const msg = document.getElementById('app-version-msg');
-            const btn = document.getElementById('btn-descargar-update');
             try {
                 msg.textContent = 'Consultando GitHub…'; msg.className = 'small mb-2 text-muted';
                 const j = await consultarVersion();
                 updateInfo = j;
                 if (j.version && j.version !== APP_VERSION) {
-                    msg.innerHTML = `Hay nueva versión: <b>${j.version}</b>${j.cambios ? ' — ' + j.cambios : ''}`; msg.className = 'small mb-2 text-success fw-bold';
-                    btn.classList.remove('d-none');
+                    updateInfo = j;
+                    showConfirm(
+                        'Nueva actualización disponible',
+                        ('Versión instalada: ' + APP_VERSION + String.fromCharCode(10) + 'Nueva versión: ' + j.version + (j.cambios ? String.fromCharCode(10) + j.cambios : '') + String.fromCharCode(10,10) + '¿Descargar e instalar ahora?'),
+                        () => descargarActualizacion(),
+                        'Sí, actualizar',
+                        'btn-success'
+                    );
+                    msg.textContent = 'Hay nueva versión: ' + j.version; msg.className = 'small mb-2 text-success fw-bold';
                 } else {
                     msg.textContent = 'La app está actualizada (v' + APP_VERSION + ')'; msg.className = 'small mb-2 text-muted';
-                    btn.classList.add('d-none');
                 }
             } catch (e) {
                 msg.textContent = 'No se pudo consultar (sin internet o GitHub caído)'; msg.className = 'small mb-2 text-danger';
