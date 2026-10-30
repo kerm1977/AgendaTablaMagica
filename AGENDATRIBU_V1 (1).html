@@ -1621,7 +1621,7 @@
                     <div class="small mb-2" id="app-version-msg"></div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-outline-primary btn-sm" onclick="buscarActualizacion()"><i class="fas fa-sync-alt"></i> Buscar actualización</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="probarConexionesUpdate()"><i class="fas fa-satellite-dish"></i> Probar conexiones (GitHub + nube)</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="probarConexionesUpdate()"><i class="fas fa-satellite-dish"></i> Probar conexión (GitHub)</button>
                         <button class="btn btn-success btn-sm d-none" id="btn-descargar-update" onclick="descargarActualizacion()"><i class="fas fa-download"></i> Descargar e instalar actualización</button>
                     </div>
                 </div>
@@ -3615,17 +3615,12 @@
         // --- INITIALIZATION ---
         const APP_VERSION = '2026.10.30-4';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
-        const UPDATE_URL_PA = 'https://kenth1977.pythonanywhere.com/version.json';
         let updateInfo = null;
 
         async function consultarVersion() {
-            try {
-                const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
-                if (r.ok) return await r.json();
-            } catch (e) { }
-            const r2 = await fetch(UPDATE_URL_PA + '?t=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
-            if (!r2.ok) throw new Error('sin respuesta');
-            return await r2.json();
+            const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
+            if (!r.ok) throw new Error('sin respuesta');
+            return await r.json();
         }
 
         async function buscarActualizacion() {
@@ -3679,19 +3674,9 @@
                     return nombre + ': ' + (r.ok ? 'OK (' + (Date.now() - t0) + 'ms)' : 'ERROR ' + r.status);
                 } catch (e) { return nombre + ': SIN RESPUESTA'; }
             };
-            const [gh, pa] = await Promise.all([
-                ping('GitHub (versiones)', UPDATE_URL),
-                (async () => {
-                    const t0 = Date.now();
-                    try {
-                        const r = await fetch('https://kenth1977.pythonanywhere.com/?t=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
-                        if (r.status < 500) return 'PythonAnywhere (nube): EN LÍNEA (' + (Date.now() - t0) + 'ms)';
-                        return 'PythonAnywhere (nube): EN LÍNEA pero la app devuelve error ' + r.status;
-                    } catch (e) { return 'PythonAnywhere (nube): SIN RESPUESTA'; }
-                })()
-            ]);
-            const todoOk = !gh.includes('SIN RESPUESTA') && !gh.includes('ERROR') && !pa.includes('SIN RESPUESTA');
-            msg.innerHTML = gh + '<br>' + pa + (todoOk ? '<br><b>Canal de actualizaciones operativo</b>' : '<br><b>Revisar la conexión que falla</b>');
+            const gh = await ping('GitHub (versiones)', UPDATE_URL);
+            const todoOk = !gh.includes('SIN RESPUESTA') && !gh.includes('ERROR');
+            msg.innerHTML = gh + (todoOk ? '<br><b>Canal de actualizaciones operativo</b>' : '<br><b>Sin conexión con GitHub</b>');
             msg.className = 'small mb-2 ' + (todoOk ? 'text-success' : 'text-warning');
         }
 
