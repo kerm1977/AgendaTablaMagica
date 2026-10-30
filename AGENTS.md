@@ -11,6 +11,17 @@
 **Excepción ya aplicada por orden explícita:** el título del header pasó de
 "Gestión de Pagos JyK" a "Gestión de Pagos" (h4, font-size 1.5rem) — solo ese texto/tamaño.
 
+## ⛔ BLINDADO — BUSCADOR DE CAMINANTES (sagrado, nunca tocar)
+
+- Autocompletado `#cam-usu-nombre` + `#suggestions-list` en
+  `js/listas/caminata-fechas.js` — busca en `personasGlobales` +
+  `directorioPersonas`, filtra desde la 1ra letra, prioriza los que
+  empiezan por el criterio, marca "ya está en la lista" deshabilitado.
+- Buscador `#multi-caminantes-buscar` + `renderMultiSelectCaminantes`
+  en `js/listas/caminante-modal.js` — mismo comportamiento en el
+  multi-select.
+- PROHIBIDO modificar cualquiera de los dos sin orden explícita del usuario.
+
 ## ⛔ BLINDADO — SISTEMA DE ACTUALIZACIÓN (sagrado, nunca tocar)
 
 - `js/update.js` — sistema completo de actualización (version.json en GitHub,
