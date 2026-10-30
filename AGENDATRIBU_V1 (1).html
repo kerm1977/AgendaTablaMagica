@@ -3612,7 +3612,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-6';
+        const APP_VERSION = '2026.10.30-7';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -3707,6 +3707,29 @@ Descargada: ${cuando}`,
 
         function descargarActualizacion() {
             if (!updateInfo || !updateInfo.apk) return;
+            const msg = document.getElementById('app-version-msg');
+            // Ruta nativa APK: descarga en background, sin ventana del navegador
+            if (window.TribuUpdate && typeof TribuUpdate.descargar === 'function') {
+                window.tribuUpdateProgreso = function (pct) {
+                    msg.innerHTML = pct >= 0 ? 'Descargando actualización… <b>' + pct + '%</b>' : 'Descargando actualización…';
+                    msg.className = 'small mb-2 text-primary';
+                };
+                window.tribuUpdateListo = function () {
+                    msg.innerHTML = '<b>Descarga completa — abriendo instalador…</b>';
+                    msg.className = 'small mb-2 text-success fw-bold';
+                    TribuUpdate.instalar();
+                };
+                window.tribuUpdateError = function (err) {
+                    msg.innerHTML = 'Error en descarga (' + (err || '?') + ') — reintentando por navegador…';
+                    msg.className = 'small mb-2 text-danger';
+                    window.TribuUpdate = null;
+                    setTimeout(descargarActualizacion, 800);
+                };
+                msg.innerHTML = 'Descargando actualización…';
+                msg.className = 'small mb-2 text-primary';
+                TribuUpdate.descargar(updateInfo.apk);
+                return;
+            }
             try { localforage.setItem('update_instalada_pendiente', { version: updateInfo.version, cambios: updateInfo.cambios || '', fecha: new Date().toISOString() }); } catch (e) { }
             const a = document.createElement('a');
             a.href = updateInfo.apk + '?v=' + Date.now();
