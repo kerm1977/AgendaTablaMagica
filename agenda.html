@@ -3617,13 +3617,19 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-12';
+        const APP_VERSION = '2026.10.30-13';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
+        function fetchConTimeout(url, ms) {
+            return Promise.race([
+                fetch(url, { cache: 'no-store' }),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+            ]);
+        }
         async function consultarVersion() {
-            const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
-            if (!r.ok) throw new Error('sin respuesta');
+            const r = await fetchConTimeout(UPDATE_URL + '?t=' + Date.now(), 12000);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
             return await r.json();
         }
 
@@ -3647,7 +3653,7 @@
                     msg.textContent = 'La app está actualizada (v' + APP_VERSION + ')'; msg.className = 'small mb-2 text-muted';
                 }
             } catch (e) {
-                msg.textContent = 'No se pudo consultar (sin internet o GitHub caído)'; msg.className = 'small mb-2 text-danger';
+                msg.textContent = 'Error al consultar: ' + (e && e.message ? e.message : e); msg.className = 'small mb-2 text-danger';
             }
         }
 

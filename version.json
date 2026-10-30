@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-12",
+  "version": "2026.10.30-13",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Directorio: analizador anti-duplicados (directorio + pasajeros de listas)"
+  "cambios": "Búsqueda de actualización robusta — fetch compatible + error visible"
 }
