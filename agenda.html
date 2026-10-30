@@ -3616,7 +3616,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-9';
+        const APP_VERSION = '2026.10.30-11';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -3713,42 +3713,6 @@ Descargada: ${cuando}`,
             if (!updateInfo || !updateInfo.apk) return;
             const msg = document.getElementById('app-version-msg');
             // Ruta nativa APK: descarga en background, sin ventana del navegador
-            const updLog = (t) => {
-                const c = document.getElementById('update-consola');
-                c.classList.remove('d-none');
-                const h = new Date().toLocaleTimeString();
-                c.innerHTML += '<div>[' + h + '] ' + t + '</div>';
-                c.scrollTop = c.scrollHeight;
-            };
-            if (window.TribuUpdate && typeof TribuUpdate.descargar === 'function') {
-                updLog('canal nativo listo — iniciando descarga');
-                window.tribuUpdateProgreso = function (pct) {
-                    const wrap = document.getElementById('update-bar-wrap');
-                    const bar = document.getElementById('update-bar');
-                    wrap.classList.remove('d-none');
-                    if (pct >= 0) { bar.style.width = pct + '%'; bar.textContent = pct + '%'; }
-                    msg.innerHTML = pct >= 0 ? 'Descargando actualización… <b>' + pct + '%</b>' : 'Descargando actualización…';
-                    msg.className = 'small mb-2 text-primary';
-                };
-                window.tribuUpdateLog = function (t) { updLog(t); };
-                window.tribuUpdateListo = function () {
-                    updLog('descarga verificada — lanzando instalador del sistema');
-                    msg.innerHTML = '<b>Descarga completa — abriendo instalador…</b>';
-                    msg.className = 'small mb-2 text-success fw-bold';
-                    TribuUpdate.instalar();
-                };
-                window.tribuUpdateError = function (err) {
-                    updLog('ERROR: ' + (err || '?') + ' — fallback navegador');
-                    msg.innerHTML = 'Error en descarga (' + (err || '?') + ') — reintentando por navegador…';
-                    msg.className = 'small mb-2 text-danger';
-                    window.TribuUpdate = null;
-                    setTimeout(descargarActualizacion, 800);
-                };
-                msg.innerHTML = 'Descargando actualización…';
-                msg.className = 'small mb-2 text-primary';
-                TribuUpdate.descargar(updateInfo.apk);
-                return;
-            }
             try { localforage.setItem('update_instalada_pendiente', { version: updateInfo.version, cambios: updateInfo.cambios || '', fecha: new Date().toISOString() }); } catch (e) { }
             const a = document.createElement('a');
             a.href = updateInfo.apk + '?v=' + Date.now();
