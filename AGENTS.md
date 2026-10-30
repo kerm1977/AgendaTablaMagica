@@ -1,5 +1,23 @@
 # REGLAS DEL PROYECTO — Agenda Tribu
 
+## 📜 PROTOCOLO DE MODIFICACIÓN (ley suprema)
+
+1. ANTES de tocar cualquier archivo, leer estas reglas completas.
+2. Si el usuario pide modificar algo listado como BLINDADO → pedir
+   autorización explícita ANTES de editar — nunca asumir permiso.
+3. Solo se modifica un archivo blindado cuando el usuario lo ordena
+   en palabras concretas, y solo la parte ordenada.
+4. Todo lo demás puede trabajarse con autonomía normal.
+
+## Inventario de blindados (resumen — detalles abajo)
+
+- `divisas.html` · `TABLAMÁGICA_V1.html` · `tablamagica.html` · `js/tablamagica/*`
+- `js/update.js` + manifest sin REQUEST_INSTALL_PACKAGES + TribuUpdateBridge + tarjeta de actualización
+- Buscador de caminantes (autocompletado + multi-select) en `js/listas/caminata-fechas.js` y `js/listas/caminante-modal.js`
+- Chat/compartir/consola (sección propia abajo)
+- Parámetros de la agenda: calendario, header, navigate, barra, facturas, guardar caminata, persistencia
+
+
 ## ⛔ ARCHIVOS BLINDADOS — PROHIBIDO MODIFICAR
 
 **Orden explícita y directa del usuario (permanente):**
