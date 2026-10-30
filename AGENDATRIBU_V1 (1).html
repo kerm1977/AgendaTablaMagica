@@ -3637,6 +3637,34 @@
             }
         }
 
+        async function verificarActualizacionAutomatica() {
+            try {
+                if (!navigator.onLine) return;
+                const r = await fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (!r.ok) return;
+                const j = await r.json();
+                if (!j.version || j.version === APP_VERSION) return;
+                const saltada = await localforage.getItem('update_skip_version');
+                if (saltada === j.version) return;
+                updateInfo = j;
+                showConfirm(
+                    'Nueva actualización disponible',
+                    `Versión instalada: ${APP_VERSION}
+Nueva versión: ${j.version}${j.cambios ? '
+' + j.cambios : ''}
+
+¿Descargar e instalar ahora?`,
+                    () => descargarActualizacion(),
+                    'Sí, actualizar',
+                    'btn-success'
+                );
+                try {
+                    const btnCancel = document.querySelector('#modalConfirm .btn-secondary, #modalConfirm [data-bs-dismiss]');
+                    if (btnCancel) btnCancel.addEventListener('click', () => localforage.setItem('update_skip_version', j.version), { once: true });
+                } catch (e) { }
+            } catch (e) { }
+        }
+
         function descargarActualizacion() {
             if (!updateInfo || !updateInfo.apk) return;
             const a = document.createElement('a');
@@ -3652,6 +3680,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             try { if (typeof respaldoAutomaticoAlAbrir === 'function') setTimeout(respaldoAutomaticoAlAbrir, 8000); } catch (e) { }
             try { const v = document.getElementById('app-version-actual'); if (v) v.textContent = APP_VERSION; } catch (e) { }
+            try { setTimeout(verificarActualizacionAutomatica, 12000); } catch (e) { }
             // Inicializar instancias de modales
             modalCaminante = new bootstrap.Modal(document.getElementById('modalCaminante'));
             modalCalendario = new bootstrap.Modal(document.getElementById('modalCalendario'));
