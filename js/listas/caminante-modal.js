@@ -105,6 +105,8 @@
         }
 
 
+        function _normNombre(v) { return String(v || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+
         function renderMultiSelectCaminantes() {
             const cont = document.getElementById('multi-caminantes-lista');
             const buscar = document.getElementById('multi-caminantes-buscar');

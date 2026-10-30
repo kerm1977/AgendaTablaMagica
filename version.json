@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-19",
+  "version": "2026.10.30-20",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Tabla Mágica: header bajado bajo la barra de estado de Android (safe-area)"
+  "cambios": "Buscador de caminantes: filtra en vivo, marca \"ya está en la lista\", prioriza los que empiezan por la letra"
 }
