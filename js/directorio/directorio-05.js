@@ -11,6 +11,44 @@
             renderDirectorioList(f.filterText, f.filterTipo, f.filterPais, pagina);
         }
 
+        function normClave(v) { return String(v || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+
+        async function analizarDuplicados() {
+            // 1) directorio: dedup por nombre normalizado, luego por telefono/cedula/correo si existen
+            const vistos = new Set();
+            const antes = directorioPersonas.length;
+            directorioPersonas = directorioPersonas.filter(p => {
+                const claves = [
+                    'n:' + normClave(p.nombre),
+                    p.telefono ? 't:' + normClave(p.telefono) : null,
+                    p.cedula ? 'c:' + normClave(p.cedula) : null,
+                    p.correo ? 'e:' + normClave(p.correo) : null
+                ].filter(Boolean);
+                if (claves.some(k => vistos.has(k))) return false;
+                claves.forEach(k => vistos.add(k));
+                return true;
+            });
+            const quitadosDir = antes - directorioPersonas.length;
+            // 2) pasajeros de cada caminata: dedup por nombre
+            let quitadosCam = 0;
+            (caminatas || []).forEach(c => {
+                if (!Array.isArray(c.pasajeros)) return;
+                const v = new Set();
+                const n0 = c.pasajeros.length;
+                c.pasajeros = c.pasajeros.filter(p => {
+                    const k = normClave(p.nombre);
+                    if (!k || v.has(k)) return false;
+                    v.add(k);
+                    return true;
+                });
+                quitadosCam += n0 - c.pasajeros.length;
+            });
+            await saveData();
+            renderDirectorioList();
+            if (typeof renderListas === 'function') renderListas();
+            showToast(`Anti-duplicados: ${quitadosDir} del directorio + ${quitadosCam} de listas eliminados`, quitadosDir + quitadosCam ? 'success' : 'info');
+        }
+
         function renderMasSolicitados() {
             const cont = document.getElementById('lista-directorio');
             if (!cont) return;

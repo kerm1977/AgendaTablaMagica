@@ -1540,6 +1540,7 @@
             <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap mb-3">
                 <button type="button" class="btn btn-warning btn-sm" onclick="buscarSimilitudesDuplicados()" title="Buscar similitudes y duplicados"><i class="fas fa-code-branch"></i></button>
                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportarDirectorioJSON()" title="Exportar directorio"><i class="fas fa-file-export"></i></button>
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="analizarDuplicados()" title="Eliminar duplicados del directorio y las listas"><i class="fas fa-broom"></i></button>
                 <button type="button" class="btn btn-outline-dark btn-sm" onclick="exportarDirectorioVCard()" title="Respaldo VCard (.vcf) para importar en contactos del teléfono"><i class="fas fa-address-book"></i> VCard</button>
                 <!-- NO MODIFICAR: Botón exportar directorio a TXT -->
                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportarDirectorioTXT()" title="Exportar directorio a TXT"><i class="fas fa-file-alt"></i> TXT</button>
@@ -3616,7 +3617,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-11';
+        const APP_VERSION = '2026.10.30-12';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
