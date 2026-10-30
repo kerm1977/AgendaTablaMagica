@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-16",
+  "version": "2026.10.30-17",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Ajustes · Base de datos: botón \"Analizar y eliminar duplicados\" — prueba descarga en fondo"
+  "cambios": "Fallback de descarga sin navegar a la ventana de github"
 }

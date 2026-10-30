@@ -2,7 +2,7 @@
  * GitHub version.json + DownloadManager del sistema.
  * NO TOCAR sin orden explícita del usuario. */
 
-        const APP_VERSION = '2026.10.30-16';
+        const APP_VERSION = '2026.10.30-17';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -109,9 +109,7 @@ Descargada: ${cuando}`,
             const a = document.createElement('a');
             a.href = updateInfo.apk + '?v=' + Date.now();
             a.download = 'agendatribu-update.apk';
-            a.target = '_blank';
             document.body.appendChild(a); a.click(); a.remove();
-            setTimeout(() => { location.href = a.href; }, 800);
             msg.innerHTML = 'Descargando… Cuando termine, tocá la notificación de descarga e instalá — <b>se actualiza encima, no hace falta desinstalar</b>.';
         }
 
