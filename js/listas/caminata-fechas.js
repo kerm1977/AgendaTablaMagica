@@ -84,22 +84,37 @@
             }
             input.value = words.join(' ');
 
-            // Autocompletado (Buscar en base global)
-            const query = input.value.toLowerCase().trim();
+            // Autocompletado (Buscar en base global + directorio)
+            const query = input.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
             const suggList = document.getElementById('suggestions-list');
-            
-            if (query.length > 1) {
-                const matches = personasGlobales.filter(p => p.toLowerCase().includes(query) && p !== input.value);
+            const normN = n => String(n || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            if (query.length >= 1) {
+                const cam = caminatas.find(c => c.id === currentCaminataId);
+                const enLista = new Set((cam && cam.pasajeros ? cam.pasajeros.map(p => normN(p.nombre)) : []));
+                const base = new Set(personasGlobales.filter(Boolean));
+                directorioPersonas.forEach(p => { if (p && p.nombre) base.add(p.nombre); });
+                const matches = Array.from(base)
+                    .filter(n => normN(n).includes(query) && n !== input.value)
+                    .sort((a, b) => {
+                        const aI = normN(a).startsWith(query) ? 0 : 1;
+                        const bI = normN(b).startsWith(query) ? 0 : 1;
+                        return aI - bI || a.localeCompare(b);
+                    });
                 suggList.innerHTML = '';
-                if(matches.length > 0) {
-                    matches.slice(0, 5).forEach(match => { // max 5
+                if (matches.length > 0) {
+                    matches.slice(0, 8).forEach(match => {
+                        const ya = enLista.has(normN(match));
                         const li = document.createElement('li');
-                        li.className = 'list-group-item list-group-item-action py-2 px-3 small';
-                        li.innerText = match;
-                        li.onclick = () => {
-                            input.value = match;
-                            suggList.style.display = 'none';
-                        };
+                        li.className = 'list-group-item list-group-item-action py-2 px-3 small' + (ya ? ' text-muted' : '');
+                        li.innerHTML = ya ? escapeHtml(match) + ' <span class="badge bg-secondary ms-1">ya está en la lista</span>' : escapeHtml(match);
+                        if (!ya) {
+                            li.onclick = () => {
+                                input.value = match;
+                                suggList.style.display = 'none';
+                            };
+                        } else {
+                            li.style.cursor = 'default';
+                        }
                         suggList.appendChild(li);
                     });
                     suggList.style.display = 'block';
