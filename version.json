@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-2",
+  "version": "2026.10.30-3",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Tabs TM altos y cuadrados · boton guardar alineado · update cada hora + modal post-update"
+  "cambios": "Header TM centrado + fix de sintaxis"
 }

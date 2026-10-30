@@ -39,7 +39,7 @@
             height: 60px; display: flex; align-items: center;
             justify-content: center; padding: 0 15px; text-align: center;
         }
-        .app-header h5 { width: 100%; margin: 0; font-weight: bold; }
+        .app-header h5, .app-header h4 { width: 100%; margin: 0; font-weight: bold; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
