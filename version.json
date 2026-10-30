@@ -1,6 +1,6 @@
 {
   "app": "AgendaTribu",
-  "version": "2026.10.30-18",
+  "version": "2026.10.30-19",
   "apk": "https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/versiones/agendatribu.apk",
-  "cambios": "Descarga silenciosa restaurada (HttpURLConnection + instalador directo)"
+  "cambios": "Tabla Mágica: header bajado bajo la barra de estado de Android (safe-area)"
 }
