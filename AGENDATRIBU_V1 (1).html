@@ -3612,7 +3612,7 @@
         let cotizacionesGuardadas = [];
 
         // --- INITIALIZATION ---
-        const APP_VERSION = '2026.10.30-7';
+        const APP_VERSION = '2026.10.30-8';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
@@ -3737,7 +3737,6 @@ Descargada: ${cuando}`,
             a.target = '_blank';
             document.body.appendChild(a); a.click(); a.remove();
             setTimeout(() => { location.href = a.href; }, 800);
-            const msg = document.getElementById('app-version-msg');
             msg.innerHTML = 'Descargando… Cuando termine, tocá la notificación de descarga e instalá — <b>se actualiza encima, no hace falta desinstalar</b>.';
         }
 
