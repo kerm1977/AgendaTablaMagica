@@ -2,7 +2,7 @@
  * GitHub version.json + DownloadManager del sistema.
  * NO TOCAR sin orden explícita del usuario. */
 
-        const APP_VERSION = '2026.10.30-21';
+        const APP_VERSION = '2026.10.30-22';
         const UPDATE_URL = 'https://raw.githubusercontent.com/kerm1977/AgendaTablaMagica/main/version.json';
         let updateInfo = null;
 
