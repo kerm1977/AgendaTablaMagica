@@ -3649,11 +3649,7 @@
                 updateInfo = j;
                 showConfirm(
                     'Nueva actualización disponible',
-                    `Versión instalada: ${APP_VERSION}
-Nueva versión: ${j.version}${j.cambios ? '
-' + j.cambios : ''}
-
-¿Descargar e instalar ahora?`,
+                    ('Versión instalada: ' + APP_VERSION + String.fromCharCode(10) + 'Nueva versión: ' + j.version + (j.cambios ? String.fromCharCode(10) + j.cambios : '') + String.fromCharCode(10,10) + '¿Descargar e instalar ahora?'),
                     () => descargarActualizacion(),
                     'Sí, actualizar',
                     'btn-success'
