@@ -3674,9 +3674,16 @@
             };
             const [gh, pa] = await Promise.all([
                 ping('GitHub (versiones)', UPDATE_URL),
-                ping('PythonAnywhere (nube)', 'https://kenth1977.pythonanywhere.com/ping')
+                (async () => {
+                    const t0 = Date.now();
+                    try {
+                        const r = await fetch('https://kenth1977.pythonanywhere.com/?t=' + Date.now(), { cache: 'no-store', signal: AbortSignal.timeout(12000) });
+                        if (r.status < 500) return 'PythonAnywhere (nube): EN LÍNEA (' + (Date.now() - t0) + 'ms)';
+                        return 'PythonAnywhere (nube): EN LÍNEA pero la app devuelve error ' + r.status;
+                    } catch (e) { return 'PythonAnywhere (nube): SIN RESPUESTA'; }
+                })()
             ]);
-            const todoOk = !gh.includes('SIN RESPUESTA') && !gh.includes('ERROR') && !pa.includes('SIN RESPUESTA') && !pa.includes('ERROR');
+            const todoOk = !gh.includes('SIN RESPUESTA') && !gh.includes('ERROR') && !pa.includes('SIN RESPUESTA');
             msg.innerHTML = gh + '<br>' + pa + (todoOk ? '<br><b>Canal de actualizaciones operativo</b>' : '<br><b>Revisar la conexión que falla</b>');
             msg.className = 'small mb-2 ' + (todoOk ? 'text-success' : 'text-warning');
         }
