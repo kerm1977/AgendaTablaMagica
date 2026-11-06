@@ -128,6 +128,8 @@
 
         function toggleActividadCaminata() {
             const actividad = document.getElementById('cam-actividad').value;
+            const listaWrap = document.getElementById('cam-lista-etapas-wrap');
+            if (listaWrap) listaWrap.classList.toggle('d-none', actividad !== 'El Camino de Costa Rica');
             const etapaContainer = document.getElementById('cam-etapa-container');
             const parqueContainer = document.getElementById('cam-parque-container');
             const nombreContainer = document.getElementById('cam-nombre-container');

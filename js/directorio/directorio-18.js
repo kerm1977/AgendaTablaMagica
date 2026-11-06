@@ -119,29 +119,45 @@
             } catch (e) { if (e && e.name !== 'AbortError') showToast('No se pudo enviar el respaldo: ' + e.message, 'danger'); }
         }
 
+        function _elog(m) {
+            try {
+                if (window.TribuOTA && window.TribuOTA.log)
+                    window.TribuOTA.log('[Export] ' + m);
+            } catch (e) {}
+        }
+
         async function exportData() {
-            const dataToExport = await obtenerRespaldoCompleto();
+            _elog('exportData iniciado');
+            try {
+                const dataToExport = await obtenerRespaldoCompleto();
+                _elog('respaldo completo obtenido');
+                const content = JSON.stringify(dataToExport, null, 2);
+                await localforage.setItem('respaldo_integral_ultimo_json', content);
+                const dateStr = hoyStrCR();
+                const fileName = `Respaldo_Caminatas_${dateStr}_${Date.now()}.json`;
 
-            const content = JSON.stringify(dataToExport, null, 2);
-            await localforage.setItem('respaldo_integral_ultimo_json', content);
-            const dateStr = hoyStrCR();
-            const fileName = `Respaldo_Caminatas_${dateStr}_${Date.now()}.json`;
-
-            // Guarda en la carpeta "respaldos" si está elegida; si no, descarga normal.
-            if (window.TribuRespaldos) {
-                await TribuRespaldos.guardar(fileName, content);
-                TribuRespaldos.renderPanel();
-                return;
+                // Guarda en la carpeta "respaldos" si está elegida; si falla, descarga normal.
+                if (window.TribuRespaldos) {
+                    try {
+                        await TribuRespaldos.guardar(fileName, content);
+                        TribuRespaldos.renderPanel();
+                        return;
+                    } catch (e) { console.error('guardar en carpeta falló, descargando:', e); }
+                }
+                const blob = new Blob([content], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } catch (e) {
+                _elog('exportData FALLÓ: ' + (e && e.message || e));
+                console.error('exportData:', e);
+                showToast('Export JSON falló: ' + (e && e.message || e), 'danger');
             }
-            const blob = new Blob([content], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
 
@@ -156,6 +172,7 @@
 
 
         async function exportDataWhatsApp() {
+            _elog('exportDataWhatsApp iniciado');
             const dataToExport = await obtenerRespaldoCompleto();
 
             const content = JSON.stringify(dataToExport, null, 2);

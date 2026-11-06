@@ -202,10 +202,46 @@
         }
 
 
-        function guardarOracionTribu() {
+        // el texto solo se edita tocando el lápiz — sin él es de solo lectura
+        function toggleEditarOracion(btn) {
+            const c = document.getElementById('oracion-contenido');
+            if (!c) return;
+            const on = c.contentEditable !== 'true';
+            c.contentEditable = on ? 'true' : 'false';
+            if (btn) btn.classList.toggle('btn-warning', on);
+            if (on) c.focus();
+        }
+
+        async function guardarOracionTribu() {
             const contenedor = document.getElementById('oracion-contenido');
             if (contenedor) {
                 localStorage.setItem('tribu_oracion', contenedor.innerText);
+                try { await localforage.setItem('app_oracion_tribu', contenedor.innerText); } catch (e) {}
+            }
+            poblarOracionAcordeon();
+        }
+
+        // texto completo visible dentro del acordeón (sin abrir el modal)
+        function poblarOracionAcordeon() {
+            const el = document.getElementById('oracion-texto-acordeon');
+            if (el) {
+                el.innerText = localStorage.getItem('tribu_oracion') || ORACION_TRIBU;
+                el.style.fontSize = tamanioOracion + 'rem';
             }
         }
+        (function () {
+            const acc = document.getElementById('acc-oracion');
+            if (acc) acc.addEventListener('shown.bs.collapse', poblarOracionAcordeon);
+            poblarOracionAcordeon();
+            // localforage solo DESPUÉS de load — usarlo antes rompe el config()
+            // de la app y vacía la capa de datos (causa de la pérdida de datos)
+            window.addEventListener('load', function () {
+                try {
+                    localforage.getItem('app_oracion_tribu').then(function (v) {
+                        if (v) localStorage.setItem('tribu_oracion', v);
+                        poblarOracionAcordeon();
+                    });
+                } catch (e) {}
+            });
+        })();
 

@@ -82,10 +82,9 @@
                 fab.style.boxShadow = 'none';
                 renderHome();
             } else if (viewName === 'caminata') {
-                fab.style.display = 'flex';
-                fab.innerHTML = '<i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i>';
-                fab.onclick = openWhatsAppPreview;
-                updateFabState();
+                // FAB WhatsApp redondo ELIMINADO por orden del usuario —
+                // la vista previa se abre desde el botón cuadrado de arriba
+                fab.style.display = 'none';
             } else if (viewName === 'precios') {
                 fab.style.display = 'flex';
                 fab.innerHTML = '<i class="fas fa-plus"></i>';

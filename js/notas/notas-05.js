@@ -4,12 +4,17 @@
             tamanioOracion = Math.max(0.8, Math.min(3.0, tamanioOracion + delta));
             const contenedor = document.getElementById('oracion-contenido');
             if (contenedor) contenedor.style.fontSize = tamanioOracion + 'rem';
+            const acordeon = document.getElementById('oracion-texto-acordeon');
+            if (acordeon) acordeon.style.fontSize = tamanioOracion + 'rem';
         }
 
 
         function compartirOracionWhatsApp() {
             const contenedor = document.getElementById('oracion-contenido');
-            const texto = contenedor ? contenedor.innerText : ORACION_TRIBU;
+            const acordeon = document.getElementById('oracion-texto-acordeon');
+            const texto = (contenedor && contenedor.innerText.trim()) ? contenedor.innerText
+                : (acordeon && acordeon.innerText.trim()) ? acordeon.innerText
+                : (localStorage.getItem('tribu_oracion') || ORACION_TRIBU);
             window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
         }
 

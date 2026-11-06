@@ -789,15 +789,18 @@
         #calendario-pais {
             transition: all .2s;
         }
-            /* calendario-fab-lock: el FAB flotante jamás se muestra en la vista calendario */
-            .fab-listas,.fab-dir,.fab-notas,.fab-main{position:fixed;bottom:calc(76px + env(safe-area-inset-bottom, 0px));right:20px;width:56px;height:56px;border-radius:12px;background:var(--primary-color);color:#fff;border:none;z-index:1020;display:none;justify-content:center;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;font-size:20px;line-height:0;padding:0;transition:none;animation:none;}
+            /* FABs "+" reintegrados por orden del usuario: cada uno se
+               muestra solo en su vista (listas, directorio, notas,
+               calendario) via body:has(#view-*.active) */
+            .fab-listas,.fab-dir,.fab-notas,.fab-main,.fab-cal{position:fixed;bottom:calc(76px + env(safe-area-inset-bottom, 0px));right:20px;width:56px;height:56px;border-radius:12px;background:var(--primary-color);color:#fff;border:none;z-index:1020;display:none;justify-content:center;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;font-size:20px;line-height:0;padding:0;transition:none;animation:none;}
             .fab-main{bottom:calc(96px + env(safe-area-inset-bottom, 0px));}
         /* __safe_footer */
         .modal-footer{padding-bottom:calc(1rem + env(safe-area-inset-bottom, 0px)) !important;}
-        body:has(#view-home.active) .fab-listas, body:has(#view-directorio.active) .fab-dir, body:has(#view-notas.active) .fab-notas{display:flex;}
+        body:has(#view-home.active) .fab-listas, body:has(#view-directorio.active) .fab-dir, body:has(#view-notas.active) .fab-notas, body:has(#view-calendario.active) .fab-cal{display:flex;}
     </style>
     <!-- === FIN MÓDULO CSS: ESTILOS GLOBALES === -->
     <link rel="stylesheet" href="css/tipografia-tribu.css?v=3">
+    <link rel="stylesheet" href="css/agenda.css?v=fabfix2">
 </head>
 <body>
 
@@ -843,18 +846,17 @@
     <!-- Modal de Oración de la Tribu -->
     <div class="modal fade" id="modalOracionTribu" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
-            <div class="modal-content p-3">
-                <div class="modal-header border-0 pb-2">
-                    <h5 class="modal-title"><i class="fas fa-praying-hands me-2" style="color: var(--primary-dark)"></i> Oración de la Tribu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pt-0 d-flex flex-column">
+            <div class="modal-content p-3" style="position:relative">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute;right:.75rem;top:calc(.75rem + env(safe-area-inset-top, 24px));z-index:2"></button>
+                <div class="modal-body pt-2 d-flex flex-column">
+                    <div class="modal-title text-center fw-bold" style="font-family:'Gabriola','Palatino Linotype',serif;font-size:2.2rem;color:#6b4e1e">Oración de la Tribu</div>
                     <div class="d-flex justify-content-center gap-2 mb-3">
                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cambiarTamanioOracion(-0.15)" title="Reducir letra"><i class="fas fa-minus"></i></button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cambiarTamanioOracion(0.15)" title="Aumentar letra"><i class="fas fa-plus"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-dark" onclick="toggleEditarOracion(this)" title="Editar oración"><i class="fas fa-pen"></i></button>
                         <button type="button" class="btn btn-sm btn-success" style="background-color: var(--primary-dark);" onclick="compartirOracionWhatsApp()" title="Compartir por WhatsApp"><i class="fab fa-whatsapp me-1"></i> Compartir</button>
                     </div>
-                    <div id="oracion-contenido" class="oracion-texto flex-grow-1 hide-scrollbar" contenteditable="true" oninput="guardarOracionTribu()" style="font-size: 1.25rem; line-height: 1.8; white-space: pre-wrap; overflow-y: auto; padding: 0 1rem; outline: none;"></div>
+                    <div id="oracion-contenido" class="oracion-texto flex-grow-1 hide-scrollbar" contenteditable="false" oninput="guardarOracionTribu()" style="font-size: 1.25rem; line-height: 1.8; white-space: pre-wrap; overflow-y: auto; padding: 0 1rem; outline: none;"></div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
@@ -993,9 +995,12 @@
                                 <select class="form-select" id="cam-etapa" onchange="asignarNombreDesdeEtapa()">
                                     <option value="" selected>Seleccioná una etapa</option>
                                     <option value="Etapa 1A">Etapa 1A</option>
-                                    <option value="Etapas 1A y B">Etapas 1A y B</option>
+                                    <option value="Etapa 1B">Etapa 1B</option>
+                                    <option value="Etapas 1A y 1B">Etapas 1A y 1B</option>
                                     <option value="Etapa 2">Etapa 2</option>
-                                    <option value="Etapa 3 y 4">Etapa 3 y 4</option>
+                                    <option value="Etapa 3">Etapa 3</option>
+                                    <option value="Etapa 4">Etapa 4</option>
+                                    <option value="Etapas 3 y 4">Etapas 3 y 4</option>
                                     <option value="Etapa 5">Etapa 5</option>
                                     <option value="Etapa 6">Etapa 6</option>
                                     <option value="Etapa 7">Etapa 7</option>
@@ -1005,11 +1010,11 @@
                                     <option value="Etapa 11">Etapa 11</option>
                                     <option value="Etapa 12">Etapa 12</option>
                                     <option value="Etapa 13">Etapa 13</option>
-                                    <option value="Etapas 13 y 14">Etapas 13 y 14</option>
-                                    <option value="Etapa 14">Etapa 14</option>
-                                    <option value="Etapa 15">Etapa 15</option>
+                                    <option value="Etapas 14 y 15">Etapas 14 y 15</option>
                                     <option value="Etapa 16 (Final)">Etapa 16 (Final)</option>
                                 </select>
+                                <label class="form-label fw-bold text-muted small mt-2">Nombre de la etapa</label>
+                                <input type="text" class="form-control cam-flat" id="cam-etapa-nombre" placeholder="Se llena al elegir la etapa">
                             </div>
 
                             <div class="mb-3 d-none" id="cam-parque-container">
@@ -1028,7 +1033,7 @@
 
                             <div class="mb-3" id="cam-ubicacion-container">
                                 <label id="cam-ubicacion-label" class="form-label fw-bold text-muted small">Provincia</label>
-                                <select class="form-select" id="cam-provincia" onchange="document.getElementById('cam-pais').value = this.value">
+                                <select class="form-select cam-flat" id="cam-provincia" onchange="document.getElementById('cam-pais').value = this.value">
                                     <option value="">Seleccioná una provincia</option>
                                     <option value="San José">San José</option>
                                     <option value="Cartago">Cartago</option>
@@ -1037,6 +1042,9 @@
                                     <option value="Guanacaste">Guanacaste</option>
                                     <option value="Puntarenas">Puntarenas</option>
                                     <option value="Limón">Limón</option>
+                                    <option value="San José - Puntarenas">San José - Puntarenas</option>
+                                    <option value="Limón - Cartago">Limón - Cartago</option>
+                                    <option value="Cartago - San José">Cartago - San José</option>
                                 </select>
                                 <select class="form-select d-none" id="cam-pais" onchange="document.getElementById('cam-provincia').value = this.value; togglePaisCaminata();">
                                     <option value="">Seleccioná un país</option>
@@ -1053,25 +1061,37 @@
                                     <option value="Colombia">Colombia</option>
                                     <option value="Ecuador">Ecuador</option>
                                     <option value="Argentina">Argentina</option>
+                                    <option value="Costa Rica">Costa Rica</option>
+                                    <option value="Chile">Chile</option>
                                 </select>
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-6">
                                     <label class="form-label fw-bold text-muted small">Dificultad</label>
-                                    <select class="form-select" id="cam-dificultad">
+                                    <select class="form-select cam-flat" id="cam-dificultad">
                                         <option value="">Seleccioná dificultad</option>
                                         <option value="Fácil">Fácil</option>
+                                        <option value="Fácil-Moderada">Fácil-Moderada</option>
                                         <option value="Moderada">Moderada</option>
+                                        <option value="Moderada-Difícil">Moderada-Difícil</option>
                                         <option value="Difícil">Difícil</option>
+                                        <option value="Difícil-Muy difícil">Difícil-Muy difícil</option>
                                         <option value="Muy difícil">Muy difícil</option>
+                                        <option value="Muy difícil-Extrema">Muy difícil-Extrema</option>
                                         <option value="Extrema">Extrema</option>
                                     </select>
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label fw-bold text-muted small">Kilómetros</label>
-                                    <input type="number" class="form-control" id="cam-kilometros" placeholder="Ej: 12.5" step="0.1" inputmode="decimal" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')">
+                                    <input type="number" class="form-control cam-flat" id="cam-kilometros" placeholder="Ej: 12.5" step="0.1" inputmode="decimal" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')">
                                 </div>
+                            </div>
+
+                            <div class="mb-3 d-none" id="cam-lista-etapas-wrap">
+                                <button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="mostrarListaCamino()">
+                                    <i class="fas fa-list-ol me-1"></i> Mostrar lista del Camino de Costa Rica
+                                </button>
                             </div>
 
                                     </div>
@@ -1346,6 +1366,20 @@
                                 <div class="col-6 col-md-3"><input type="checkbox" id="inc20" name="incluye" value="TaxiUberOtro" class="me-1 d-none"><label for="inc20" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Taxi/Uber/Otro</label></div>
                                 <div class="col-6 col-md-3"><input type="checkbox" id="inc21" name="incluye" value="Acarreo" class="me-1 d-none"><label for="inc21" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Acarreo</label></div>
                                 <div class="col-6 col-md-3"><input type="checkbox" id="inc22" name="incluye" value="GuiasCertificados" class="me-1 d-none"><label for="inc22" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Guías Certif.</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc23" name="incluye" value="AirBnB" class="me-1 d-none"><label for="inc23" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">AirBnB</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc24" name="incluye" value="Agencia de Viajes" class="me-1 d-none"><label for="inc24" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Agencia de Viajes</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc25" name="incluye" value="Tour Operadora" class="me-1 d-none"><label for="inc25" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Tour Operadora</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc26" name="incluye" value="Puntos" class="me-1 d-none"><label for="inc26" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Puntos</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc27" name="incluye" value="Fiesta" class="me-1 d-none"><label for="inc27" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Fiesta</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc28" name="incluye" value="Lanchas" class="me-1 d-none"><label for="inc28" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Lanchas</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc29" name="incluye" value="Aéreo" class="me-1 d-none"><label for="inc29" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Aéreo</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc30" name="incluye" value="Guía" class="me-1 d-none"><label for="inc30" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Guía</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc31" name="incluye" value="4x4" class="me-1 d-none"><label for="inc31" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">4x4</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc32" name="incluye" value="Camping" class="me-1 d-none"><label for="inc32" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Camping</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc33" name="incluye" value="Scouting" class="me-1 d-none"><label for="inc33" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Scouting</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc34" name="incluye" value="Uber/Didi/Taxi" class="me-1 d-none"><label for="inc34" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Uber/Didi/Taxi</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc35" name="incluye" value="Bus" class="me-1 d-none"><label for="inc35" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Bus</label></div>
+                                <div class="col-6 col-md-3"><input type="checkbox" id="inc36" name="incluye" value="Donación" class="me-1 d-none"><label for="inc36" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Donación</label></div>
                                 <div class="col-6 col-md-3"><input type="checkbox" id="checkOtros" name="incluye" value="Otros" class="me-1 d-none" onchange="toggleOtherDesc()"><label for="checkOtros" class="border rounded px-2 py-1 d-block text-center mb-0" style="cursor:pointer">Otros</label></div>
                             </div>
 
@@ -1512,18 +1546,22 @@
                             </div>
                         </div>
                     </div>
+
+                    <button type="button" class="btn btn-success" id="btn-wa-lista-flotante" style="position:fixed;bottom:calc(76px + env(safe-area-inset-bottom,0px));right:16px;z-index:1050;background-color:#25D366;border-color:#25D366;box-shadow:0 4px 14px rgba(0,0,0,.35);border-radius:10px;font-weight:600;padding:12px 20px;font-size:1.05rem;" onclick="openWhatsAppPreview()">
+                        <i class="fab fa-whatsapp me-1"></i> Enviar lista
+                    </button>
                 </div>
             </div>
             
-            <!-- Espacio extra al final para que el FAB no tape contenido -->
-            <div style="height: 60px;"></div> 
+            <!-- Espacio extra al final para que el botón flotante no tape contenido -->
+            <div style="height: 90px;"></div> 
         </div>
 
         <!-- VIEW: Directorio Global -->
         <div id="view-directorio" class="view-section">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h4 class="mb-0" id="titulo-view-directorio">Directorio Global <button type="button" class="btn btn-light btn-sm ms-1" disabled id="directorio-total">0 usuarios</button></h4>
-                <button type="button" class="btn btn-primary btn-sm" style="background-color: var(--primary-dark);" onclick="openAgregarDirectorioModal()" title="Agregar contacto"><i class="fas fa-plus"></i> Agregar contacto</button>
+                <button type="button" class="btn btn-primary btn-sm ms-auto" style="background-color: var(--primary-dark);" onclick="openAgregarDirectorioModal()" title="Agregar contacto"><i class="fas fa-plus"></i> Agregar contacto</button>
             </div>
             <div class="mb-3" style="position: relative;">
                 <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 2;"><i class="fas fa-search"></i></span>
@@ -1614,10 +1652,16 @@
 
         <!-- VIEW: Configuración / Data Management -->
         <div id="view-settings" class="view-section">
-            <h4 class="mb-4">Configuración y Respaldo</h4>
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-2"><i class="fas fa-cloud-download-alt text-primary"></i> Actualización de la app ⚡</h6>
+            <h4 class="mb-4 text-center">Configuración y Respaldo</h4>
+            <div class="accordion mb-3" id="ajustes-accordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc-actualizacion">
+                            <i class="fas fa-cloud-download-alt text-primary me-2"></i> Actualización de la app ⚡
+                        </button>
+                    </h2>
+                    <div id="acc-actualizacion" class="accordion-collapse collapse" data-bs-parent="#ajustes-accordion">
+                        <div class="accordion-body">
                     <div class="small text-muted mb-2">Versión instalada: <b id="app-version-actual">…</b></div>
                     <div class="small mb-2" id="app-version-msg"></div>
                     <div class="progress mb-2 d-none" id="update-bar-wrap" style="height:14px;border-radius:8px;overflow:hidden;background:#eee">
@@ -1627,11 +1671,21 @@
                     <div class="d-grid gap-2">
                         <button class="btn btn-outline-primary btn-sm" onclick="buscarActualizacion()"><i class="fas fa-sync-alt"></i> Buscar actualización ⚡</button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="probarConexionesUpdate()"><i class="fas fa-satellite-dish"></i> Probar conexión (GitHub)</button>
+                        <button class="btn btn-outline-info btn-sm" onclick="TribuOTA.ping()"><i class="fas fa-wifi"></i> Ping OTA 📡</button>
+                        <button class="btn btn-outline-dark btn-sm" onclick="document.getElementById('ota-console-wrap').classList.toggle('d-none')"><i class="fas fa-terminal"></i> Consola OTA 🖥</button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="TribuOTA.inspect()"><i class="fas fa-search"></i> Identificar elemento 🔍</button>
+                    </div>
+
+                    <!-- Consola del actualizador OTA — se expande con el botón -->
+                    <div class="mt-3 d-none" id="ota-console-wrap">
+                        <div class="small fw-bold mb-1"><i class="fas fa-terminal text-primary me-1"></i> Consola del actualizador OTA</div>
+                        <pre id="ota-console" style="background:#111;color:#7dff9b;border:1px solid #333;border-radius:8px;padding:6px 8px;max-height:180px;overflow-y:auto;font-family:monospace;font-size:.66rem;text-align:left;white-space:pre-wrap;margin:0"></pre>
+                        <button class="btn btn-outline-secondary btn-sm mt-1" onclick="TribuOTA.clearLog()"><i class="fas fa-eraser me-1"></i>Limpiar consola</button>
+                        <button class="btn btn-outline-primary btn-sm mt-1" onclick="TribuOTA.copyLog()"><i class="fas fa-copy me-1"></i>Copiar consola</button>
+                    </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="accordion mb-3" id="ajustes-accordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc-estadisticas">
@@ -1931,9 +1985,13 @@
                     </h2>
                     <div id="acc-oracion" class="accordion-collapse collapse" data-bs-parent="#ajustes-accordion">
                         <div class="accordion-body text-center">
-                            <button class="btn btn-danger" onclick="abrirOracionTribu()">
-                                <i class="fas fa-book-open me-2" style="color: #fff;"></i> Ver oración
-                            </button>
+                            <div class="fw-bold text-uppercase mb-2" style="cursor:pointer" onclick="abrirOracionTribu()" title="Tocar para abrir en pantalla completa">Oración de la Tribu</div>
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cambiarTamanioOracion(-0.15)" title="Reducir letra"><i class="fas fa-minus"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cambiarTamanioOracion(0.15)" title="Aumentar letra"><i class="fas fa-plus"></i></button>
+                                <button type="button" class="btn btn-sm btn-success" style="background-color: var(--primary-dark);" onclick="compartirOracionWhatsApp()" title="Compartir por WhatsApp"><i class="fab fa-whatsapp me-1"></i> Compartir</button>
+                            </div>
+                            <div id="oracion-texto-acordeon" style="font-size:1.05rem; line-height:1.8; white-space:pre-wrap; text-align:center; max-height:50vh; overflow-y:auto; padding:0 .5rem;"></div>
                         </div>
                     </div>
                 </div>
@@ -2092,6 +2150,24 @@
                             <button class="btn btn-sm w-100" style="background-color: var(--primary-dark); color: white;" onclick="abrirCotizador()">
                                 <i class="fas fa-plus me-1"></i> Nueva cotización
                             </button>
+
+                            <!-- Consola del actualizador OTA se movió a la
+                                 tarjeta «Actualización de la app» -->
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc-tribulink">
+                            <i class="fas fa-wifi me-2" style="color: var(--primary-dark)"></i> Enlace Tribu 📡
+                        </button>
+                    </h2>
+                    <div id="acc-tribulink" class="accordion-collapse collapse" data-bs-parent="#ajustes-accordion">
+                        <div class="accordion-body">
+                            <div class="small text-muted mb-2" id="tribu-link-mi">…</div>
+                            <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="tribuLinkBuscar()"><i class="fas fa-search me-1"></i> Buscar teléfonos Tribu</button>
+                            <div id="tribu-link-list"></div>
+                            <div class="small text-muted mt-2">Lo que llegue del otro teléfono se guarda como archivo y puede importarse. Funciona por WiFi común o con el hotspot de un teléfono — sin internet.</div>
                         </div>
                     </div>
                 </div>
@@ -3207,6 +3283,7 @@
         <button type="button" class="fab-listas" onclick="createNewCaminata()" title="Agregar caminata"><i class="fas fa-plus"></i></button>
     <button type="button" class="fab-dir" onclick="openAgregarDirectorioModal()" title="Agregar contacto"><i class="fas fa-plus"></i></button>
     <button type="button" class="fab-notas" onclick="abrirEditorNota()" title="Agregar nota"><i class="fas fa-plus"></i></button>
+    <button type="button" class="fab-cal" onclick="abrirModalCalendarioDesdeFAB()" title="Agregar evento"><i class="fas fa-plus"></i></button>
     <nav class="bottom-nav">
         <a href="#" class="nav-item active" id="nav-home" onclick="navigate('home'); return false;">
             <i class="fas fa-list-alt"></i>
@@ -3231,7 +3308,7 @@
     </nav>
 
     <div id="vistaTablaMagica">
-        <iframe id="frameTablaMagica" title="Gestión de Pagos" data-src="tablamagica.html?v=integral-fuente5"></iframe>
+        <iframe id="frameTablaMagica" title="Gestión de Pagos" data-src="tablamagica.html?v=integral-fuente54"></iframe>
     </div>
 
     <div id="vistaCaminatas">
@@ -3285,9 +3362,12 @@
                             <select class="form-select" id="calendario-select-etapa" onchange="asignarNombreCalendarioDesdeEtapa()">
                                 <option value="" selected>Seleccioná una etapa</option>
                                 <option value="Etapa 1A">Etapa 1A</option>
-                                <option value="Etapas 1A y B">Etapas 1A y B</option>
+                                <option value="Etapa 1B">Etapa 1B</option>
+                                <option value="Etapas 1A y 1B">Etapas 1A y 1B</option>
                                 <option value="Etapa 2">Etapa 2</option>
-                                <option value="Etapa 3 y 4">Etapa 3 y 4</option>
+                                <option value="Etapa 3">Etapa 3</option>
+                                <option value="Etapa 4">Etapa 4</option>
+                                <option value="Etapas 3 y 4">Etapas 3 y 4</option>
                                 <option value="Etapa 5">Etapa 5</option>
                                 <option value="Etapa 6">Etapa 6</option>
                                 <option value="Etapa 7">Etapa 7</option>
@@ -3297,9 +3377,7 @@
                                 <option value="Etapa 11">Etapa 11</option>
                                 <option value="Etapa 12">Etapa 12</option>
                                 <option value="Etapa 13">Etapa 13</option>
-                                <option value="Etapas 13 y 14">Etapas 13 y 14</option>
-                                <option value="Etapa 14">Etapa 14</option>
-                                <option value="Etapa 15">Etapa 15</option>
+                                <option value="Etapas 14 y 15">Etapas 14 y 15</option>
                                 <option value="Etapa 16 (Final)">Etapa 16 (Final)</option>
                             </select>
                         </div>
@@ -3354,9 +3432,13 @@
     <!-- SQLite real (sql.js / WASM) — capa espejo local, sin servidor -->
     <script src="vendor/sqljs/sql-wasm.js"></script>
     <script src="js/tribu-db.js?v=integral1"></script>
-    <script src="js/respaldos.js?v=integral1"></script>
+    <script src="js/respaldos.js?v=integral2"></script>
     <script src="js/update.js?v=upd1"></script>
     <script src="js/calendario.js?v=festivos-20261026-5"></script>
+    <script src="js/ota_stamp.js?v=ota1"></script>
+    <script src="js/ota_mock.js?v=ota1"></script>
+    <script src="js/tribu-link.js?v=1"></script>
+    <script src="js/ota.js?v=ota1"></script>
 
     <script>
         /*
@@ -3654,12 +3736,44 @@
             history.pushState({ page: 'app' }, '', location.href);
             window.addEventListener('popstate', manejarBotonAtras);
 
-            // Configurar LocalForage (preferir IndexedDB)
+            // Configurar LocalForage — BLINDAJE DE DATOS (orden del usuario):
+            // driver FIJO a IndexedDB. Prohibido LOCALSTORAGE/WEBSQL como
+            // fallback: un driver de respaldo carga un snapshot viejo en
+            // silencio y los datos "retroceden" sin permiso. Si IndexedDB
+            // falla, loadData muestra el error — jamás carga otra base.
             localforage.config({
                 name: 'WhatsAppListManager',
                 storeName: 'data',
-                driver: [localforage.INDEXEDDB, localforage.LOCALSTORAGE, localforage.WEBSQL]
+                driver: [localforage.INDEXEDDB]
             });
+            // Migración única de llaves legacy del viejo driver LOCALSTORAGE
+            // ('WhatsAppListManager/data/app_*'): se copian a IndexedDB solo
+            // si la llave no existe ahí (IndexedDB siempre es la última
+            // palabra) y quedan dormidas como 'respaldo_legacy_*' — nada se
+            // borra, solo salen del espacio vivo.
+            try {
+                var legacyPrefix = 'WhatsAppListManager/data/';
+                var legacyKeys = [];
+                for (var li = 0; li < localStorage.length; li++) {
+                    var lk = localStorage.key(li);
+                    if (lk && lk.indexOf(legacyPrefix) === 0) legacyKeys.push(lk);
+                }
+                for (var lj = 0; lj < legacyKeys.length; lj++) {
+                    var fullK = legacyKeys[lj];
+                    var shortK = fullK.substring(legacyPrefix.length);
+                    var raw = localStorage.getItem(fullK);
+                    try {
+                        var val = JSON.parse(raw);
+                        if (await localforage.getItem(shortK) == null)
+                            await localforage.setItem(shortK, val);
+                    } catch (e) {}
+                    localStorage.setItem('respaldo_legacy_' + fullK, raw);
+                    localStorage.removeItem(fullK);
+                }
+                if (legacyKeys.length)
+                    console.log('[datos] ' + legacyKeys.length +
+                        ' llaves legacy apartadas — IndexedDB es el único almacén activo');
+            } catch (e) { console.warn('migración legacy localforage', e); }
 
             // Listeners
             document.getElementById('cam-moneda').addEventListener('change', updateCurrencySymbols);
@@ -3931,10 +4045,9 @@
                 fab.style.display = 'none';
                 renderHome();
             } else if (viewName === 'caminata') {
-                fab.style.display = 'flex';
-                fab.innerHTML = '<i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i>';
-                fab.onclick = openWhatsAppPreview;
-                updateFabState();
+                // FAB WhatsApp redondo ELIMINADO por orden del usuario —
+                // la vista previa se abre desde el botón cuadrado de la vista
+                fab.style.display = 'none';
             } else if (viewName === 'notas') {
                 fab.style.display = 'none';
             } else if (viewName === 'directorio' || viewName === 'calendario') {
@@ -4273,7 +4386,7 @@ QUE HOY LA NATURALEZA Y LA MONTAÑA SE SOMETAN A TU ORDEN Y A TU PROTECCIÓN....
 
 FORTALECE NUESTRA AMISTAD, NUESTRA HERMANDAD Y DIOS CUBRA CON SU SANGRE PRECIOSA A ESTE GRUPO LLAMADO LA TRIBU.`;
 
-        let tamanioOracion = 1.25;
+        let tamanioOracion = 1.9;
 
         // --- EDITOR DE FLYERS ---
         const FLYER_RATIOS = { '9:16': [1080, 1920], '16:9': [1920, 1080] };
@@ -4300,14 +4413,14 @@ FORTALECE NUESTRA AMISTAD, NUESTRA HERMANDAD Y DIOS CUBRA CON SU SANGRE PRECIOSA
 
     </script>
     <script src="js/listas/home.js"></script>
-    <script src="js/listas/caminata-abrir.js"></script>
+    <script src="js/listas/caminata-abrir.js?v=etapas1"></script>
     <script src="js/listas/caminata-guardar.js"></script>
     <script src="js/listas/caminata-montos.js"></script>
-    <script src="js/listas/caminata-toggles.js"></script>
+    <script src="js/listas/caminata-toggles.js?v=etapas1"></script>
     <script src="js/listas/caminata-campos.js"></script>
-    <script src="js/listas/caminata-nombres.js"></script>
+    <script src="js/listas/caminata-nombres.js?v=etapas1"></script>
     <script src="js/listas/caminata-totales.js"></script>
-    <script src="js/listas/caminata-fechas.js"></script>
+    <script src="js/listas/caminata-fechas.js?v=ev3"></script>
     <script src="js/listas/caminantes-lista.js"></script>
     <script src="js/listas/caminantes-asistencia.js"></script>
     <script src="js/listas/pagos-reversiones.js"></script>
@@ -4339,7 +4452,7 @@ FORTALECE NUESTRA AMISTAD, NUESTRA HERMANDAD Y DIOS CUBRA CON SU SANGRE PRECIOSA
     <script src="js/directorio/directorio-15.js"></script>
     <script src="js/directorio/directorio-16.js"></script>
     <script src="js/directorio/directorio-17.js"></script>
-    <script src="js/directorio/directorio-18.js?v=integral1"></script>
+    <script src="js/directorio/directorio-18.js?v=integral2"></script>
     <script src="js/directorio/directorio-19.js?v=integral1"></script>
     <script src="js/directorio/directorio-20.js"></script>
     <script src="js/directorio/directorio-21.js"></script>
@@ -4348,8 +4461,8 @@ FORTALECE NUESTRA AMISTAD, NUESTRA HERMANDAD Y DIOS CUBRA CON SU SANGRE PRECIOSA
     <script src="js/notas/notas-01.js"></script>
     <script src="js/notas/notas-02.js"></script>
     <script src="js/notas/notas-03.js"></script>
-    <script src="js/notas/notas-04.js"></script>
-    <script src="js/notas/notas-05.js"></script>
+    <script src="js/notas/notas-04.js?v=oracion2"></script>
+    <script src="js/notas/notas-05.js?v=oracion2"></script>
     <script src="js/notas/notas-06.js"></script>
     <script src="js/notas/notas-07.js"></script>
     <script src="js/notas/notas-08.js"></script>

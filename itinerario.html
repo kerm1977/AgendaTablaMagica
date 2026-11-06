@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itinerario</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<style>
+:root{
+  --pri:#f97316; --pri-soft:#fff4ec; --ink:#1f2937; --mut:#6b7280;
+  --line:#e5e7eb; --ok:#16a34a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f3f4f6;color:var(--ink)}
+.topbar{position:sticky;top:0;z-index:60;background:rgba(243,244,246,.92);backdrop-filter:blur(6px);padding:8px 14px}
+.btn{border:none;border-radius:8px;padding:9px 14px;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink)}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-ghost{background:#fff;border:1px solid var(--line)}
+.hdr{background:linear-gradient(135deg,var(--pri),#fb923c);color:#fff;padding:22px 16px 16px}
+.hdr h1{font-size:1.5rem;text-transform:uppercase;line-height:1.2}
+.hdr .fechas{font-size:.9rem;opacity:.95;margin-top:6px}
+.hdr .vuelo-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;font-size:.8rem;margin-top:10px}
+.hdr .vuelo-chip a{color:#fff;text-decoration:underline}
+.offline-badge{display:none;background:#fef3c7;color:#92400e;font-size:.7rem;padding:4px 10px;border-radius:999px;margin-left:10px}
+.sec{padding:14px 16px;border-bottom:1px solid var(--line)}
+.sec h2{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;font-size:.88rem;padding:5px 0;max-width:520px}
+.kv b{text-align:right}
+#mapa-wrap{position:relative}
+#mapa{width:100%;aspect-ratio:1/1;max-height:70vh;background:#dde}
+.tools{position:absolute;right:8px;top:70px;z-index:500;display:flex;flex-direction:column;gap:6px}
+.tbtn{width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,.15);box-shadow:0 1px 4px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#444;font-size:15px;padding:0}
+.tbtn.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.map-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+#dl-prog{font-size:.75rem;color:var(--mut)}
+.dia-head{display:flex;align-items:center;gap:8px;background:var(--pri-soft);border-left:4px solid var(--pri);padding:8px 10px;border-radius:8px;margin:14px 0 8px;font-weight:700;color:var(--pri)}
+.dia-head .fecha{margin-left:auto;font-weight:500;font-size:.75rem;color:var(--mut)}
+.item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;max-width:720px}
+.item .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.item .nom{font-weight:700;font-size:.95rem}
+.item .tipo{font-size:.68rem;background:#eef2ff;color:#4338ca;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.item .precio{font-weight:700;color:var(--ok);font-size:.9rem;white-space:nowrap}
+.item .det{font-size:.8rem;color:var(--mut);margin-top:5px;line-height:1.5}
+.item .links{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.pill{font-size:.72rem;text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:var(--ink);display:inline-flex;align-items:center;gap:5px}
+.pill.wa{border-color:#bbf7d0;color:#15803d}.pill.gm{border-color:#bfdbfe;color:#1d4ed8}.pill.wz{border-color:#e9d5ff;color:#7e22ce}
+.pin-ref{font-size:.75rem;color:var(--pri);margin-top:6px;cursor:pointer}
+.total-row{display:flex;justify-content:space-between;padding:7px 0;font-size:.88rem;max-width:520px}
+.total-row.big{border-top:2px solid var(--ink);margin-top:6px;padding-top:10px;font-size:1.05rem;font-weight:800}
+.stamp{font-family:'Courier New',monospace;font-size:.7rem;color:var(--mut);text-align:center;padding:14px}
+.err{margin:40px auto;background:#fff;padding:24px;border-radius:12px;text-align:center;color:var(--mut);max-width:480px}
+.itin-pin-lbl{background:#fff!important;border:1px solid var(--pri)!important;border-radius:6px;padding:1px 6px;font-weight:700;font-size:.68rem;color:var(--ink)}
+/* modal pin (formulario + info) */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px}
+.mbox{background:#fff;border-radius:12px;padding:14px;width:100%;max-width:430px;color:#333;max-height:92vh;overflow-y:auto}
+.mbox h4{margin:0 0 10px}
+.mbox input,.mbox select{width:100%;padding:.6rem;margin-bottom:8px;box-sizing:border-box;border:1px solid var(--line);border-radius:8px}
+.mbox input.nombre{text-transform:uppercase}
+.medit{min-height:120px;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:.85rem;outline:none;margin-bottom:8px;overflow-y:auto}
+.medit ul,.medit ol{list-style-position:inside;padding-left:4px}
+.mwys{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.mwys button{border:1px solid var(--line);background:#f9fafb;border-radius:6px;padding:4px 8px;font-size:.75rem;cursor:pointer}
+.mfoot{display:flex;gap:8px;margin-top:8px}
+.minfo .cat{display:inline-block;background:#eef2ff;color:#4338ca;border-radius:999px;padding:2px 10px;font-size:.7rem;margin-bottom:6px}
+.minfo .det{border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.85rem;max-height:40vh;overflow-y:auto;margin-top:8px}
+.minfo .det ul,.minfo .det ol{padding-left:26px}
+.mapa-fs{position:fixed!important;inset:0!important;z-index:99998!important;width:100%!important;height:100%!important;max-height:none!important;border-radius:0!important}
+</style>
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" onerror="this.remove()">
+</head>
+<body>
+<div class="topbar"><a class="btn btn-ghost" href="tablamagica.html">← Volver</a></div>
+<div id="app"><div class="err">Cargando evento…</div></div>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+const TILE_CACHE='tribu-itin-tiles-v1';
+const CAPS={'Perú':[-12.0464,-77.0428],'Panamá':[8.9824,-79.5199],'México':[19.4326,-99.1332],'Argentina':[-34.6037,-58.3816],'Costa Rica':[9.9347,-84.0875],'Chile':[-33.4489,-70.6693],'Guatemala':[14.6349,-90.5069],'Colombia':[4.711,-74.0721],'Ecuador':[-0.1807,-78.4678],'España':[40.4168,-3.7038],'Estados Unidos':[38.9072,-77.0369]};
+const CATS=['Hotel','Hospedaje','Lugar Turístico','Camping','Restaurante','Aduana','Montaña','Volcán','Mar','Playa','Piscina','Parque','Mirador','Transporte','Vuelo','Aeropuerto','Parada de Buses','Bus','Microbús','Taxi','Barco','Lancha','Tren','Caballo','Camello','Lugar de Comercio','Hospital','Clínica','Farmacia','Agencia','Lugar de Interés','Punto de Llegada','Punto de Salida'];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=(n,m)=>{const s=(m==='USD'||m==='$')?'$':'₡';return s+Math.round(Number(n)||0).toLocaleString('es-CR');};
+const FA={lock:'🔒',unlock:'🔓',pin:'📍',move:'✥',del:'🗑',fs:'⛶'};
+
+/* ---------- capa tiles offline ---------- */
+const OfflineLayer=L.TileLayer.extend({
+  createTile(coords,done){
+    const img=document.createElement('img');
+    const url=this.getTileUrl(coords);
+    const ok=b=>{img.src=URL.createObjectURL(b);done(null,img);};
+    const gris=()=>{img.src='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><rect width="256" height="256" fill="#e8e8e8"/></svg>');done(null,img);};
+    (async()=>{try{
+      const c=await caches.open(TILE_CACHE);
+      const hit=await c.match(url);
+      if(hit){ok(await hit.blob());return;}
+      const r=await fetch(url);
+      if(r.ok){c.put(url,r.clone()).catch(()=>{});ok(await r.blob());}else gris();
+    }catch(e){gris();}})();
+    return img;
+  }
+});
+
+/* ---------- IndexedDB ---------- */
+function abrirDB(){return new Promise((res,rej)=>{const r=indexedDB.open('PagosAppDB');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function cargarEvento(id){
+  const db=await abrirDB();
+  return new Promise((res,rej)=>{
+    const st=db.transaction(['eventos'],'readonly').objectStore('eventos');
+    st.getAll().onsuccess=e=>res((e.target.result||[]).find(ev=>String(ev.id)===String(id))||null);
+    st.getAll().onerror=e=>rej(e.target.error);
+  });
+}
+async function guardarEvento(ev){
+  const db=await abrirDB();
+  return new Promise((res,rej)=>{
+    const st=db.transaction(['eventos'],'readwrite').objectStore('eventos');
+    st.put(ev).onsuccess=()=>res();st.onerror=e=>rej(e.target.error);
+  });
+}
+
+/* ---------- estado ---------- */
+let EV=null,MAPA=null,PINS=[]; /* PINS: {marker, campo:{pago,key}, meta} */
+
+function leerPins(ev){
+  const out=[];
+  (ev.pagos||[]).forEach((p,pi)=>{
+    const df=p.dynamicFields||{};
+    Object.keys(df).forEach(k=>{
+      const v=df[k];
+      if(typeof v!=='string')return;
+      const seg=v.split('|');const pp=seg[0].split(',');
+      const la=parseFloat(pp[0]),ln=parseFloat(pp[1]);
+      if(isNaN(la)||isNaN(ln))return;
+      let meta={};try{meta=seg[1]?JSON.parse(seg[1]):{};}catch(e){}
+      out.push({lat:la,lng:ln,meta,pago:p,key:k,dia:p.viajeDia||''});
+    });
+  });
+  return out;
+}
+function campoValor(p){return `${p.lat},${p.lng}|${JSON.stringify(p.meta)}`;}
+function persistirCampo(pin){pin.pago.dynamicFields[pin.key]=campoValor(pin);return guardarEvento(EV);}
+function enlaceDe(p,pref){const df=p.dynamicFields||{};for(const k of Object.keys(df)){const kl=k.toLowerCase();if(kl.includes(pref)&&typeof df[k]==='string'&&df[k])return df[k];}return '';}
+function fval(p,...keys){const df=p.dynamicFields||{};for(const k of keys){for(const dk of Object.keys(df)){if(dk.toLowerCase()===k&&df[dk])return df[dk];}}return '';}
+
+/* ---------- modal pin ---------- */
+function modalCerrar(ov){ov.remove();}
+function modalPinForm(meta,cb){
+  const ov=document.createElement('div');ov.className='mov';
+  ov.innerHTML=`<div class="mbox"><h4>Detalles del Pin</h4>
+    <input class="nombre" placeholder="Nombre del lugar" value="${esc(meta.nombre||'')}">
+    <select><option value="">— Categoría —</option>${CATS.map(c=>`<option ${meta.categoria===c?'selected':''}>${c}</option>`).join('')}</select>
+    <div class="mwys">
+      <button data-c="bold"><b>B</b></button><button data-c="underline"><u>U</u></button><button data-c="strikeThrough"><s>S</s></button>
+      <button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button>
+      <button data-c="justifyLeft">⇤</button><button data-c="justifyCenter">↔</button><button data-c="justifyRight">⇥</button>
+    </div>
+    <div class="medit" contenteditable="true">${meta.detalles||''}</div>
+    <div class="mfoot"><button class="btn btn-pri g">Guardar</button><button class="btn btn-ghost c">Cancelar</button></div></div>`;
+  ov.querySelector('.mwys').addEventListener('click',e=>{const b=e.target.closest('button');if(b)document.execCommand(b.dataset.c);});
+  ov.querySelector('.g').addEventListener('click',()=>{cb({nombre:ov.querySelector('.nombre').value.toUpperCase(),categoria:ov.querySelector('select').value,detalles:ov.querySelector('.medit').innerHTML});modalCerrar(ov);});
+  ov.querySelector('.c').addEventListener('click',()=>modalCerrar(ov));
+  ov.addEventListener('click',e=>{if(e.target===ov)modalCerrar(ov);});
+  document.body.appendChild(ov);
+}
+function modalPinInfo(pin){
+  const m=pin.meta||{};
+  const ov=document.createElement('div');ov.className='mov';
+  ov.innerHTML=`<div class="mbox minfo"><h4>${esc((m.nombre||'PIN').toUpperCase())}</h4>
+    ${m.categoria?`<span class="cat">${esc(m.categoria)}</span>`:''}
+    <div class="det">${m.detalles||'<i style="color:#999">Sin detalles</i>'}</div>
+    <div style="font-size:.7rem;color:#999;margin-top:6px">${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}</div>
+    <div class="mfoot"><button class="btn btn-pri e">Editar</button><button class="btn btn-ghost c">Cerrar</button></div></div>`;
+  ov.querySelector('.c').addEventListener('click',()=>modalCerrar(ov));
+  ov.querySelector('.e').addEventListener('click',()=>{modalCerrar(ov);modalPinForm(pin.meta||{},async nm=>{pin.meta=nm;await persistirCampo(pin);etiqueta(pin);});});
+  ov.addEventListener('click',e=>{if(e.target===ov)modalCerrar(ov);});
+  document.body.appendChild(ov);
+}
+function modalConfirm(msg,cb){
+  const ov=document.createElement('div');ov.className='mov';
+  ov.innerHTML=`<div class="mbox"><h4>Confirmar</h4><p style="font-size:.85rem;color:#555">${esc(msg)}</p>
+    <div class="mfoot"><button class="btn s" style="background:#dc2626;color:#fff">Sí, eliminar</button><button class="btn btn-ghost c">Cancelar</button></div></div>`;
+  ov.querySelector('.s').addEventListener('click',()=>{modalCerrar(ov);cb();});
+  ov.querySelector('.c').addEventListener('click',()=>modalCerrar(ov));
+  document.body.appendChild(ov);
+}
+
+/* ---------- mapa con herramientas ---------- */
+function etiqueta(pin){
+  pin.marker.setTooltipContent(esc((pin.meta.nombre||'').toUpperCase()||'PIN'));
+}
+function configPin(pin,estado){
+  const mk=pin.marker;
+  mk.on('click',()=>{if(!estado.mover)modalPinInfo(pin);});
+  mk.on('dragend',()=>{const ll=mk.getLatLng();pin.lat=ll.lat;pin.lng=ll.lng;persistirCampo(pin);});
+}
+function initMapa(ev,centroIni,boundsInit){
+  const cont={locked:true,mover:false,colocar:false};
+  MAPA=L.map('mapa',{center:centroIni,zoom:boundsInit&&boundsInit.length?12:7,dragging:false,scrollWheelZoom:false,touchZoom:false,doubleClickZoom:false,boxZoom:false});
+  new OfflineLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(MAPA);
+  const bar=$('#tools');
+  const mk=(ic,title)=>{const b=document.createElement('button');b.className='tbtn';b.title=title;b.textContent=ic;bar.appendChild(b);return b;};
+  const bLock=mk(FA.lock,'Desbloquear mapa');
+  const bCol=mk(FA.pin,'Colocar Pin');
+  const bMov=mk(FA.move,'Mover Pin');
+  const bDel=mk(FA.del,'Eliminar Pin');
+  const bFs=mk(FA.fs,'Pantalla completa');
+  const setLock=un=>{
+    cont.locked=!un;
+    ['dragging','scrollWheelZoom','touchZoom','doubleClickZoom','boxZoom'].forEach(h=>{try{un?MAPA[h].enable():MAPA[h].disable();}catch(e){}});
+    bLock.textContent=un?FA.unlock:FA.lock;bLock.classList.toggle('on',un);
+    bLock.title=un?'Bloquear mapa':'Desbloquear mapa';
+  };
+  bLock.addEventListener('click',()=>setLock(cont.locked));
+  bCol.addEventListener('click',()=>{cont.colocar=!cont.colocar;bCol.classList.toggle('on',cont.colocar);});
+  bMov.addEventListener('click',()=>{cont.mover=!cont.mover;bMov.classList.toggle('on',cont.mover);PINS.forEach(p=>cont.mover?p.marker.dragging.enable():p.marker.dragging.disable());});
+  bDel.addEventListener('click',()=>{
+    const ps=PINS;
+    if(!ps.length){return;}
+    let i=0;
+    const preg=()=>{
+      if(i>=ps.length)return;
+      const p=ps[i++];
+      modalConfirm(`¿Seguro que querés eliminar el pin "${(p.meta.nombre||'PIN')}"? Se perderá su información.`,async()=>{
+        MAPA.removeLayer(p.marker);
+        delete p.pago.dynamicFields[p.key];
+        PINS=PINS.filter(x=>x!==p);
+        await guardarEvento(EV);
+        preg();
+      });
+    };
+    modalConfirm('Esto preguntará por cada pin del evento, uno por uno. ¿Continuar?',preg);
+  });
+  const mapaEl=$('#mapa'),wrap=$('#mapa-wrap');
+  let fsParent=null,fsNext=null;
+  bFs.addEventListener('click',()=>{
+    if(!mapaEl.classList.contains('mapa-fs')){
+      fsParent=mapaEl.parentNode;fsNext=mapaEl.nextSibling;
+      document.body.appendChild(mapaEl);mapaEl.classList.add('mapa-fs');
+      bar.style.position='fixed';bar.style.right='8px';bar.style.top='70px';
+      bFs.textContent='✕';
+    }else{
+      mapaEl.classList.remove('mapa-fs');
+      fsNext?fsParent.insertBefore(mapaEl,fsNext):fsParent.appendChild(mapaEl);
+      bar.style.position='absolute';
+      bFs.textContent=FA.fs;
+    }
+    setTimeout(()=>MAPA.invalidateSize(),250);
+  });
+  /* tocar mapa: solo con Colocar Pin activo */
+  MAPA.on('click',e=>{
+    if(!cont.colocar)return;
+    cont.colocar=false;bCol.classList.remove('on');
+    modalPinForm({},async nm=>{
+      const p={lat:e.latlng.lat,lng:e.latlng.lng,meta:nm,pago:null,key:null,dia:''};
+      /* guardar en un campo mapa del primer pago disponible, o crear campo nuevo */
+      const pago=(EV.pagos||[])[0];
+      if(pago){
+        pago.dynamicFields=pago.dynamicFields||{};
+        let base='Mapa',k=base,n=2;
+        while(pago.dynamicFields[k])k=base+' '+n++;
+        p.pago=pago;p.key=k;
+      }
+      const mk=L.marker([p.lat,p.lng],{draggable:false}).addTo(MAPA);
+      mk.bindTooltip(esc(nm.nombre||'PIN'),{permanent:true,direction:'top',offset:[0,-28],className:'itin-pin-lbl'});
+      p.marker=mk;configPin(p,cont);PINS.push(p);
+      if(p.pago)await persistirCampo(p);
+    });
+  });
+  /* pines existentes */
+  PINS.forEach(p=>{
+    const mk=L.marker([p.lat,p.lng],{draggable:false}).addTo(MAPA);
+    mk.bindTooltip(esc((p.meta.nombre||'').toUpperCase()||'PIN'),{permanent:true,direction:'top',offset:[0,-28],className:'itin-pin-lbl'});
+    p.marker=mk;configPin(p,cont);
+  });
+  if(boundsInit&&boundsInit.length>1)MAPA.fitBounds(boundsInit,{padding:[30,30]});
+  setTimeout(()=>MAPA.invalidateSize(),300);
+}
+
+/* ---------- render ---------- */
+function render(ev){
+  EV=ev;
+  const v=ev.viaje||{};
+  PINS=leerPins(ev);
+  const mon=ev.moneda||'CRC';
+  const capCG=parseFloat(ev.capacidadCG)||0,capSG=parseFloat(ev.capacidadSG)||1;
+  const precioEv=parseFloat(ev.precio)||0;
+  let granTotal=0;
+  (ev.pagos||[]).forEach(p=>{let base=p.tipoPrecio==='persona'?(parseFloat(p.precioPersona)||0)*capCG/capSG:(parseFloat(p.precioGrupal)||0)/capSG;granTotal+=base*((parseFloat((p.dynamicFields||{}).cantidad))||1);});
+  const exc=(precioEv-granTotal)*capSG;
+
+  const dias={};
+  (ev.pagos||[]).forEach(p=>{const d=p.viajeDia||'General';(dias[d]=dias[d]||[]).push(p);});
+  const diaKeys=Object.keys(dias).sort((a,b)=>(parseInt((a.match(/\d+/)||[999])[0])-parseInt((b.match(/\d+/)||[999])[0])));
+  const fBase=v.fechaIda?new Date(v.fechaIda+'T12:00:00'):null;
+  const fechaDe=k=>{const n=parseInt((k.match(/\d+/)||[0])[0]);if(!fBase||!n)return'';const d=new Date(fBase);d.setDate(d.getDate()+n-1);return d.toLocaleDateString('es-CR',{weekday:'short',day:'2-digit',month:'short'});};
+  const telLink=t=>'tel:'+String(t).replace(/\D/g,'');
+  const waLink=t=>'https://wa.me/'+String(t).replace(/\D/g,'').replace(/^00/,'');
+
+  const itemsHTML=diaKeys.map(k=>`
+    <div class="dia-head"><span>📅 ${esc(k)}</span><span class="fecha">${esc(fechaDe(k))}</span></div>
+    ${dias[k].map(p=>{
+      const gm=enlaceDe(p,'gmaps'),wz=enlaceDe(p,'waze');
+      const tel=fval(p,'telefono','telefono_encargado'),wa=fval(p,'whatsapp');
+      const emp=fval(p,'nombre_empresa'),enc=fval(p,'nombre_encargado');
+      const hi=fval(p,'hora_inicio'),hf=fval(p,'hora_final');
+      const det=fval(p,'descripcion','nota','informacion');
+      const precio=p.tipoPrecio==='persona'?(parseFloat(p.precioPersona)||0):(parseFloat(p.precioGrupal)||0);
+      const pinsP=PINS.filter(x=>x.pago===p);
+      return `<div class="item">
+        <div class="top"><span class="nom">${esc(p.nombre||'Sin nombre')}</span><span class="tipo">${esc(p.tipoGasto||p.tipo||'')}</span><span class="precio">${money(precio,mon)}${p.tipoPrecio==='persona'?' pp':''}</span></div>
+        <div class="det">${hi||hf?`🕐 ${esc(hi)}${hf?' – '+esc(hf):''}<br>`:''}${emp?`🏢 ${esc(emp)}<br>`:''}${enc?`👤 ${esc(enc)}<br>`:''}${det?`📝 ${typeof det==='object'?esc(JSON.stringify(det)):esc(det)}<br>`:''}</div>
+        <div class="links">
+          ${tel?`<a class="pill" href="${telLink(tel)}">📞 ${esc(tel)}</a>`:''}
+          ${wa?`<a class="pill wa" href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}
+          ${gm?`<a class="pill gm" href="${esc(gm)}" target="_blank">🗺 Google Maps</a>`:''}
+          ${wz?`<a class="pill wz" href="${esc(wz)}" target="_blank">🚗 Waze</a>`:''}
+        </div>
+        ${pinsP.map(pp=>`<div class="pin-ref" data-lat="${pp.lat}" data-lng="${pp.lng}">📍 ${esc((pp.meta.nombre||'').toUpperCase()||'PIN')}${pp.meta.categoria?' · '+esc(pp.meta.categoria):''}</div>`).join('')}
+      </div>`;
+    }).join('')}`).join('');
+
+  const fechas=[v.fechaIda,v.fechaRegreso].filter(Boolean).join(' → ');
+  $('#app').innerHTML=`
+    <div class="hdr">
+      <h1>${esc(ev.nombre||'Evento')}</h1>
+      <div class="fechas">${esc([v.pais,fechas].filter(Boolean).join(' · '))}</div>
+      ${v.vuelo||v.aerolinea?`<div class="vuelo-chip">✈️ ${esc(v.aerolinea||v.aerolineaOtra||'')} ${esc(v.vuelo||'')}</div>`:''}
+      ${v.checkin?`<div class="vuelo-chip">🎫 <a href="${esc(v.checkin)}" target="_blank">Check-in</a></div>`:''}
+      <span class="offline-badge" id="off-badge">✓ Mapa guardado offline</span>
+    </div>
+    <div class="sec">
+      <h2>Resumen</h2>
+      <div class="kv"><span>Precio del evento</span><b>${money(precioEv,mon)}</b></div>
+      <div class="kv"><span>Capacidad C/G</span><b>${capCG}</b></div>
+      <div class="kv"><span>Capacidad S/G</span><b>${capSG}</b></div>
+      <div class="kv"><span>Costo total pagos</span><b>${money(granTotal,mon)}</b></div>
+      <div class="kv"><span>Excedente</span><b style="color:${exc>=0?'var(--ok)':'#dc2626'}">${money(exc,mon)}</b></div>
+    </div>
+    <div class="sec">
+      <h2>Mapa</h2>
+      <div id="mapa-wrap"><div id="mapa"></div><div class="tools" id="tools"></div></div>
+      <div class="map-actions">
+        <button class="btn btn-pri" id="btn-dl">⬇ Descargar mapa offline</button>
+        <a class="btn btn-ghost" id="btn-fit" href="#">Centrar pines</a>
+        <span id="dl-prog"></span>
+      </div>
+    </div>
+    <div class="sec"><h2>Itinerario</h2>${itemsHTML||'<p style="color:var(--mut);font-size:.85rem">Sin pagos registrados.</p>'}</div>
+    <div class="sec">
+      <h2>Totales</h2>
+      <div class="total-row"><span>Pagos registrados</span><b>${(ev.pagos||[]).length}</b></div>
+      <div class="total-row"><span>Total a recoger (precio × SG)</span><b>${money(precioEv*capSG,mon)}</b></div>
+      <div class="total-row big"><span>EXCEDENTE GENERAL</span><b>${money(exc,mon)}</b></div>
+    </div>
+    <div class="stamp">— generado por Agenda Tribu · ${new Date().toLocaleString('es-CR')} —</div>`;
+
+  const centro=PINS.length?[PINS[0].lat,PINS[0].lng]:(CAPS[v.pais]||[9.9347,-84.0875]);
+  initMapa(ev,centro,PINS.map(p=>[p.lat,p.lng]));
+  document.querySelectorAll('.pin-ref').forEach(el=>el.addEventListener('click',()=>{
+    MAPA.setView([+el.dataset.lat,+el.dataset.lng],15);
+    $('#mapa').scrollIntoView({behavior:'smooth'});
+  }));
+  $('#btn-fit').addEventListener('click',e=>{e.preventDefault();const b=PINS.map(p=>[p.lat,p.lng]);b.length?MAPA.fitBounds(b,{padding:[30,30]}):MAPA.setView(centro,8);});
+  verificarOffline();
+  $('#btn-dl').addEventListener('click',()=>descargarTiles(PINS.length?L.latLngBounds(PINS.map(p=>[p.lat,p.lng])):MAPA.getBounds()));
+}
+async function verificarOffline(){try{const c=await caches.open(TILE_CACHE);if((await c.keys()).length)$('#off-badge').style.display='inline-block';}catch(e){}}
+function tilesDe(b,zmin,zmax){
+  const t=[];
+  for(let z=zmin;z<=zmax;z++){
+    const n=Math.pow(2,z);
+    const x1=Math.floor((b.getWest()+180)/360*n),x2=Math.floor((b.getEast()+180)/360*n);
+    const f=la=>Math.floor((1-Math.log(Math.tan(la*Math.PI/180)+1/Math.cos(la*Math.PI/180))/Math.PI)/2*n);
+    const y1=f(b.getNorth()),y2=f(b.getSouth());
+    for(let x=Math.min(x1,x2);x<=Math.max(x1,x2);x++)for(let y=Math.min(y1,y2);y<=Math.max(y1,y2);y++)
+      t.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`);
+  }
+  return [...new Set(t)];
+}
+async function descargarTiles(bounds){
+  const prog=$('#dl-prog');
+  const b=bounds.pad(0.15);
+  let urls=tilesDe(b,11,15);const MAX=800;
+  if(urls.length>MAX){urls=tilesDe(b,11,14);prog.textContent=`Zona grande: ${urls.length} tiles…`;}
+  if(urls.length>MAX)urls=urls.slice(0,MAX);
+  prog.textContent=`Descargando ${urls.length} tiles…`;
+  const c=await caches.open(TILE_CACHE);let ok=0;
+  for(let i=0;i<urls.length;i+=6){
+    await Promise.all(urls.slice(i,i+6).map(async u=>{try{const r=await fetch(u);if(r.ok){await c.put(u,r);ok++;}}catch(e){}}));
+    prog.textContent=`Descargando… ${Math.min(i+6,urls.length)}/${urls.length}`;
+  }
+  prog.textContent=`✓ ${ok} tiles guardados — funciona en modo avión`;
+  $('#off-badge').style.display='inline-block';
+}
+
+(async()=>{
+  try{
+    const id=new URLSearchParams(location.search).get('id');
+    if(!id){$('#app').innerHTML='<div class="err">Falta el id del evento.</div>';return;}
+    const ev=await cargarEvento(id);
+    if(!ev){$('#app').innerHTML='<div class="err">Evento no encontrado.</div>';return;}
+    render(ev);
+  }catch(e){$('#app').innerHTML='<div class="err">Error: '+esc(e.message)+'</div>';}
+})();
+</script>
+</body>
+</html>

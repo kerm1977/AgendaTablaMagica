@@ -114,8 +114,8 @@
             background-color: var(--bg-light);
             color: var(--text-dark);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding-bottom: 70px; /* Space for bottom nav */
-            padding-top: 60px; /* Space for top header */
+            padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Space for bottom nav */
+            padding-top: calc(60px + env(safe-area-inset-top, 0px)); /* Space for top header + status bar */
             overflow-x: hidden;
         }
 
@@ -129,7 +129,8 @@
             color: white;
             z-index: 1030;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            height: 60px;
+            height: calc(60px + env(safe-area-inset-top, 0px));
+            padding-top: env(safe-area-inset-top, 0px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -162,7 +163,7 @@
             top: 0;
             left: 0;
             right: 0;
-            bottom: 56px;
+            bottom: calc(60px + env(safe-area-inset-bottom, 0px));
             background-color: #fff;
             z-index: 1040;
             display: none;
@@ -179,7 +180,7 @@
             top: 0;
             left: 0;
             right: 0;
-            bottom: 56px;
+            bottom: calc(60px + env(safe-area-inset-bottom, 0px));
             background-color: #fff;
             z-index: 1040;
             display: none;
@@ -206,26 +207,6 @@
             color: var(--primary-dark);
         }
 
-        /* Floating Action Button (FAB) */
-        .fab {
-            position: fixed;
-            bottom: 85px;
-            right: 20px;
-            background-color: var(--primary-color);
-            color: white;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            box-shadow: none;
-            border: none;
-            z-index: 1020;
-            transition: transform 0.1s;
-        }
-
         /* Quitar cualquier halo/sombra de color al tocar botones (evita el
            efecto de "botón fantasma" detrás de los botones de WhatsApp). */
         .btn:focus,
@@ -233,14 +214,6 @@
         .btn.focus,
         .btn:focus-visible {
             box-shadow: none !important;
-        }
-        .fab:focus,
-        .fab:active {
-            box-shadow: none !important;
-        }
-        
-        .fab:active {
-            transform: scale(0.95);
         }
 
         /* Views management */
@@ -678,3 +651,98 @@
             max-height: 90vh;
             object-fit: contain;
         }
+/* Campos de información plana — parecen texto escrito pero se editan al
+   tocarlos (etapa Camino de Costa Rica: nombre/provincia/dificultad/km) */
+.cam-flat {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding-left: 0;
+    padding-right: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: text;
+}
+select.cam-flat { cursor: pointer; }
+.cam-flat:focus {
+    outline: none;
+    border-bottom: 1px dashed var(--primary-color, #f97316) !important;
+}
+
+/* Modal Oración de la Tribu — estilo elegante */
+@font-face {
+    font-family: 'Gabriola';
+    src: url('../vendor/gabriola.ttf') format('truetype');
+}
+#modalOracionTribu .modal-content {
+    background: linear-gradient(160deg, #fdf9f0 0%, #f5ecd9 55%, #efe2cb 100%);
+    border: 1px solid #d8c9a3;
+}
+#modalOracionTribu .modal-title {
+    font-family: 'Gabriola', 'Palatino Linotype', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #6b4e1e;
+    width: 100%;
+    text-align: center;
+}
+#modalOracionTribu .modal-header {
+    justify-content: center;
+    position: relative;
+}
+#modalOracionTribu .modal-header .btn-close {
+    position: absolute;
+    right: .75rem;
+    top: .75rem;
+}
+#oracion-contenido {
+    font-family: 'Gabriola', 'Palatino Linotype', serif;
+    font-size: 1.9rem;
+    line-height: 1.65;
+    text-align: center;
+    color: #4a3b22;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
+    padding: 0 1.2rem !important;
+}
+
+/* FABs flotantes ocultos mientras el modal de oración está abierto */
+body:has(#modalOracionTribu.show) .fab-listas,
+body:has(#modalOracionTribu.show) .fab-dir,
+body:has(#modalOracionTribu.show) .fab-notas,
+body:has(#modalOracionTribu.show) .fab-main,
+body:has(#modalOracionTribu.show) [class*="fab-"] {
+    display: none !important;
+}
+
+/* FABs flotantes ocultos también dentro de la vista previa WhatsApp */
+body:has(#modalWhatsApp.show) .fab-listas,
+body:has(#modalWhatsApp.show) .fab-dir,
+body:has(#modalWhatsApp.show) .fab-notas,
+body:has(#modalWhatsApp.show) .fab-main,
+body:has(#modalWhatsApp.show) [class*="fab-"] {
+    display: none !important;
+}
+
+/* Vista caminata: SOLO el FAB cuadrado main-fab — fulminar cualquier otro
+   botón flotante (incluido el WhatsApp redondo que aparecía debajo) */
+body:has(#view-caminata.active) .fab-listas,
+body:has(#view-caminata.active) .fab-dir,
+body:has(#view-caminata.active) .fab-notas,
+body:has(#view-caminata.active) [class*="fab-"]:not(#main-fab) {
+    display: none !important;
+}
+
+/* Seguro nuclear: NINGÚN FAB puede mostrar el ícono WhatsApp — fulminado
+   aunque algún script lo inyecte (orden del usuario: cero redondos WA) */
+.fab-main:has(.fa-whatsapp),
+.fab-listas:has(.fa-whatsapp),
+.fab-dir:has(.fa-whatsapp),
+.fab-notas:has(.fa-whatsapp),
+[class*="fab-"]:has(.fa-whatsapp) {
+    display: none !important;
+}
+
+/* ORDEN VIGENTE DEL USUARIO (reintegración): los botones flotantes
+   "+" vuelven a existir. Cada uno se muestra solo en su vista vía
+   body:has(#view-*.active) en el <style> del HTML principal; el
+   display:none base los mantiene ocultos en el resto. */

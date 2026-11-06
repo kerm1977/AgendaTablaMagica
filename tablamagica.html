@@ -57,6 +57,14 @@
                             Excedente: <span id="mini-excedente-display">₡0</span>
                         </div>
                     </div>
+                     <div class="form-group" id="viaje-modalidad-group" style="display:none;">
+                        <label>Modalidad de Capacidad</label>
+                        <button type="button" id="viaje-cap-toggle" class="btn btn-secondary" style="width:100%;">Un solo campo (viaje personal): NO</button>
+                    </div>
+                    <div class="form-group" id="viaje-capacidad-group" style="display:none;">
+                        <label for="viaje-capacidad">Capacidad</label>
+                        <input type="number" id="viaje-capacidad" value="0" min="0">
+                    </div>
                      <div class="form-group">
                         <label for="evento-capacidad-cg">Capacidad C/G</label>
                         <input type="number" id="evento-capacidad-cg" value="0" min="0">
@@ -74,13 +82,111 @@
                         <p id="total-conversion" style="font-weight: bold; font-size: 1.2rem; color: var(--color-primario); margin-top: 8px;">$0</p>
                     </div>
                 </div>
+                <!-- CAMPOS VIAJE INTERNACIONAL (visibles solo con el trigger activado) -->
+                <div id="viaje-campos" style="display:none;grid-column:1/-1;">
+                    <hr style="border:none;border-top:2px solid var(--color-primario,#f97316);margin:0.25rem 0 1rem;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;">
+                        <div class="form-group">
+                            <label for="viaje-pais">País del Viaje</label>
+                            <select id="viaje-pais">
+                                <option value="">— Seleccionar país —</option>
+                                <option value="Guatemala">Guatemala</option>
+                                <option value="Belice">Belice</option>
+                                <option value="El Salvador">El Salvador</option>
+                                <option value="Honduras">Honduras</option>
+                                <option value="Nicaragua">Nicaragua</option>
+                                <option value="Costa Rica">Costa Rica</option>
+                                <option value="Panamá">Panamá</option>
+                                <option value="México">México</option>
+                                <option value="Estados Unidos">Estados Unidos</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Ecuador">Ecuador</option>
+                                <option value="Perú">Perú</option>
+                                <option value="Chile">Chile</option>
+                                <option value="España">España</option>
+                                <option value="Argentina">Argentina</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="viaje-fecha-ida">Fecha de Ida</label>
+                            <input type="date" id="viaje-fecha-ida">
+                        </div>
+                        <div class="form-group">
+                            <label for="viaje-fecha-regreso">Fecha de Regreso</label>
+                            <input type="date" id="viaje-fecha-regreso">
+                        </div>
+                        <div class="form-group">
+                            <label for="viaje-vuelo">Número de Vuelo</label>
+                            <input type="text" id="viaje-vuelo">
+                        </div>
+                        <div class="form-group">
+                            <label for="viaje-aerolinea">Aerolínea</label>
+                            <select id="viaje-aerolinea">
+                                <option value="">— Seleccionar aerolínea —</option>
+                                <option>Copa Airlines</option>
+                                <option>Aeroméxico</option>
+                                <option>Volaris</option>
+                                <option>Volaris El Salvador</option>
+                                <option>Mexicana de Aviación</option>
+                                <option>JetSmart</option>
+                                <option>Clic Air</option>
+                                <option>Arajet</option>
+                                <option>Iberia</option>
+                                <option>Iberojet</option>
+                                <option>Plus Ultra</option>
+                                <option>KLM</option>
+                                <option>Edelweiss</option>
+                                <option>American Airlines</option>
+                                <option>Delta Air Lines</option>
+                                <option>JetBlue Airways</option>
+                                <option>Southwest Airlines</option>
+                                <option>Air Canada</option>
+                                <option>CM Airlines</option>
+                                <option>Maya Island Air</option>
+                                <option>Sansa Airlines</option>
+                                <option>Air Panama</option>
+                                <option>Sunrise Airways</option>
+                                <option>Avianca</option>
+                                <option>LATAM Airlines</option>
+                                <option>Volaris Costa Rica</option>
+                                <option>VivaAerobus</option>
+                                <option>Sky Airline</option>
+                                <option>Wingo</option>
+                                <option>Satena</option>
+                                <option>Aerolíneas Argentinas</option>
+                                <option>Air Europa</option>
+                                <option>World2Fly</option>
+                                <option>Air France</option>
+                                <option>Condor</option>
+                                <option>Turkish Airlines</option>
+                                <option>United Airlines</option>
+                                <option>Spirit Airlines</option>
+                                <option>Frontier Airlines</option>
+                                <option>Alaska Airlines</option>
+                                <option>TAG Airlines</option>
+                                <option>Tropic Air</option>
+                                <option>La Costeña</option>
+                                <option>Costa Rica Green Airways</option>
+                                <option>Air Century</option>
+                                <option value="__otra">— Agregar Otra Manualmente —</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="viaje-aerolinea-otra-group" style="display:none;">
+                            <label for="viaje-aerolinea-otra">Otra aerolínea</label>
+                            <input type="text" id="viaje-aerolinea-otra" placeholder="Nombre de la aerolínea">
+                        </div>
+                        <div class="form-group" id="viaje-checkin-group" style="display:none;grid-column:1/-1;">
+                            <label for="viaje-checkin">Enlaces Check-in</label>
+                            <input type="text" id="viaje-checkin" placeholder="https://... (enlace de check-in de la aerolínea)">
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="content-section">
                 <div class="section-header">
-                    <h3 class="section-title">Lista de Pagos</h3>
+                    <h3 class="section-title sec-col-head" id="titulo-lista-pagos" title="Tocar para minimizar todos los pagos" style="cursor:pointer">Lista de Pagos <span class="flecha-col">▾</span></h3>
                     <div style="display:flex;gap:8px;">
-                        <button id="colapsar-todos-pagos" type="button" title="Minimizar todos los pagos" style="width:44px;height:44px;border-radius:10px;border:none;background:var(--color-primario,#f97316);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0;"><i class="fas fa-compress-alt"></i></button>
                         <button class="btn-add-item" data-category="transporte-nacional">+</button>
                     </div>
                 </div>
@@ -278,6 +384,16 @@
                         <button id="btn-lista-transportes" class="btn btn-info">Lista de precios transporte</button>
                     </div>
                     <div id="transporte-precios-lista" style="margin-top: 1rem; display: none;"></div>
+                </div>
+
+                <hr style="border:none;border-top:2px solid var(--color-primario,#f97316);margin:1rem 0;">
+
+                <div class="settings-section">
+                    <h4>Viaje Internacional</h4>
+                    <p style="text-align: center; font-size: 0.9rem; margin-bottom: 1rem; color: var(--color-texto);">Convierte la tabla en un administrador de viajes: país, fechas, vuelo y aerolínea con su enlace de check-in.</p>
+                    <div style="display: flex; justify-content: center;">
+                        <button id="toggle-viaje-btn" class="btn btn-secondary">Viaje Internacional: DESACTIVADO</button>
+                    </div>
                 </div>
 
             </div>
@@ -495,7 +611,9 @@
 
     <!-- Lógica de la Aplicación -->
 
-    <script src="js/tablamagica/app.js?v=integral1"></script>
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="js/tablamagica/app.js?v=integral50"></script>
     <script src="js/tablamagica/fxdata.js"></script>
     <script src="js/tablamagica/fxnet.js"></script>
     <script src="js/tablamagica/fx.js"></script>

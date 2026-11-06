@@ -80,7 +80,8 @@
   - Tocar día con eventos → abre detalle del día (ver/editar/agregar).
   - Fechas SIEMPRE en hora de Costa Rica (`hoyStrCR()` → `America/Costa_Rica`). Nunca `toISOString()` para fechas.
   - Grid con flexbox (`flex: 1 1 calc(100%/7 - 4px)`, `min-width:0`, `overflow:hidden`) — no volver a grid.
-  - Botón superior "Compartir mes por WhatsApp" (`exportarMesCalendarioWhatsApp`) es el ÚNICO compartir — el FAB no aparece en calendario.
+  - Botón superior "Compartir mes por WhatsApp" (`exportarMesCalendarioWhatsApp`) es el ÚNICO compartir.
+  - ORDEN POSTERIOR DEL USUARIO (reintegración de FABs): el "+" flotante `.fab-cal` → `abrirModalCalendarioDesdeFAB()` SÍ aparece en calendario.
 - **Header**: `nav-settings` es el ícono ⚙ arriba (no existe en barra inferior). `toggleAjustes()`: settings → home → settings (toggle).
 - **navigate()** es defensivo: destinos inexistentes NO dejan la pantalla en blanco (`tablamagica`/`caminatas`/`feriados` redirigen a `abrirTablaMagica`/`abrirCaminatas`).
 - **Barra inferior**: Listas · Directorio · Tabla Mágica · Notas · Calendario (sin Ajustes, sin Días Festivos, sin Buseta — retirado por orden del usuario; los campos de datos precioBuseta/cantidadBuses/usarBuseta se conservan para compatibilidad).
@@ -104,11 +105,11 @@
 - **Fórmula grupal**: `precioGrupal / (capacidadSG || 1)` — solo SG, nunca CG. NO TOCAR.
 - **Guardados**: lista plana por provincia con hr, numeracion 1,2,3 reiniciando. SIN borde/cuadro (clase evento-guardado-row plana, no evento-guardado-btn). NO TOCAR.
 - **Totales tarjetas**: cada metrica (Total a Recoger, Totales por Persona, Excedente P.P, Excedente General) en su .totcard con su formula chiquita DENTRO (totform). FÓRMULAS SAGRADAS: ExcPP=precioEvento-ΣgrandTotal; ExcGeneral=ExcPP×SG; TotalRecoger=precioEvento×SG. NO TOCAR.
-- **Minimizar todos los pagos**: boton #colapsar-todos-pagos SIN clase btn-add-item (estilo inline). Colapsa todas las tarjetas dejando solo nombre+total. NO TOCAR.
+- **Minimizar todos los pagos** (ORDEN POSTERIOR 2026-11-05): el botón `#colapsar-todos-pagos` fue ELIMINADO por orden del usuario para desaturar la recarga gráfica — la función vive ahora en el TÍTULO `Lista de Pagos` (`#titulo-lista-pagos`, flecha ▾/▸). Colapsa todas las tarjetas dejando solo nombre+total. El h3 quedó excluido del colapso genérico de secciones en `initSeccionesColapsables`. NO TOCAR.
 - **Colapsables**: secciones colapsan al tocar el h3; EXCEDENTE P.P. y EXCEDENTE GENERAL quedan visibles en Totales colapsado; Excedente visible en Info General colapsada. "Excedente" es el nombre correcto (NO "Ganancia"). NO TOCAR.
 - **Botón guardar evento**: flotante cuadrado 56×56 bottom:85px right:20px. NO TOCAR.
 - **Swipe**: →izquierda = divisas, izquierda→ = tabla de pagos. NO TOCAR.
-- **Colapsar todos los pagos**: botón junto al "+" de Lista de Pagos. NO TOCAR.
+- **Colapsar todos los pagos** (ORDEN POSTERIOR): ya no hay botón junto al "+" de Lista de Pagos — la acción está en el propio título (ver entrada anterior). NO TOCAR.
 - Todo `divisas.html` y lo ya blindado anteriormente sigue intocable.
 
 ## ⛔ APK (app-apk) — BLINDADO
@@ -142,3 +143,224 @@
 - URL fija: `https://latribu.tailb81e5f.ts.net` -> `localhost:8780` (`server/server.js`, `server/tribu-sync.db`). Puerto 8780 reservado.
 - Cliente: `js/sync.js` (tag `?v=` versionado — bump al cambiar); tarjeta colapsable en Ajustes; consola de conectividad incluida.
 - CORS, auth por token (`x-token`), LWW por ts de item, columna `autor` audita quien cambio que. `vendor/instalar-servidor.bat` es el instalador portable.
+
+## OTA local (replicado de TRIBALs — OTA-LOCAL.md, 2026-11-03)
+
+Sistema de actualización 100% LAN (sin nube): empuja `www/` al teléfono sin
+reinstalar el APK. Mismo motor: `@capgo/capacitor-updater@6.53.0`.
+
+- **Puertos Agenda Tribu: teléfono :8766, bundle PC :8789.** (TRIBALs usa
+  8765/8788 — se eligieron distintos a propósito para que ambas apps
+  convivan en el mismo teléfono y un push NUNCA caiga en la app equivocada.
+  El discovery filtra `devname` con prefijo `agenda-`.)
+- **Teléfono**: `TribuOtaPlugin.java` (`com.tribu.tablamagica`, registrado en
+  MainActivity antes de `super.onCreate`) — server auto-arranque en :8766:
+  `POST /ota` {url,checksum,version} → `notifyListeners('tribalOta')` ·
+  `GET /ping` → `tribalPing` · `GET /id` → devid/devname.
+- **JS**: `js/ota.js` + `js/ota_stamp.js` (cargados en el HTML principal tras
+  calendario.js): `notifyAppReady()` anti-rollback · listener `tribalOta` →
+  `download()+set()` · poller 8 s a `/stamp.json` vía `CapacitorHttp` ·
+  sello en `#app-version-actual`: tap → pull manual, mantener → `reset()` ·
+  modal «OTA aplicada» por `TRIBAL_OTA.ts` · logs `[OTA]` a consola.
+- **PC**: `app-apk\scripts\ota_watch.py` — vigila la FUENTE `Desktop\app`,
+  sincroniza lo web a `app-apk\www` (`AGENDATRIBU_V1 (1).html`→`index.html`,
+  excluye `agenda.html`, sube `js/`,`css/`,`img/`,`vendor/` + htmls raíz),
+  estampa `js/ota_stamp.js`, zipea + SHA-256, sirve `/bundle.zip` +
+  `/stamp.json` en :8789, POST a :8766. `ota_push.py` = un envío;
+  `ota_server.py` = solo sirve para pull manual. Lanzador: `scripts\OTA-watch.bat`.
+- **Manifest**: `usesCleartextTraffic="true"` — sin esto el download muere.
+- **El OTA actualiza SOLO `www/`** — Java/plugins exigen APK nuevo.
+- `notifyAppReady()` es OBLIGATORIO en cada boot (anti-rollback).
+- Prueba de vida: `curl http://<tel>:8766/ping` → modal «Comunicación viva».
+- APK con OTA ya compilado: `app-apk\apks\agendatribu-ota.apk` — hay que
+  instalarlo UNA vez; desde ahí cada cambio en `Desktop\app` llega solo.
+- Gradlew manual (sin `cap sync`: no hay package.json, el cableado de
+  plugins es manual en `capacitor.settings.gradle` +
+  `app/capacitor.build.gradle` + `assets/capacitor.plugins.json`).
+  `www/` se copia a `android/app/src/main/assets/public/` antes de compilar.
+
+## ⛔ BLINDADO — PERSISTENCIA DE DATOS (orden del usuario, 2026-11-03)
+
+**La información del usuario NUNCA retrocede ni se restaura sin permiso.**
+
+- **Localforage driver FIJO a IndexedDB** (`driver: [localforage.INDEXEDDB]`
+  en la config de `AGENDATRIBU_V1 (1).html`). PROHIBIDO reintroducir
+  `LOCALSTORAGE`/`WEBSQL` como fallback: un driver de respaldo carga un
+  snapshot viejo en silencio y los datos «vuelven al pasado» — esa fue la
+  causa raíz sospechada de la pérdida de información reportada.
+- **Migración legacy ya aplicada**: llaves `WhatsAppListManager/data/*` en
+  localStorage se apartan a `respaldo_legacy_*` (se copian a IndexedDB solo
+  si la llave no existe allí). Nada se borra.
+- **Respaldos = SOLO ESCRITURA**: el respaldo automático cada 24 h
+  (`verificarRespaldoAutomatico`) únicamente genera/exporta — nunca carga.
+- **Cargar un respaldo = ÚNICA Y EXCLUSIVAMENTE** por importación manual
+  desde «Respaldos de base de datos». Ningún camino de código puede
+  restaurar datos automáticamente ni al arrancar.
+- **Siempre rige la última información guardada** — IndexedDB es la única
+  fuente viva de verdad; TribuDB (SQLite) y los JSON son espejos de salida,
+  jamás de entrada.
+
+## ⛔ BLINDADO TOTAL — SISTEMA OTA LOCAL (aprobado y funcionando 2026-11-03)
+
+**Verificado de punta a punta en teléfono real (push → download → set → modal).**
+PROHIBIDO modificar cualquier pieza sin orden explícita del usuario.
+
+- `js/ota.js` — listener tribalOta/tribalPing · `download({url,version,checksum})`
+  + `set({id})` (firma de objeto OBLIGATORIA — args posicionales fallan en
+  silencio) · poller 8 s a `/stamp.json` via CapacitorHttp · `tribu_ota_url`
+  persistida · consola OTA `#ota-console` + botones (Limpiar/Copiar) ·
+  `TribuOTA.ping()` diagnóstico PC↔teléfono · modales con estilos INLINE
+  (las clases tribal-* no existen aquí — modales invisibles si se usan).
+- `TribuOtaPlugin.java` — server :8766 (`/ota` `{url,checksum,version}`,
+  `/ping`, `/id` con devname `agenda-XXXXX` persistente en SharedPreferences).
+- `MainActivity.java` — `registerPlugin(TribuOtaPlugin)` +
+  **`registerPlugin(CapacitorUpdaterPlugin)` EXPLÍCITO** (sin esto el bridge
+  no instancia el updater desde plugins.json → `UP=false` → OTA muerto).
+- `capacitor.config.json` — appId `com.tribu.tablamagica` (el updater lanza
+  RuntimeException si falta).
+- `app-apk/scripts/ota_watch.py` — vigila `Desktop\app` → sync www → sello →
+  zip → SHA-256 → sirve :8789 → descubre TODOS los `agenda-*` y pregunta a
+  cuál(es) empujar. Puertos agenda: **8766/8789** (TRIBALs usa 8765/8788).
+- `usesCleartextTraffic="true"` en manifest — sin esto el download muere.
+- `notifyAppReady()` cada boot — anti-rollback de Capgo.
+- El OTA actualiza SOLO `www/`; cambios nativos = APK nuevo.
+- Acceso: tocar «Versión instalada» → URL manual · mantener → reset paquete.
+- Botón «Buscar actualización ⚡» chequea OTA primero, GitHub después.
+
+## ⛔ BLINDADO — LOCALFORAGE NUNCA ANTES DE config() (causó pérdida aparente total 2026-11-03)
+
+PROHIBIDO llamar `localforage.getItem/setItem/...` desde un IIFE o código que
+corra ANTES del `localforage.config()` de la app (que se aplica en
+DOMContentLoaded). Si se usa antes, localforage se inicializa con la base por
+defecto ('localforage') y el config() posterior no aplica → la app lee una
+base VACÍA → "se perdió todo" (los datos siguen en WhatsAppListManager, solo
+inalcanzables). Toda lectura/escritura localforage nueva debe ejecutarse en
+`window load`, `DOMContentLoaded` posterior al config, o dentro de funciones
+que se llamen tras la inicialización. Mismo peligro en cualquier módulo.
+
+## ⛔ BLINDADO — PROHIBIDA la clase `.fab` (parásito whatsapp redondo 2026-11-03)
+
+JAMÁS volver a crear una regla CSS `.fab { ... }` en ningún archivo.
+`fab` es la clase oficial de FontAwesome Brands — cualquier
+`<i class="fab fa-whatsapp">` heredaba `position:fixed` + `border-radius:50%`
++ fondo naranja y se despegaba del botón volviéndose un "botón redondo
+anaranjado" fantasma. Diagnosticado con el inspector long-press
+(`TribuOTA.inspect()`): el <i> reportaba `FIXED` por esa regla zombie.
+- PROHIBIDO `.fab`, `.fab-whatsapp`, cualquier clase que colisione con
+  prefijos de FontAwesome (`fa`, `fab`, `fas`, `far`, `fal`).
+- ORDEN POSTERIOR DEL USUARIO (2026-11-04): los FABs "+" cuadrados fueron
+  REINTEGRADOS — `.fab-listas` (home→createNewCaminata), `.fab-dir`
+  (directorio→openAgregarDirectorioModal), `.fab-notas` (notas→abrirEditorNota)
+  y `.fab-cal` (calendario→abrirModalCalendarioDesdeFAB). Visibles solo en su
+  vista vía `body:has(#view-*.active)`; `display:none` base en el resto.
+  El FAB whatsapp redondo sigue eliminado (`navigate('caminata')` lo reemplaza
+  el botón cuadrado «Enviar lista por WhatsApp» + `#btn-wa-lista-flotante`).
+- Si algún día se requiere un float nuevo, la clase debe llamarse
+  `tribu-fab-*` (prefijo propio, nunca `fab-*` ni `fab`).
+- `TribuOTA.inspect()` (botón «Identificar elemento 🔍») queda como
+  herramienta permanente de diagnóstico — long-press ~1s captura
+  tag/id/clases/onclick/padres a la consola OTA + portapapeles.
+
+## ⛔ BLINDADO — Botón flotante «Enviar lista» (aprobado 2026-11-03)
+
+`#btn-wa-lista-flotante` — botón verde WhatsApp (#25D366), `position:fixed`
+abajo-derecha (bottom 76px + safe-area, z-1050, radius 10px), dentro de
+`#view-caminata` (solo visible al editar una lista). Llama
+`openWhatsAppPreview()` — flotante de WhatsApp permitido en la app junto
+con los "+" cuadrados reintegrados (`.fab-listas`/`.fab-dir`/`.fab-notas`/
+`.fab-cal`, ver sección `.fab`). Su `fa-whatsapp` interno NO toma reglas
+`.fab` (esa clase quedó erradicada — ver blindaje anterior).
+
+## Viaje Internacional en Tabla Mágica (orden del usuario, 2026-11-05)
+
+- Trigger en Configuración, debajo de Transporte con `<hr>` separador:
+  `#toggle-viaje-btn` (ACTIVADO/DESACTIVADO, persiste `tmViajeInternacional`).
+- Al activarlo: "Información General del Evento" → "Información del Viaje",
+  "Precio del Evento" → "Precio de Viaje" y "Lista de Pagos" → "Precio de Viaje".
+- Campos `#viaje-campos`: país (Centroamérica + MX/US/CO/EC/PE/CL/ES),
+  toggle capacidad única (`tmViajeCapUnica` — un solo campo "Capacidad"
+  alimenta SG y CG para viajes personales sin guía), fecha ida/regreso,
+  número de vuelo, aerolínea (lista fija + "Agregar Otra Manualmente")
+  y "Enlaces Check-in" visible solo con aerolínea elegida.
+- Persistencia: `draft.evento.viaje` + `evento.viaje`/`viajeActivo` en
+  IndexedDB; `viajeCargarDatos` en loadDraft/loadEventData;
+  limpiarFormularioNuevo vacía los campos de viaje.
+- `updateEventInfoVisibility` queda envuelto (wrapper) para re-aplicar la
+  fusión de capacidad sin tocar su lógica blindada.
+
+## ⛔ BLINDADO — Nombre "Lista de Pagos" (orden del usuario, 2026-11-05)
+
+- El título de la sección de pagos en Tabla Mágica se llama SIEMPRE
+  "Lista de Pagos" — JAMÁS renombrarlo (ni en modo Viaje Internacional).
+- El campo de precio con viaje activo dice "Precio de Eventos"
+  (nunca "Precio de Viaje"). Sin viaje sigue "Precio del Evento".
+- PROHIBIDO tocar estos nombres sin orden explícita del usuario.
+
+## ⛔ BLINDADO — VIAJE INTERNACIONAL en Tabla Mágica (ordenes acumuladas del usuario, 2026-11-05)
+
+- Trigger en Configuración bajo Transporte (`#toggle-viaje-btn`) + long-press
+  ~1 s en "Nuevo Evento" → trigger rápido. Persiste `tmViajeInternacional`.
+- Títulos: "Información del Viaje", precio "Precio de Eventos",
+  sección SIEMPRE "Lista de Pagos" (ver blindaje propio).
+- Campos `#viaje-campos`: país, Modalidad de Capacidad (un solo campo alimenta
+  SG+CG para viaje personal), fechas ida/regreso, vuelo, aerolínea
+  (45 fijas + "Agregar Otra Manualmente"), Enlaces Check-in autollenado
+  por `VIAJE_CHECKIN_LINKS`.
+- Grupal = precioGrupal ÷ capacidad (SG) — fórmula ya existente, no tocar.
+- Tipo de Gasto: SIN "Todo pegado al mismo lugar"; incluye Estadía, AirBnB,
+  Agencia de Viajes, Tour Operadora. `quitarOpcionTodoPegado()` limpia
+  selects restaurados de borradores/eventos viejos.
+- Tarjetas: selector `#dia` (`.card-dia-select`) ARRIBA entre Ocultar y
+  basurero, absoluto centrado top:11px, naranja negrita, "Día N · dd/mm/aaaa"
+  dentro del rango ida→regreso; reasigna y ordena tarjetas por día;
+  `pago.viajeDia` persiste. SOLO visible en modo viaje.
+- `updatePriceFields` PRESERVA el precio digitado al cambiar P/P↔Grupal.
+- `pagosHTML` guardado conserva el día vía atributo `selected` en el option.
+- PROHIBIDO alterar esta funcionalidad sin orden explícita del usuario.
+
+## ⛔ BLINDADO — TELÉFONOS INTERNACIONALES + BORRADO DE CAMPOS (verificados por el usuario, 2026-11-05)
+
+**Teléfonos con prefijo de país — NO TOCAR:**
+- `VIAJE_CODIGOS_PAIS` (mapa país → prefijo `00`+código: CR `00506`, Perú `0051`…).
+- `viajeCampoTelefono()` crea Teléfono/WhatsApp/Teléfono Encargado con
+  prefijo incrustado + botón WhatsApp (`wa.me` sin el `00`).
+- **Listener delegado global** sobre `.tel-encargado, .phone-input`:
+  SOLO dígitos (elimina letras/símbolos) + prefijo bloqueado
+  (`00`+código reincrustado si se borra). ES LA PIEZA CRÍTICA: los campos
+  restaurados desde `pagosHTML` no tienen listeners propios — sin el
+  listener delegado el prefijo no funciona. NO quitar.
+- `viajeAplicarPrefijosTel()` se llama al cambiar País del Viaje y tras
+  `loadDraft`/`loadEventData` — re-prefija todos los teléfonos.
+- `viajeNumeroSinPrefijo()` extrae dígitos sin prefijo conocido/suelto.
+- Los inputs tel (`type="tel"`) están EXCLUIDOS de totales/resumen —
+  un número de teléfono NUNCA es monto (fix verificado).
+
+**Borrado de campos (X) — NO TOCAR:**
+- El handler `btn-delete-field` DEBE llamar `saveDraft()` tras
+  `formGroup.remove()` — sin eso el campo borrado reaparece al recargar
+  porque `pagosHTML` lo conserva. Bug ya corregido y verificado.
+- `pagosHTML` captura `innerHTML` — los `option selected` del selector
+  de día se fijan vía `setAttribute('selected','')` para persistir.
+
+- PROHIBIDO alterar esta funcionalidad sin orden explícita del usuario.
+
+## ⛔ BLINDADO — CAMPO MAPA (Leaflet) en Tabla Mágica (verificado, 2026-11-05)
+
+- `viajeCampoMapa`: botón "Mostrar Mapa"/"Ocultar Mapa" (colapsado por
+  defecto), Leaflet LOCAL `vendor/leaflet/` (sin CDN).
+- REGLA CRÍTICA: en campos dinámicos usar `insertAdjacentHTML('beforeend',
+  deleteButton)` — NUNCA `innerHTML +=` porque destruye los listeners de
+  los hijos (eso mató el botón del mapa). Prohibido volver a innerHTML+=.
+- `rehidratarCamposMapa()` reconstruye mapas restaurados de pagosHTML.
+- `viajeSincronizarSelectoresCampos()` inyecta opciones nuevas
+  (gmaps/waze/mapa) en selectores viejos.
+- Enlaces gmaps/waze: botón con ruta, click delegado `.btn-abrir-enlace`,
+  modal `viajeModalEnlace` para pegar el link.
+- PROHIBIDO tocar sin orden explícita del usuario.
+
+## Puerto OTA :8789 SELLADO (2026-11-06)
+- `scripts/ota_guard.py` posee :8789 en EXCLUSIVA (SO_EXCLUSIVEADDRUSE, sin allow_reuse_address): ningun otro proceso/app de la PC puede bindearlo mientras viva.
+- Arranca solo con Windows via `OTA-guard.bat` copiado en shell:startup.
+- Sirve `ota_out/bundle.zip` + `ota_out/stamp.json` (persistidos por `rebuild()`) — el checksum del push coincide byte a byte con lo servido.
+- `ota_push.py` y el watcher usan `ExclusiveHTTPServer` y detectan al guard: si :8789 ya esta poseido, solo POSTean el OTA y salen (causa anterior de "OTA fallo": servidores duplicados con sello viejo).
+- Cualquier app nueva que necesite puerto LAN debe elegir otro automaticamente; :8789 es propiedad permanente de Agenda Tribu.

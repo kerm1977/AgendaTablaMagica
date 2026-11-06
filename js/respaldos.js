@@ -58,7 +58,53 @@ window.TribuRespaldos = (function () {
 
     // Guarda texto como archivo .json en la carpeta. Devuelve true si escribió
     // en la carpeta; false si tuvo que caer a descarga normal.
+    function _blog(m) {
+        try {
+            if (window.TribuOTA && window.TribuOTA.log)
+                window.TribuOTA.log('[Respaldo] ' + m);
+        } catch (e) {}
+    }
+
     async function guardar(nombre, texto) {
+        _blog('guardar → ' + nombre + ' (' +
+            (typeof texto === 'string' ? 'texto ' + texto.length + 'c' : 'binario') + ')');
+        // Vía Capacitor: Filesystem escribe el archivo en Documentos de la app
+        // y Share abre el diálogo del sistema (WhatsApp/Drive/Gmail).
+        // En WebView no existe <a download> ni File System Access API.
+        try {
+            var FSp = window.Capacitor && window.Capacitor.Plugins &&
+                window.Capacitor.Plugins.Filesystem;
+            if (FSp) {
+                var data = texto, enc = null;
+                if (typeof texto === 'string') {
+                    enc = 'utf8';
+                } else {
+                    var u8 = texto instanceof ArrayBuffer ?
+                        new Uint8Array(texto) : texto;
+                    var bin = '';
+                    for (var i = 0; i < u8.length; i += 8192)
+                        bin += String.fromCharCode.apply(
+                            null, u8.subarray(i, i + 8192));
+                    data = btoa(bin);
+                }
+                var opts = { path: nombre, data: data,
+                             directory: 'DOCUMENTS', recursive: true };
+                if (enc) opts.encoding = enc;
+                var wr = await FSp.writeFile(opts);
+                _blog('Filesystem OK → ' + (wr && wr.uri));
+                try {
+                    var Sh = window.Capacitor.Plugins.Share;
+                    if (Sh && wr && wr.uri)
+                        await Sh.share({ url: wr.uri, title: nombre });
+                    _blog('Share abierto');
+                } catch (e2) { _blog('Share omitido: ' + e2); }
+                return true;
+            }
+            _blog('sin plugin Filesystem — vía navegador');
+        } catch (e) {
+            _blog('Capacitor export falló: ' + (e && e.message || e));
+            console.warn('Capacitor export falló:', e);
+        }
         var h = await cargarHandle();
         if (h) {
             try {
@@ -66,11 +112,14 @@ window.TribuRespaldos = (function () {
                 var w = await fh.createWritable();
                 await w.write(texto);
                 await w.close();
+                _blog('guardado en carpeta elegida');
                 return true;
             } catch (e) {
+                _blog('falló escritura en carpeta: ' + e.message);
                 console.warn('TribuRespaldos: falló escritura en carpeta', e);
             }
         }
+        _blog('sin carpeta → descarga normal <a download>');
         descargarBlob(nombre, texto);
         return false;
     }
@@ -346,12 +395,13 @@ window.TribuRespaldos = (function () {
     }
 
     async function exportarDB() {
+        _blog('exportarDB iniciado');
         try {
             var snapshot = await capturar();
             var bytes = await TribuDB.exportarCompleto(collectDbState(), snapshot);
             await guardar('AgendaTribu_' + hoyStrCR() + '_' + Date.now() + '.db', bytes);
             renderPanel();
-        } catch (e) { showToast('No se pudo respaldar .db: ' + e.message, 'danger'); }
+        } catch (e) { _blog('exportarDB FALLÓ: ' + e.message); showToast('No se pudo respaldar .db: ' + e.message, 'danger'); }
     }
 
     async function importarDB(event) {

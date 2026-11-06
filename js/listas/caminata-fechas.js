@@ -34,6 +34,26 @@
                 option.value = nombre;
                 datalist.appendChild(option);
             });
+
+            // Sugerencias desde eventos guardados en Tabla Mágica (PagosAppDB.eventos)
+            try {
+                const req = indexedDB.open('PagosAppDB');
+                req.onsuccess = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('eventos')) return;
+                    db.transaction(['eventos'], 'readonly').objectStore('eventos').getAll().onsuccess = ev => {
+                        (ev.target.result || []).forEach(evt => {
+                            const n = evt && evt.nombre ? String(evt.nombre).trim() : '';
+                            if (n && !nombres.has(n)) {
+                                nombres.add(n);
+                                const option = document.createElement('option');
+                                option.value = n;
+                                datalist.appendChild(option);
+                            }
+                        });
+                    };
+                };
+            } catch (e) {}
         }
 
 
@@ -57,6 +77,42 @@
                 if (cam.provincia) document.getElementById('cam-provincia').value = cam.provincia;
                 actualizarMonedaPorTipoPrecio();
             }
+
+            // Si el nombre coincide con un evento de Tabla Mágica →
+            // Actividad = Internacional + País autoseleccionado del viaje
+            try {
+                const req = indexedDB.open('PagosAppDB');
+                req.onsuccess = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('eventos')) return;
+                    db.transaction(['eventos'], 'readonly').objectStore('eventos').getAll().onsuccess = ev => {
+                        const hit = (ev.target.result || []).find(x => x && x.nombre && x.nombre.toLowerCase() === nombre.toLowerCase());
+                        if (!hit) return;
+                        // Marcar "Incluye" con los tipos de gasto usados en el evento TM
+                        const tipos = new Set((hit.pagos || []).map(x => (x.nombre || '').trim()).filter(Boolean));
+                        document.querySelectorAll('input[name="incluye"]').forEach(cb => {
+                            if (tipos.has(cb.value)) cb.checked = true;
+                        });
+                        if (!hit.viaje) return;
+                        const act = document.getElementById('cam-actividad');
+                        if (act && [...act.options].some(o => o.value === 'Internacional')) {
+                            act.value = 'Internacional';
+                            act.dispatchEvent(new Event('change'));
+                        }
+                        const pais = hit.viaje.pais || '';
+                        const cp = document.getElementById('cam-pais');
+                        if (cp && pais) {
+                            if (![...cp.options].some(o => o.value === pais)) {
+                                const o = document.createElement('option');
+                                o.value = pais; o.textContent = pais;
+                                cp.appendChild(o);
+                            }
+                            cp.value = pais;
+                            cp.dispatchEvent(new Event('change'));
+                        }
+                    };
+                };
+            } catch (e) {}
         }
 
 

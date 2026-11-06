@@ -18,6 +18,7 @@
             document.getElementById('cam-kilometros').value = cam.kilometros || '';
             document.getElementById('cam-actividad').value = cam.actividad || 'Caminata';
             document.getElementById('cam-etapa').value = cam.actividad === 'El Camino de Costa Rica' ? (cam.nombre || '') : '';
+            aplicarDatosEtapa(document.getElementById('cam-etapa').value, false);
             document.getElementById('cam-modo-transporte').value = cam.modoTransporte || 'Terrestre';
             poblarSelectParquesNacionales();
             document.getElementById('cam-parque').value = cam.actividad === 'Parque Nacional' ? (cam.nombre || '') : '';

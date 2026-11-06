@@ -398,7 +398,8 @@
                         formGroup.remove();
                         updatePagoVisibility(itemCard);
                         updateEventInfoVisibility();
-                        updateTotals(itemCard.querySelector('input')); 
+                        updateTotals(itemCard.querySelector('input'));
+                        saveDraft();
                     }
                 }
             }
@@ -524,7 +525,7 @@
             let airlineOptionHTML = (currentCurrency === 'USD') ? `<option value="aerolinea">Aerolínea</option>` : '';
             let localAlertDisplay = alertaPerdidaHabilitada ? 'none' : 'block';
             
-            return `<div class="item-card" id="${uniqueId}"><button class="btn-collapse-item" aria-label="Colapsar pago">Ocultar</button><button class="btn-delete-item" aria-label="Eliminar pago"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><div class="collapsed-summary"></div><div class="collapsible-content"><div class="card-top-row"><div class="form-group"><label for="tipo-gasto-${uniqueId}">Tipo de Gasto</label><select id="tipo-gasto-${uniqueId}" class="item-tipo-gasto" onchange="var n=this.parentElement.querySelector('.item-nombre');if(this.value==='Otros'){n.style.display='';n.value='';n.focus();}else{n.value=this.value;n.style.display='none';}"><option value="">— Seleccionar —</option><option value="Transporte">Transporte</option><option value="Estadía">Estadía</option><option value="Almuerzo">Almuerzo</option><option value="Desayuno">Desayuno</option><option value="Puntos">Puntos</option><option value="Café">Café</option><option value="Fiesta">Fiesta</option><option value="Lanchas">Lanchas</option><option value="Aéreo">Aéreo</option><option value="Acarreo">Acarreo</option><option value="Guía">Guía</option><option value="4x4">4x4</option><option value="Camping">Camping</option><option value="Scouting">Scouting</option><option value="Refrigerio">Refrigerio</option><option value="Entrada">Entrada</option><option value="Uber/Didi/Taxi">Uber/Didi/Taxi</option><option value="Bus">Bus</option><option value="Todo pegado al mismo lugar">Todo pegado al mismo lugar</option><option value="Donación">Donación</option><option value="Otros">Otros</option></select><input type="text" id="nombre-${uniqueId}" class="item-nombre" placeholder="Descripción" style="display:none"></div><div class="form-group"><label for="tipo-precio-${uniqueId}">Tipo de Precio</label><select id="tipo-precio-${uniqueId}" class="price-type-selector"><option value="persona">Precio por Persona</option><option value="grupal">Precio Grupal</option></select></div><div class="form-group"><label for="field-selector-${uniqueId}">Añadir Campo</label><select id="field-selector-${uniqueId}" class="field-selector" data-card-id="${uniqueId}"><option value="">Seleccionar...</option>${airlineOptionHTML}<option value="descripcion">Descripción</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="fecha">Fecha</option><option value="cantidad">Cantidad</option><option value="tipo_pago">Tipo de Pago</option><option value="guias">Guías</option><option value="nombre_encargado">Nombre Encargado</option><option value="telefono_encargado">Teléfono Encargado</option><option value="nota">Nota</option><option value="informacion">Información</option><option value="reconocimiento">Reconocimiento</option><option value="cotizador">Cotizador</option></select></div><div class="form-group local-alert-container" style="display: ${localAlertDisplay};"><label>Alerta Individual</label><button type="button" class="btn local-alert-btn btn-secondary" data-alert="false" style="width: 100%; margin-top: 0; padding: 0.8rem 0;">Desactivada</button></div></div><div class="dynamic-fields-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem"></div><div class="price-section" style="border-top:1px solid var(--color-secundario);margin-top:1rem;padding-top:1rem"><div class="price-details-container"><div class="form-group"><label for="precio-persona-${uniqueId}">Precio p/p</label><input type="number" id="precio-persona-${uniqueId}" class="item-price-per-person" min="0" value="0"></div><div class="total-display"><strong>TOTAL:</strong> <span class="total-amount">0</span></div></div></div><button class="btn btn-secondary export-pago-btn" style="margin-top:1rem;width:100%">Exportar Pago (JSON)</button></div></div>`;
+            return `<div class="item-card" id="${uniqueId}"><button class="btn-collapse-item" aria-label="Colapsar pago">Ocultar</button><select class="card-dia-select viaje-dia-select" title="Día del viaje" style="position:absolute;top:11px;left:50%;transform:translateX(-50%);font-weight:bold;color:var(--color-primario,#f97316);text-align:center;text-align-last:center;border:none;background:transparent;font-size:1.1rem;z-index:2;display:${viajeInternacional?'':'none'}">${viajeDiasOptionsHTML()}</select><button class="btn-delete-item" aria-label="Eliminar pago"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><div class="collapsed-summary"></div><div class="collapsible-content"><div class="card-top-row"><div class="form-group"><label for="tipo-gasto-${uniqueId}">Tipo de Gasto</label><select id="tipo-gasto-${uniqueId}" class="item-tipo-gasto" onchange="var n=this.parentElement.querySelector('.item-nombre');if(this.value==='Otros'){n.style.display='';n.value='';n.focus();}else{n.value=this.value;n.style.display='none';}"><option value="">— Seleccionar —</option><option value="Transporte">Transporte</option><option value="Estadía">Estadía</option><option value="AirBnB">AirBnB</option><option value="Agencia de Viajes">Agencia de Viajes</option><option value="Tour Operadora">Tour Operadora</option><option value="Almuerzo">Almuerzo</option><option value="Desayuno">Desayuno</option><option value="Puntos">Puntos</option><option value="Café">Café</option><option value="Fiesta">Fiesta</option><option value="Lanchas">Lanchas</option><option value="Aéreo">Aéreo</option><option value="Acarreo">Acarreo</option><option value="Guía">Guía</option><option value="4x4">4x4</option><option value="Camping">Camping</option><option value="Scouting">Scouting</option><option value="Refrigerio">Refrigerio</option><option value="Entrada">Entrada</option><option value="Uber/Didi/Taxi">Uber/Didi/Taxi</option><option value="Bus">Bus</option><option value="Donación">Donación</option><option value="Lancha">Lancha</option><option value="Cena">Cena</option><option value="Guías">Guías</option><option value="Pasaporte">Pasaporte</option><option value="Rifas">Rifas</option><option value="Ducha">Ducha</option><option value="Servicios Sanitarios">Servicios Sanitarios</option><option value="Impuestos">Impuestos</option><option value="Tiquetes Aereos">Tiquetes Aereos</option><option value="ZonaDeCamping">ZonaDeCamping</option><option value="PolizaDeViajero">PolizaDeViajero</option><option value="TaxiUberOtro">TaxiUberOtro</option><option value="GuiasCertificados">GuiasCertificados</option><option value="Otros">Otros</option></select><input type="text" id="nombre-${uniqueId}" class="item-nombre" placeholder="Descripción" style="display:none"></div><div class="form-group"><label for="tipo-precio-${uniqueId}">Tipo de Precio</label><select id="tipo-precio-${uniqueId}" class="price-type-selector"><option value="persona">Precio por Persona</option><option value="grupal">Precio Grupal</option></select></div><div class="form-group"><label for="field-selector-${uniqueId}">Añadir Campo</label><select id="field-selector-${uniqueId}" class="field-selector" data-card-id="${uniqueId}"><option value="">Seleccionar...</option>${airlineOptionHTML}<option value="descripcion">Descripción</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="fecha">Fecha</option><option value="hora_inicio">Hora de Inicio</option><option value="hora_final">Hora Final</option><option value="cantidad">Cantidad</option><option value="tipo_pago">Tipo de Pago</option><option value="guias">Guías</option><option value="nombre_encargado">Nombre Encargado</option><option value="nombre_empresa">Nombre de Empresa</option><option value="telefono_encargado">Teléfono Encargado</option><option value="nota">Nota</option><option value="informacion">Información</option><option value="reconocimiento">Reconocimiento</option><option value="cotizador">Cotizador</option><option value="gmaps">Google Maps</option><option value="waze">Waze</option><option value="mapa">Mapa</option></select></div><div class="form-group local-alert-container" style="display: ${localAlertDisplay};"><label>Alerta Individual</label><button type="button" class="btn local-alert-btn btn-secondary" data-alert="false" style="width: 100%; margin-top: 0; padding: 0.8rem 0;">Desactivada</button></div></div><div class="dynamic-fields-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem"></div><div class="price-section" style="border-top:1px solid var(--color-secundario);margin-top:1rem;padding-top:1rem"><div class="price-details-container"><div class="form-group"><label for="precio-persona-${uniqueId}">Precio p/p</label><input type="number" id="precio-persona-${uniqueId}" class="item-price-per-person" min="0" value="0"></div><div class="total-display"><strong>TOTAL:</strong> <span class="total-amount">0</span></div></div></div><button class="btn btn-secondary export-pago-btn" style="margin-top:1rem;width:100%">Exportar Pago (JSON)</button></div></div>`;
         }
         
         // Función para crear un elemento de campo de forma programática
@@ -581,7 +582,7 @@
 
                     formGroup.innerHTML = `<label for="${fieldId}-selector">Aerolínea</label>`;
                     formGroup.appendChild(airlineSelect);
-                    formGroup.innerHTML += deleteButton;
+                    formGroup.insertAdjacentHTML('beforeend', deleteButton);
                     formGroup.appendChild(infoDisplay);
                     formGroup.appendChild(airlineFieldsContainer);
 
@@ -593,10 +594,12 @@
                     return formGroup;
 
                 case 'descripcion': labelText = 'Descripción'; inputElement = document.createElement('input'); inputElement.type = 'text'; break;
-                case 'telefono': labelText = 'Teléfono'; inputElement = document.createElement('input'); inputElement.type = 'tel'; inputElement.maxLength = 8; inputElement.className = 'phone-input'; break;
-                case 'whatsapp': labelText = 'WhatsApp'; inputElement = document.createElement('input'); inputElement.type = 'tel'; inputElement.maxLength = 8; inputElement.className = 'phone-input'; break;
+                                case 'telefono': return viajeCampoTelefono('telefono', fieldId, formGroup, deleteButton);
+                                case 'whatsapp': return viajeCampoTelefono('whatsapp', fieldId, formGroup, deleteButton);
                 case 'email': labelText = 'Email'; inputElement = document.createElement('input'); inputElement.type = 'email'; break;
                 case 'fecha': labelText = 'Fecha'; inputElement = document.createElement('input'); inputElement.type = 'date'; break;
+                case 'hora_inicio': labelText = 'Hora de Inicio'; inputElement = document.createElement('input'); inputElement.type = 'time'; break;
+                case 'hora_final': labelText = 'Hora Final'; inputElement = document.createElement('input'); inputElement.type = 'time'; break;
                 case 'cantidad': labelText = 'Cantidad'; inputElement = document.createElement('input'); inputElement.type = 'number'; inputElement.value = '1'; inputElement.min = '1'; inputElement.className = 'item-quantity'; break;
                 case 'tipo_pago':
                     labelText = 'Tipo de Pago';
@@ -610,7 +613,18 @@
                     break;
                 case 'guias': labelText = 'Guías'; inputElement = document.createElement('input'); inputElement.type = 'text'; break;
                 case 'nombre_encargado': labelText = 'Nombre Encargado'; inputElement = document.createElement('input'); inputElement.type = 'text'; break;
-                case 'telefono_encargado': labelText = 'Teléfono Encargado'; inputElement = document.createElement('input'); inputElement.type = 'tel'; inputElement.maxLength = 8; inputElement.className = 'phone-input'; break;
+                case 'nombre_empresa': labelText = 'Nombre de Empresa'; inputElement = document.createElement('input'); inputElement.type = 'text'; break;
+                case 'telefono_encargado': return viajeCampoTelefono('telefono_encargado', fieldId, formGroup, deleteButton);
+                case 'gmaps': case 'waze': {
+                    const campo = viajeCampoEnlace(fieldName, fieldId, formGroup, deleteButton);
+                    viajeModalEnlace(fieldName === 'gmaps' ? 'Enlace Google Maps' : 'Enlace Waze', (link) => {
+                        const urlInp = campo.querySelector('.enlace-url');
+                        if (urlInp) { urlInp.value = link; urlInp.setAttribute('value', link); }
+                        if (typeof saveDraft === 'function') saveDraft();
+                    });
+                    return campo;
+                }
+                case 'mapa': return viajeCampoMapa(fieldId, formGroup, deleteButton);
                 case 'nota': labelText = 'Nota'; inputElement = document.createElement('textarea'); inputElement.rows = 3; break;
                 case 'cotizador': {
                     formGroup.style.gridColumn = '1 / -1';
@@ -1125,7 +1139,7 @@
             label.textContent = labelText;
             inputElement.id = fieldId;
             formGroup.append(label, inputElement);
-            formGroup.innerHTML += deleteButton;
+            formGroup.insertAdjacentHTML('beforeend', deleteButton);
 
             return formGroup;
         }
@@ -1195,11 +1209,16 @@
             const priceSection = itemCard.querySelector('.price-section');
             const uniqueId = itemCard.id;
             const currencySymbol = currentCurrency === 'CRC' ? '₡' : '$';
+            /* preservar el precio ya digitado al cambiar de tipo (orden del
+               usuario: el monto no debe desaparecer) */
+            const prevPrice = itemCard.querySelector('.item-price-per-person, .item-price-grupal')?.value || '0';
             if (selectElement.value === 'persona') {
                 priceSection.innerHTML = `<div class="price-details-container"><div class="form-group"><label for="precio-persona-${uniqueId}">Precio p/p</label><input type="number" id="precio-persona-${uniqueId}" class="item-price-per-person" min="0" value="0"></div><div class="total-display"><strong>TOTAL:</strong> <span class="total-amount">${currencySymbol}0</span></div></div>`;
             } else {
                 priceSection.innerHTML = `<div class="price-details-container"><div class="form-group"><label for="precio-grupal-${uniqueId}">Precio Grupal</label><input type="number" id="precio-grupal-${uniqueId}" class="item-price-grupal" min="0" value="0"></div><div class="grupal-total-formula"><strong>TOTAL:</strong> <span class="grupal-amount">${currencySymbol}0</span></div></div>`;
             }
+            const nuevoPrecioInput = priceSection.querySelector('.item-price-per-person, .item-price-grupal');
+            if (nuevoPrecioInput && prevPrice !== '0') nuevoPrecioInput.value = prevPrice;
             togglePriceVisibility(itemCard);
             if (shouldUpdateTotals) {
                 updateTotals(selectElement);
@@ -2180,6 +2199,8 @@
             eventoPrecio.value = '0';
             eventoCapacidadCG.value = '0';
             eventoCapacidadSG.value = '0';
+            ['viaje-pais','viaje-capacidad','viaje-fecha-ida','viaje-fecha-regreso','viaje-vuelo','viaje-aerolinea','viaje-aerolinea-otra','viaje-checkin'].forEach(id => { const el = document.getElementById(id); if (el) el.value = id === 'viaje-capacidad' ? '0' : ''; });
+            if (typeof aplicarViajeUI === 'function') aplicarViajeUI();
             document.getElementById('transporte-nacional-list').innerHTML = '';
             updateAllTotals();
             clearDraft();
@@ -2225,6 +2246,7 @@
                 dynamicFields: {}
             };
 
+            pago.viajeDia = card.querySelector('.card-dia-select')?.value || 'Día 1';
             pago.tipoPrecio = card.querySelector('.price-type-selector')?.value || 'persona';
             pago.precioPersona = card.querySelector('.item-price-per-person')?.value || '0';
             pago.precioGrupal = card.querySelector('.item-price-grupal')?.value || '0';
@@ -2369,6 +2391,8 @@
                 capacidadSG: eventoCapacidadSG.value,
                 tipoCambio: tipoCambioInput.value,
                 moneda: currentCurrency,
+                viaje: typeof viajeDraftDatos === 'function' ? viajeDraftDatos() : null,
+                viajeActivo: viajeInternacional,
                 pagos
             };
 
@@ -2381,6 +2405,7 @@
             request.onsuccess = () => {
                 showNotification(`Evento "${nombre}" guardado exitosamente.`);
                 loadEvents();
+                viajeGuardarProveedores(evento);
                 const tieneCotizador = evento.pagos.some(p => p.dynamicFields && p.dynamicFields.cotizador);
                 if (tieneCotizador) {
                     document.querySelector('.tab-link[data-tab=guardados]')?.click();
@@ -2419,43 +2444,14 @@
         
         function renderEventosGuardados(events) {
             eventosGuardadosList.innerHTML = '';
-            
+
             if (events.length === 0) {
                 eventosGuardadosList.innerHTML = '<p style="color:var(--color-texto); width:100%; text-align:center;">No se encontraron eventos.</p>';
                 return;
             }
 
-            const provinciasOrder = ['San José', 'Cartago', 'Heredia', 'Alajuela', 'Guanacaste', 'Puntarenas', 'Limón'];
-            const groups = {};
-            events.forEach(evento => {
-                const pagoConProvincia = (evento.pagos || []).find(p => p.provincia);
-                const prov = (pagoConProvincia && pagoConProvincia.provincia) ? pagoConProvincia.provincia : 'Sin provincia';
-                if (!groups[prov]) groups[prov] = [];
-                groups[prov].push(evento);
-            });
-
-            const sortedProvinces = Object.keys(groups).sort((a, b) => {
-                if (a === 'Sin provincia') return 1;
-                if (b === 'Sin provincia') return -1;
-                const idxA = provinciasOrder.indexOf(a);
-                const idxB = provinciasOrder.indexOf(b);
-                if (idxA === -1) return 1;
-                if (idxB === -1) return -1;
-                return idxA - idxB;
-            });
-
-            sortedProvinces.forEach(prov => {
-                // HR + nombre de la provincia, sin cuadros anidados
-                const hr = document.createElement('hr');
-                hr.style.cssText = 'margin: 0.9rem 0 0.3rem; border: 0; border-top: 1px solid var(--color-secundario);';
-                eventosGuardadosList.appendChild(hr);
-                const h = document.createElement('div');
-                h.style.cssText = 'font-weight: bold; color: var(--color-primario); margin-bottom: 0.4rem; font-size: 1rem;';
-                h.textContent = prov;
-                eventosGuardadosList.appendChild(h);
-
-                // lista plana numerada — reinicia en 1 por provincia
-                groups[prov].forEach((evento, idx) => {
+            // lista plana numerada — sin provincias (nunca se asignan en Tabla Mágica)
+            events.forEach((evento, idx) => {
                     const capacidadCG = parseFloat(evento.capacidadCG) || 0;
                     const capacidadSG = parseFloat(evento.capacidadSG) || 1;
                     const precioDelEvento = parseFloat(evento.precio) || 0;
@@ -2477,18 +2473,23 @@
                     const btn = document.createElement('div');
                     btn.className = 'evento-guardado-row';
                     btn.dataset.eventId = evento.id;
-                    btn.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0;border-bottom:1px solid #f0f0f0;cursor:pointer;';
+                    btn.style.cssText = 'display:flex;flex-direction:column;padding:0.45rem 0;border-bottom:1px solid #f0f0f0;cursor:pointer;';
+                    const bst = 'width:44px;height:36px;border:none;border-radius:8px;background:#fff;color:#555;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.12);';
                     btn.innerHTML = `
                         <div>
                             <strong>${idx + 1}. ${evento.nombre}</strong>
                             <small style="display:block;color:var(--color-exito);margin-top:2px;">PRECIO: ${formatCurrency(precioDelEvento, evento.moneda)} | EXCEDENTE: ${formatCurrency(ganancia, evento.moneda)}</small>
                         </div>
-                        <div style="display:flex;gap:0.5rem;">
-                            <button class="btn-tarjeta-evento" data-event-id="${evento.id}" aria-label="Ver Tarjeta de Viaje">
-                                <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z"/></svg>
+                        <hr style="margin:0.4rem 0;border:0;border-top:1px solid var(--color-secundario);opacity:.6;">
+                        <div style="display:flex;justify-content:space-between;padding:0 8px;">
+                            <button class="btn-tarjeta-evento" data-event-id="${evento.id}" aria-label="Ver Tarjeta de Viaje" style="${bst}color:var(--color-acento);">
+                                <i class="fas fa-id-card"></i>
                             </button>
-                            <button class="btn-delete-evento" data-event-id="${evento.id}" aria-label="Eliminar Evento">
-                                <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            <button class="btn-itinerario-evento" data-event-id="${evento.id}" aria-label="Ver Itinerario" style="${bst}color:var(--color-primario);">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </button>
+                            <button class="btn-delete-evento" data-event-id="${evento.id}" aria-label="Eliminar Evento" style="${bst}color:#dc2626;">
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>`;
 
@@ -2499,6 +2500,9 @@
                         } else if (e.target.closest('.btn-tarjeta-evento')) {
                             e.stopPropagation();
                             showTarjetaViaje(evento.id);
+                        } else if (e.target.closest('.btn-itinerario-evento')) {
+                            e.stopPropagation();
+                            window.location.href = 'itinerario.html?id=' + encodeURIComponent(evento.id);
                         } else {
                             loadEventData(evento.id);
                         }
@@ -2506,8 +2510,6 @@
 
                     eventosGuardadosList.appendChild(btn);
                 });
-            });
-
 
         }
 
@@ -3194,6 +3196,7 @@
                 tipoCambioInput.value = evento.tipoCambio;
                 currencySelector.value = evento.moneda;
                 currencySelector.dispatchEvent(new Event('change'));
+                if (evento.viaje && typeof viajeCargarDatos === 'function') viajeCargarDatos(evento.viaje);
 
                 const pagosList = document.getElementById('transporte-nacional-list');
                 pagosList.innerHTML = '';
@@ -3225,6 +3228,14 @@
                             localAlertBtn.dataset.alert = isOn ? 'true' : 'false';
                             localAlertBtn.textContent = isOn ? 'Activada' : 'Desactivada';
                             localAlertBtn.className = `btn local-alert-btn ${isOn ? 'btn-exito' : 'btn-secondary'}`;
+                        }
+
+                        const cds = cardElement.querySelector('.card-dia-select');
+                        if (cds && pago.viajeDia) {
+                            cds.value = pago.viajeDia;
+                            cds.querySelectorAll('option').forEach(o => o.removeAttribute('selected'));
+                            const op = Array.from(cds.options).find(o => o.value === pago.viajeDia);
+                            if (op) op.setAttribute('selected', '');
                         }
 
                         const dynamicFieldsContainer = cardElement.querySelector('.dynamic-fields-container');
@@ -3388,6 +3399,10 @@
                         pagosList.appendChild(cardElement);
                     });
                 }
+                ordenarPagosPorDia();
+                viajeAplicarPrefijosTel();
+                viajeSincronizarSelectoresCampos();
+                rehidratarCamposMapa();
                 updateAllTotals(); 
                 clearDraft();
                 updateEventInfoVisibility();
@@ -3410,7 +3425,8 @@
             populateThemeSelector();
             const draft = localStorage.getItem('PagosAppDraft');
             if (draft) {
-                showSessionRestoreModal();
+                // Auto-restaurar el borrador sin preguntar (orden del usuario: nada se pierde)
+                try { loadDraft(); } catch (e) { currencySelector.dispatchEvent(new Event('change')); }
             } else {
                 currencySelector.dispatchEvent(new Event('change'));
             }
@@ -3891,7 +3907,8 @@
                 capacidadCG: eventoCapacidadCG.value,
                 capacidadSG: eventoCapacidadSG.value,
                 tipoCambio: tipoCambioInput.value,
-                moneda: currentCurrency
+                moneda: currentCurrency,
+                viaje: typeof viajeDraftDatos === 'function' ? viajeDraftDatos() : null
             };
             const draft = {
                 currentEventId,
@@ -3914,6 +3931,12 @@
             currencySelector.value = draft.evento.moneda || 'CRC';
             currencySelector.dispatchEvent(new Event('change'));
             document.getElementById('transporte-nacional-list').innerHTML = draft.pagosHTML || '';
+            quitarOpcionTodoPegado();
+            ordenarPagosPorDia();
+            viajeAplicarPrefijosTel();
+            viajeSincronizarSelectoresCampos();
+            rehidratarCamposMapa();
+            if (draft.evento && draft.evento.viaje && typeof viajeCargarDatos === 'function') viajeCargarDatos(draft.evento.viaje);
             updateAllTotals();
         }
 
@@ -3982,7 +4005,7 @@ function renderTablaResumenPagos(){
 
   const filas=[...document.querySelectorAll('#transporte-nacional-list .item-card')].filter(card=>{
     const tieneNombre=(card.querySelector('.item-tipo-gasto')?.value||card.querySelector('.item-nombre')?.value||'').trim()!=='';
-    const tienePrecio=[...card.querySelectorAll('input')].some(i=>parseFloat(i.value)>0);
+    const tienePrecio=[...card.querySelectorAll('input')].some(i=>i.type!=='tel'&&parseFloat(i.value)>0);
     return tieneNombre&&tienePrecio;
   }).map(card=>{
     const selGasto=card.querySelector('.item-tipo-gasto');
@@ -3990,7 +4013,7 @@ function renderTablaResumenPagos(){
     const tipo=card.querySelector('.price-type-selector')?.value==='grupal'?'P/G':'P/P';
     const capSG_=parseFloat(document.getElementById("evento-capacidad-sg")?.value)||1;
     const capCG_=parseFloat(document.getElementById("evento-capacidad-cg")?.value)||0;
-    const numInputs=[...card.querySelectorAll('input')].filter(i=>parseFloat(i.value)>0);
+    const numInputs=[...card.querySelectorAll('input')].filter(i=>i.type!=='tel'&&parseFloat(i.value)>0);
     const grupalRaw=parseFloat(card.querySelector(".item-price-grupal")?.value)||parseFloat(numInputs[0]?.value)||0;
     const ppRaw=parseFloat(card.querySelector(".item-price-per-person")?.value)||parseFloat(numInputs[0]?.value)||0;
     const pp=tipo==='P/G'?grupalRaw/capSG_:ppRaw*capCG_/capSG_;
@@ -4053,7 +4076,9 @@ function initSeccionesColapsables(){
   document.head.appendChild(estilo);
   document.querySelectorAll('.content-section').forEach(sec=>{
     const h3=sec.querySelector('h3.section-title');
-    if(!h3||sec.dataset.colDone)return;
+    /* 'Lista de Pagos': el título minimiza los pagos (orden del
+       usuario) — no lleva el colapso de sección genérico */
+    if(!h3||sec.dataset.colDone||h3.id==='titulo-lista-pagos')return;
     sec.dataset.colDone='1';
     const header=h3.closest('.section-header')||h3;
     const cuerpo=document.createElement('div');
@@ -4086,15 +4111,1010 @@ function initSeccionesColapsables(){
 document.addEventListener('DOMContentLoaded',initSeccionesColapsables);
 setTimeout(initSeccionesColapsables,500);
 
-/* __colapsar_todos */
+/* __colapsar_todos — la función vive en el título 'Lista de Pagos'
+   (el botón aparte se retiró por orden del usuario) */
 document.addEventListener('click',e=>{
-  const btn=e.target.closest('#colapsar-todos-pagos');
-  if(!btn)return;
+  const h3=e.target.closest('#titulo-lista-pagos');
+  if(!h3)return;
   const cards=document.querySelectorAll('#transporte-nacional-list .item-card');
   const algunaAbierta=[...cards].some(c=>!c.classList.contains('collapsed'));
   cards.forEach(c=>{
     c.classList.toggle('collapsed',algunaAbierta);
     const b=c.querySelector('.btn-collapse-item');if(b)b.textContent=algunaAbierta?'Mostrar':'Ocultar';
   });
-  const i=btn.querySelector('i');if(i)i.className=algunaAbierta?'fas fa-expand-alt':'fas fa-compress-alt';
+  const a=h3.querySelector('.flecha-col');if(a)a.textContent=algunaAbierta?'▸':'▾';
 });
+
+/* __viaje_internacional — administrador de viajes (orden del usuario):
+   trigger en Configuración; transforma "Información General del Evento"
+   en modo viaje (país, capacidad única, fechas, vuelo, aerolínea+checkin) */
+let viajeInternacional = localStorage.getItem('tmViajeInternacional') === 'true';
+let viajeCapUnica = localStorage.getItem('tmViajeCapUnica') === 'true';
+
+function _v(id) { return document.getElementById(id); }
+
+function viajeAerolineaElegida() {
+    const aero = _v('viaje-aerolinea');
+    if (!aero) return false;
+    if (aero.value === '__otra') return !!(_v('viaje-aerolinea-otra').value || '').trim();
+    return !!aero.value;
+}
+
+function aplicarCapacidadViaje() {
+    const capGroup = _v('viaje-capacidad-group');
+    const capToggle = _v('viaje-cap-toggle');
+    const cgGroup = _v('evento-capacidad-cg')?.closest('.form-group');
+    const sgGroup = _v('evento-capacidad-sg')?.closest('.form-group');
+    if (!capToggle) return;
+    const visible = viajeInternacional && viajeCapUnica;
+    if (capGroup) capGroup.style.display = visible ? '' : 'none';
+    if (visible) {
+        if (cgGroup) cgGroup.style.display = 'none';
+        if (sgGroup) sgGroup.style.display = 'none';
+        capToggle.textContent = 'Un solo campo (viaje personal): SÍ';
+        capToggle.className = 'btn btn-exito';
+    } else {
+        if (cgGroup && cgGroup.style.display === 'none') cgGroup.style.display = '';
+        if (sgGroup && sgGroup.style.display === 'none') sgGroup.style.display = '';
+        capToggle.textContent = 'Un solo campo (viaje personal): NO';
+        capToggle.className = 'btn btn-secondary';
+    }
+    capToggle.style.width = '100%';
+}
+
+function aplicarViajeUI() {
+    const campos = _v('viaje-campos');
+    const btn = _v('toggle-viaje-btn');
+    const precioLabel = document.querySelector('label[for="evento-precio"]');
+    const infoH3 = document.querySelector('#tab-nacionales .content-section h3.section-title:not(#titulo-lista-pagos)');
+    const listaH3 = _v('titulo-lista-pagos');
+    if (campos) campos.style.display = viajeInternacional ? '' : 'none';
+    document.querySelectorAll('.card-dia-select').forEach(sel => sel.style.display = viajeInternacional ? '' : 'none');
+    const modalidad = _v('viaje-modalidad-group');
+    if (modalidad) modalidad.style.display = viajeInternacional ? '' : 'none';
+    if (btn) {
+        btn.textContent = 'Viaje Internacional: ' + (viajeInternacional ? 'ACTIVADO' : 'DESACTIVADO');
+        btn.className = 'btn ' + (viajeInternacional ? 'btn-exito' : 'btn-secondary');
+    }
+    if (precioLabel) precioLabel.textContent = viajeInternacional ? 'Precio de Eventos' : 'Precio del Evento';
+    if (infoH3 && infoH3.firstChild) infoH3.firstChild.nodeValue = viajeInternacional ? 'Información del Viaje ' : 'Información General del Evento';
+    /* La sección SIEMPRE se llama "Lista de Pagos" (orden del usuario) */
+    if (listaH3 && listaH3.firstChild) listaH3.firstChild.nodeValue = 'Lista de Pagos ';
+    aplicarCapacidadViaje();
+    const aero = _v('viaje-aerolinea'), otraGroup = _v('viaje-aerolinea-otra-group'), checkinGroup = _v('viaje-checkin-group');
+    if (otraGroup && aero) otraGroup.style.display = aero.value === '__otra' ? '' : 'none';
+    if (checkinGroup) checkinGroup.style.display = viajeAerolineaElegida() ? '' : 'none';
+}
+
+function initViajeInternacional() {
+    const btn = _v('toggle-viaje-btn');
+    if (!btn) return;
+    /* Los listeners se atan UNA sola vez (el init corre en
+       DOMContentLoaded y por setTimeout): un segundo binding hacía que
+       cada toque alternara dos veces y nunca se activara */
+    if (!initViajeInternacional._bound) {
+        initViajeInternacional._bound = true;
+        btn.addEventListener('click', () => {
+            viajeInternacional = !viajeInternacional;
+            localStorage.setItem('tmViajeInternacional', viajeInternacional);
+            aplicarViajeUI();
+            if (typeof saveDraft === 'function') saveDraft();
+        });
+        const capToggle = _v('viaje-cap-toggle');
+        if (capToggle) capToggle.addEventListener('click', () => {
+            viajeCapUnica = !viajeCapUnica;
+            localStorage.setItem('tmViajeCapUnica', viajeCapUnica);
+            if (viajeCapUnica) {
+                /* al fusionar: la capacidad única alimenta SG y CG para
+                   que todas las fórmulas sigan funcionando */
+                const sg = _v('evento-capacidad-sg');
+                const cap = _v('viaje-capacidad');
+                if (sg && cap) cap.value = sg.value || '0';
+            }
+            aplicarCapacidadViaje();
+            if (typeof saveDraft === 'function') saveDraft();
+        });
+        const cap = _v('viaje-capacidad');
+        if (cap) cap.addEventListener('input', () => {
+            if (viajeCapUnica) {
+                const sg = _v('evento-capacidad-sg'), cg = _v('evento-capacidad-cg');
+                if (sg) sg.value = cap.value;
+                if (cg) cg.value = cap.value;
+            }
+            if (typeof saveDraft === 'function') saveDraft();
+        });
+        const aero = _v('viaje-aerolinea');
+        if (aero) aero.addEventListener('change', () => { viajeAutollenarCheckin(); aplicarViajeUI(); if (typeof saveDraft === 'function') saveDraft(); });
+        const otra = _v('viaje-aerolinea-otra');
+        if (otra) otra.addEventListener('input', () => { aplicarViajeUI(); if (typeof saveDraft === 'function') saveDraft(); });
+        ['viaje-pais', 'viaje-fecha-ida', 'viaje-fecha-regreso', 'viaje-vuelo', 'viaje-checkin'].forEach(id => {
+            const el = _v(id);
+            const alCambiar = () => {
+                if (id === 'viaje-fecha-ida' || id === 'viaje-fecha-regreso') actualizarSelectsDia();
+                if (id === 'viaje-pais') viajeAplicarPrefijosTel();
+                if (id === 'viaje-pais') viajeMapaACapital();
+                if (typeof saveDraft === 'function') saveDraft();
+            };
+            if (el) el.addEventListener('input', alCambiar);
+            if (el) el.addEventListener('change', alCambiar);
+        });
+        /* Si cotizador/reconocimiento re-ocultan capacidades, re-aplicar la
+           fusión sin tocar updateEventInfoVisibility */
+        if (typeof updateEventInfoVisibility === 'function' && !updateEventInfoVisibility._viajeWrap) {
+            const orig = updateEventInfoVisibility;
+            updateEventInfoVisibility = function () { orig(); aplicarCapacidadViaje(); };
+            updateEventInfoVisibility._viajeWrap = true;
+        }
+    }
+    aplicarViajeUI();
+}
+document.addEventListener('DOMContentLoaded', initViajeInternacional);
+setTimeout(initViajeInternacional, 600);
+
+/* Persistencia del viaje dentro del draft del evento */
+function viajeDraftDatos() {
+    return {
+        pais: _v('viaje-pais')?.value || '',
+        capUnica: viajeCapUnica,
+        capacidad: _v('viaje-capacidad')?.value || '0',
+        fechaIda: _v('viaje-fecha-ida')?.value || '',
+        fechaRegreso: _v('viaje-fecha-regreso')?.value || '',
+        vuelo: _v('viaje-vuelo')?.value || '',
+        aerolinea: _v('viaje-aerolinea')?.value || '',
+        aerolineaOtra: _v('viaje-aerolinea-otra')?.value || '',
+        checkin: _v('viaje-checkin')?.value || ''
+    };
+}
+function viajeCargarDatos(v) {
+    if (!v) return;
+    if (_v('viaje-pais')) _v('viaje-pais').value = v.pais || '';
+    if (typeof v.capUnica === 'boolean') { viajeCapUnica = v.capUnica; localStorage.setItem('tmViajeCapUnica', viajeCapUnica); }
+    if (_v('viaje-capacidad')) _v('viaje-capacidad').value = v.capacidad || '0';
+    if (_v('viaje-fecha-ida')) _v('viaje-fecha-ida').value = v.fechaIda || '';
+    if (_v('viaje-fecha-regreso')) _v('viaje-fecha-regreso').value = v.fechaRegreso || '';
+    if (_v('viaje-vuelo')) _v('viaje-vuelo').value = v.vuelo || '';
+    if (_v('viaje-aerolinea')) _v('viaje-aerolinea').value = v.aerolinea || '';
+    if (_v('viaje-aerolinea-otra')) _v('viaje-aerolinea-otra').value = v.aerolineaOtra || '';
+    if (_v('viaje-checkin')) _v('viaje-checkin').value = v.checkin || '';
+    aplicarViajeUI();
+}
+
+/* Días del viaje: cada pago puede pertenecer a un día dentro del
+   rango fecha-ida..fecha-regreso (nunca fuera). Día 1 = fecha de ida. */
+function viajeDiasOptionsHTML(selVal) {
+    const fi = _v('viaje-fecha-ida') ? _v('viaje-fecha-ida').value : '';
+    const fr = _v('viaje-fecha-regreso') ? _v('viaje-fecha-regreso').value : '';
+    let dias = 1;
+    const base = fi ? new Date(fi + 'T12:00:00') : null;
+    if (fi && fr) {
+        const a = new Date(fi + 'T12:00:00'), b = new Date(fr + 'T12:00:00');
+        const d = Math.round((b - a) / 86400000) + 1;
+        if (d >= 1 && d <= 60) dias = d;
+    }
+    let h = '';
+    for (let i = 1; i <= dias; i++) {
+        const v = 'Día ' + i;
+        let lab = v;
+        if (base) {
+            const d = new Date(base); d.setDate(d.getDate() + i - 1);
+            lab += ' · ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+        }
+        h += '<option value="' + v + '"' + (v === selVal || (i === 1 && !selVal) ? ' selected' : '') + '>' + lab + '</option>';
+    }
+    return h;
+}
+/* Ordenar tarjetas por día del viaje + listener del selector */
+function viajeDiaNumero(sel) {
+    const m = sel && sel.value ? String(sel.value).match(/\d+/) : null;
+    return m ? parseInt(m[0]) : 999;
+}
+function ordenarPagosPorDia() {
+    const l = document.getElementById('transporte-nacional-list');
+    if (!l) return;
+    const cs = Array.from(l.querySelectorAll('.item-card'));
+    cs.sort((a, b) => viajeDiaNumero(a.querySelector('.card-dia-select')) - viajeDiaNumero(b.querySelector('.card-dia-select')));
+    cs.forEach(c => l.appendChild(c));
+}
+document.addEventListener('change', e => {
+    const t = e.target;
+    if (t && t.classList && t.classList.contains('card-dia-select')) {
+        t.querySelectorAll('option').forEach(o => o.removeAttribute('selected'));
+        if (t.options[t.selectedIndex]) t.options[t.selectedIndex].setAttribute('selected', '');
+        ordenarPagosPorDia();
+        if (typeof saveDraft === 'function') saveDraft();
+    }
+});
+function actualizarSelectsDia() {
+    document.querySelectorAll('.viaje-dia-select').forEach(s => {
+        const v = s.value;
+        s.innerHTML = viajeDiasOptionsHTML(v);
+    });
+}
+
+/* Long-press ~1s en "Nuevo Evento" → trigger rápido de Viaje
+   Internacional (orden del usuario) */
+(function () {
+    let lpTimer = null, lpPopup = null, lpJustOpened = false;
+    function cerrarLp() { if (lpPopup) { lpPopup.remove(); lpPopup = null; } }
+    function abrirLp(btn) {
+        cerrarLp();
+        const r = btn.getBoundingClientRect();
+        lpPopup = document.createElement('div');
+        lpPopup.style.cssText = 'position:fixed;top:' + (r.bottom + 8) + 'px;left:' + r.left + 'px;z-index:99999;background:#fff;border:2px solid var(--color-primario,#f97316);border-radius:10px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.3);';
+        const t = document.createElement('button');
+        t.type = 'button';
+        const pintar = () => {
+            t.textContent = 'Viaje Internacional: ' + (viajeInternacional ? 'ACTIVADO' : 'DESACTIVADO');
+            t.className = 'btn ' + (viajeInternacional ? 'btn-exito' : 'btn-secondary');
+        };
+        pintar();
+        t.addEventListener('click', e => {
+            e.stopPropagation();
+            viajeInternacional = !viajeInternacional;
+            localStorage.setItem('tmViajeInternacional', viajeInternacional);
+            aplicarViajeUI();
+            pintar();
+            if (typeof saveDraft === 'function') saveDraft();
+        });
+        lpPopup.appendChild(t);
+        document.body.appendChild(lpPopup);
+        setTimeout(() => document.addEventListener('click', function h(ev) {
+            if (lpPopup && !lpPopup.contains(ev.target)) { cerrarLp(); document.removeEventListener('click', h); }
+        }), 10);
+    }
+    function initLp() {
+        const btn = document.getElementById('nuevo-evento-btn');
+        if (!btn || btn.dataset.lpViaje) return;
+        btn.dataset.lpViaje = '1';
+        const start = () => { lpTimer = setTimeout(() => { lpTimer = null; lpJustOpened = true; abrirLp(btn); }, 1000); };
+        const cancel = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } };
+        btn.addEventListener('touchstart', start, { passive: true });
+        btn.addEventListener('mousedown', start);
+        ['touchend', 'touchcancel', 'mouseup', 'mouseleave'].forEach(ev => btn.addEventListener(ev, cancel));
+        /* el click que suelta el long-press NO debe abrir "nuevo evento" */
+        btn.addEventListener('click', e => {
+            if (lpJustOpened) { lpJustOpened = false; e.preventDefault(); e.stopImmediatePropagation(); }
+        }, true);
+    }
+    document.addEventListener('DOMContentLoaded', initLp);
+    setTimeout(initLp, 700);
+})();
+
+/* Check-in links por aerolínea: al elegir aerolínea se autollena
+   "Enlaces Check-in" (editable; "Otra" queda manual) */
+const VIAJE_CHECKIN_LINKS = {
+    'Copa Airlines': 'https://www.copaair.com/en/web/check-in',
+    'Aeroméxico': 'https://aeromexico.com/en-us/check-in',
+    'Volaris': 'https://www.volaris.com/check-in',
+    'Volaris El Salvador': 'https://www.volaris.com/check-in',
+    'Mexicana de Aviación': 'https://www.mexicana.gob.mx',
+    'JetSmart': 'https://jetsmart.com/check-in',
+    'Clic Air': 'https://www.clicair.co',
+    'Arajet': 'https://www.arajet.com/check-in',
+    'Iberia': 'https://www.iberia.com/check-in',
+    'Iberojet': 'https://www.iberojet.com/en/check-in',
+    'Plus Ultra': 'https://www.plusultra.com/en/check-in',
+    'KLM': 'https://www.klm.com/check-in',
+    'Edelweiss': 'https://www.edelweissair.com/en/check-in',
+    'American Airlines': 'https://www.aa.com/homePage.do?checkin=true',
+    'Delta Air Lines': 'https://www.delta.com/airline/check-in',
+    'JetBlue Airways': 'https://www.jetblue.com/check-in',
+    'Southwest Airlines': 'https://www.southwest.com/air/check-in',
+    'Air Canada': 'https://www.aircanada.com/en/check-in',
+    'CM Airlines': 'https://www.cmairlines.com',
+    'Maya Island Air': 'https://www.mayaislandair.com',
+    'Sansa Airlines': 'https://flysansa.com',
+    'Air Panama': 'https://www.airpanama.com',
+    'Sunrise Airways': 'https://www.sunriseairways.net',
+    'Avianca': 'https://www.avianca.com/en/check-in',
+    'LATAM Airlines': 'https://www.latamairlines.com/check-in',
+    'Volaris Costa Rica': 'https://www.volaris.com/check-in',
+    'VivaAerobus': 'https://www.vivaaerobus.com/en-us/info/web-check-in',
+    'Sky Airline': 'https://www.skyairline.com/en/check-in',
+    'Wingo': 'https://www.wingo.com/check-in',
+    'Satena': 'https://www.satena.com',
+    'Aerolíneas Argentinas': 'https://www.aerolineas.com/en-us/check-in',
+    'Air Europa': 'https://www.aireuropa.com/en/check-in',
+    'World2Fly': 'https://www.w2fly.es/en/check-in',
+    'Air France': 'https://www.airfrance.com/en/check-in',
+    'Condor': 'https://www.condor.com/eu/flight-check-in',
+    'Turkish Airlines': 'https://www.turkishairlines.com/en-int/flights/web-check-in',
+    'United Airlines': 'https://www.united.com/en/us/check-in',
+    'Spirit Airlines': 'https://www.spirit.com/en/check-in',
+    'Frontier Airlines': 'https://www.flyfrontier.com/travel-information/check-in',
+    'Alaska Airlines': 'https://www.alaskaair.com/en/check-in',
+    'TAG Airlines': 'https://www.tag.com.gt',
+    'Tropic Air': 'https://www.tropicair.com/check-in',
+    'La Costeña': 'https://lacostena.online',
+    'Costa Rica Green Airways': 'https://costaricagreenair.com',
+    'Air Century': 'https://aircentury.com'
+};
+function viajeAutollenarCheckin() {
+    const aero = _v('viaje-aerolinea'), ck = _v('viaje-checkin');
+    if (!aero || !ck) return;
+    if (aero.value && aero.value !== '__otra' && VIAJE_CHECKIN_LINKS[aero.value]) {
+        ck.value = VIAJE_CHECKIN_LINKS[aero.value];
+    }
+}
+
+/* Quita "Todo pegado al mismo lugar" de selects restaurados desde
+   pagosHTML guardado (orden del usuario: la opción ya no existe) */
+function quitarOpcionTodoPegado() {
+    document.querySelectorAll('.item-tipo-gasto option').forEach(o => {
+        if (o.value === 'Todo pegado al mismo lugar') o.remove();
+    });
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(quitarOpcionTodoPegado, 800));
+
+
+/* Prefijos telefónicos por país del viaje (orden del usuario) */
+const VIAJE_CODIGOS_PAIS = {
+    'Guatemala': '00502', 'Belice': '00501', 'El Salvador': '00503',
+    'Honduras': '00504', 'Nicaragua': '00505', 'Costa Rica': '00506',
+    'Panamá': '00507', 'México': '0052', 'Estados Unidos': '001',
+    'Colombia': '0057', 'Ecuador': '00593', 'Perú': '0051',
+    'Chile': '0056', 'España': '0034', 'Argentina': '0054'
+};
+function viajePrefijoTelefono() {
+    const p = _v('viaje-pais');
+    return (p && VIAJE_CODIGOS_PAIS[p.value]) ? VIAJE_CODIGOS_PAIS[p.value] : '';
+}
+function viajeNumeroSinPrefijo(v) {
+    let d = String(v || '').replace(/\D/g, '');          /* SOLO dígitos */
+    for (const k in VIAJE_CODIGOS_PAIS) {
+        const pre = VIAJE_CODIGOS_PAIS[k];
+        if (pre && d.startsWith(pre)) return d.slice(pre.length);       /* 00<code> */
+        const corto = pre.slice(2);
+        if (corto && d.startsWith(corto) && d.length > corto.length + 3) return d.slice(corto.length); /* <code> suelto */
+    }
+    if (d.startsWith('00')) d = d.replace(/^00\d{1,3}/, '');
+    return d;
+}
+function viajeAplicarPrefijosTel() {
+    const pre = viajePrefijoTelefono();
+    document.querySelectorAll('.tel-encargado, .phone-input').forEach(inp => {
+        const digits = viajeNumeroSinPrefijo(inp.value);
+        inp.value = pre ? pre + digits : digits;
+    });
+}
+
+
+/* Teléfonos con prefijo del país + botón WhatsApp (orden del usuario):
+   telefono / whatsapp / telefono_encargado */
+function viajeCampoTelefono(fieldName, fieldId, formGroup, deleteButton) {
+    const labels = { telefono: 'Teléfono', whatsapp: 'WhatsApp', telefono_encargado: 'Teléfono Encargado' };
+    const lbl = document.createElement('label');
+    lbl.setAttribute('for', fieldId);
+    lbl.textContent = labels[fieldName] || 'Teléfono';
+    const inp = document.createElement('input');
+    inp.type = 'tel';
+    inp.id = fieldId;
+    inp.className = 'phone-input tel-encargado';
+    inp.maxLength = 20;
+    inp.style.flex = '1';
+    const pre0 = viajePrefijoTelefono();
+    if (pre0) inp.value = pre0;
+    const waBtn = document.createElement('button');
+    waBtn.type = 'button';
+    waBtn.className = 'btn btn-exito';
+    waBtn.textContent = 'WhatsApp';
+    waBtn.style.cssText = 'white-space:nowrap;padding:0.5rem 0.7rem;';
+    waBtn.title = 'Enviar mensaje por WhatsApp';
+    waBtn.addEventListener('click', () => {
+        const num = (inp.value || '').replace(/\D/g, '').replace(/^00/, '');  /* wa.me: sin el 00 */
+        if (num) window.open('https://wa.me/' + num, '_blank');
+    });
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+    row.append(inp, waBtn);
+    formGroup.append(lbl, row);
+    formGroup.insertAdjacentHTML('beforeend', deleteButton);
+    inp.addEventListener('input', () => {
+        const pre = viajePrefijoTelefono();
+        let v = inp.value.replace(/\D/g, '');                 /* SOLO dígitos */
+        if (pre) {
+            if (!v.startsWith(pre)) v = v.replace(/^00\d{0,4}/, '');  /* borrar prefijo parcial */
+            inp.value = pre + viajeNumeroSinPrefijo(v);
+        } else {
+            inp.value = v;
+        }
+        if (typeof saveDraft === 'function') saveDraft();
+    });
+    return formGroup;
+}
+
+/* Refuerzo GLOBAL: cualquier input .phone-input/.tel-encargado (nuevo o
+   restaurado de borrador/evento) → solo dígitos + prefijo 00<code> del
+   país bloqueado al inicio. Funciona aunque el campo no tenga listener
+   propio (campos restaurados desde pagosHTML). */
+document.addEventListener('input', function (e) {
+    const t = e.target;
+    if (!t || !t.matches || !t.matches('.tel-encargado, .phone-input')) return;
+    const pre = viajePrefijoTelefono();
+    let v = t.value.replace(/\D/g, '');
+    if (pre) {
+        if (!v.startsWith(pre)) v = v.replace(/^00\d{0,4}/, '');
+        t.value = pre + viajeNumeroSinPrefijo(v);
+    } else {
+        t.value = v;
+    }
+});
+
+
+/* Campo Mapa (Leaflet local — funciona sin CDN; en modo avión el pin y
+   coordenadas se capturan igual, los tiles requieren caché previo).
+   Botones: GPS mi ubicación, pantalla completa, Google Maps y Waze.
+   Pin → modal con nombre, categoría y detalles WYSIWYG. */
+const VIAJE_MAPA_CATS = [
+    '🏨 Hotel','🏠 Hospedaje','🏞️ Lugar Turístico','⛺ Camping','🍽️ Restaurante',
+    '🛃 Aduana','⛰️ Montaña','🌋 Volcán','🌊 Mar','🏖️ Playa','🏊 Piscina',
+    '🌳 Parque / Mirador','🚍 Transporte','✈️ Vuelo','🛫 Aeropuerto',
+    '🚏 Parada de Buses','🚌 Bus','🚐 Microbús','🚕 Taxi','⛴️ Barco',
+    '🚤 Lancha','🚂 Tren','🐎 Caballo','🐫 Camello','🛒 Lugar de Comercio',
+    '🏥 Hospital','⚕️ Clínica','💊 Farmacia','🏢 Agencia','⭐ Lugar de Interés',
+    '🏁 Punto de Llegada','🚩 Punto de Salida'
+];
+function viajeCampoMapa(fieldId, formGroup, deleteButton) {
+    if (!document.getElementById('mapa-pin-label-css')) {
+        const st = document.createElement('style');
+        st.id = 'mapa-pin-label-css';
+        st.textContent = '.mapa-pin-label{background:#fff;border:1px solid var(--color-primario,#f97316);color:#333;border-radius:10px;padding:2px 8px;font-weight:700;font-size:0.75rem;box-shadow:0 2px 6px rgba(0,0,0,.3);white-space:nowrap;} .mapa-pin-label:before{display:none;} .pin-det-editor ul,.pin-det-editor ol{list-style-position:outside;padding-left:26px;margin:4px 0;}';
+        document.head.appendChild(st);
+    }
+    const lbl = document.createElement('label');
+    lbl.textContent = 'Mapa';
+    lbl.className = 'mapa-titulo';
+    const inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.id = fieldId;
+    inp.className = 'mapa-coords';
+    const metaInp = document.createElement('input');
+    metaInp.type = 'hidden';
+    metaInp.className = 'mapa-meta';
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'btn btn-secondary mapa-toggle';
+    toggleBtn.textContent = 'Mostrar Mapa';
+    toggleBtn.style.cssText = 'width:100%;margin-bottom:6px;';
+
+    const mapWrap = document.createElement('div');
+    mapWrap.style.display = 'none';              /* SIEMPRE oculto por defecto */
+    mapWrap.className = 'mapa-wrap';
+    const toolbar = document.createElement('div');
+    toolbar.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;';
+    const gpsBtn = document.createElement('button');
+    gpsBtn.type = 'button';
+    gpsBtn.className = 'btn btn-secondary';
+    gpsBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Mi Ubicación';
+    gpsBtn.style.flex = '1';
+    const fsBtn = document.createElement('button');
+    fsBtn.type = 'button';
+    fsBtn.className = 'btn btn-secondary';
+    fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    fsBtn.style.flex = '1';
+    toolbar.append(gpsBtn, fsBtn);
+    const mapDiv = document.createElement('div');
+    mapDiv.id = fieldId + '-map';
+    mapDiv.className = 'mapa-div';
+    mapDiv.style.cssText = 'aspect-ratio:1/1;width:100%;border-radius:10px;border:1px solid var(--color-secundario);background:#e8e8e8;';
+    const coordsLbl = document.createElement('div');
+    coordsLbl.style.cssText = 'font-size:0.8rem;color:var(--color-texto);margin-top:4px;';
+    coordsLbl.textContent = 'Tocá el mapa para fijar un pin';
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:6px;margin-top:6px;';
+    const waBtn = document.createElement('button');
+    waBtn.type = 'button';
+    waBtn.className = 'btn btn-exito';
+    waBtn.textContent = 'Google Maps';
+    waBtn.style.flex = '1';
+    waBtn.addEventListener('click', () => {
+        const v = coordStr();
+        if (v) window.open('https://www.google.com/maps?q=' + v, '_blank');
+    });
+    const wzBtn = document.createElement('button');
+    wzBtn.type = 'button';
+    wzBtn.className = 'btn btn-secondary';
+    wzBtn.textContent = 'Waze';
+    wzBtn.style.flex = '1';
+    wzBtn.addEventListener('click', () => {
+        const v = coordStr();
+        if (v) window.open('https://waze.com/ul?ll=' + v + '&navigate=yes', '_blank');
+    });
+    btns.append(waBtn, wzBtn);
+    /* Barra lateral izquierda estilo iPhone: íconos flat redondeados */
+    const toolsBar = document.createElement('div');
+    toolsBar.style.cssText = 'position:absolute;left:10px;top:80px;z-index:1000;display:flex;flex-direction:column;gap:6px;';
+    const mkToolBtn = (icono, titulo) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.title = titulo;
+        b.innerHTML = '<i class="fas ' + icono + '"></i>';
+        b.style.cssText = 'width:38px;height:38px;border:none;border-radius:12px;background:#fff;color:#333;box-shadow:0 2px 6px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;';
+        return b;
+    };
+    const lockBtn = mkToolBtn('fa-lock', 'Desbloquear mapa');
+    const colocarBtn = mkToolBtn('fa-map-pin', 'Colocar pin');
+    const moverBtn = mkToolBtn('fa-arrows-alt', 'Mover pin');
+    const delPinBtn = mkToolBtn('fa-trash', 'Eliminar pin');
+    const fsToolBtn = mkToolBtn('fa-expand', 'Pantalla completa');
+    toolsBar.append(lockBtn, colocarBtn, moverBtn, delPinBtn, fsToolBtn);
+    const pintar = (b, on) => {
+        b.style.background = on ? 'var(--color-primario,#f97316)' : '#fff';
+        b.style.color = on ? '#fff' : '#333';
+    };
+
+    const mapZone = document.createElement('div');
+    mapZone.style.cssText = 'position:relative;';
+    mapZone.append(mapDiv, toolsBar);
+    mapWrap.append(toolbar, mapZone, coordsLbl, btns);
+
+    let mapaLibre = false, colocarPinMode = false;
+    lockBtn.addEventListener('click', () => {
+        if (!mapRef) return;
+        mapaLibre = !mapaLibre;
+        const H = mapaLibre ? 'enable' : 'disable';
+        ['dragging','touchZoom','doubleClickZoom','scrollWheelZoom','boxZoom'].forEach(h => { if (mapRef[h]) mapRef[h][H](); });
+        if (mapaLibre) {
+            lockBtn.innerHTML = '<i class="fas fa-lock-open"></i>';
+            pintar(lockBtn, true);
+        } else {
+            lockBtn.innerHTML = '<i class="fas fa-lock"></i>';
+            pintar(lockBtn, false);
+        }
+    });
+    colocarBtn.addEventListener('click', () => {
+        colocarPinMode = !colocarPinMode;
+        pintar(colocarBtn, colocarPinMode);
+        coordsLbl.textContent = colocarPinMode ? 'Modo pin activo — tocá el mapa para colocarlo' : 'Tocá el mapa para fijar un pin';
+    });
+    moverBtn.addEventListener('click', () => {
+        moverPin = !moverPin;
+        if (marker) { if (moverPin) marker.dragging.enable(); else marker.dragging.disable(); }
+        pintar(moverBtn, moverPin);
+    });
+    delPinBtn.addEventListener('click', () => {
+        if (!marker) { coordsLbl.textContent = 'No hay pin para eliminar'; return; }
+        viajeModalConfirm('¿Seguro que querés eliminar el pin? Se perderá su información.', () => {
+            mapRef.removeLayer(marker);
+            marker = null; pinLL = null;
+            moverPin = false; colocarPinMode = false;
+            pintar(moverBtn, false); pintar(colocarBtn, false);
+            inp.value = ''; inp.setAttribute('value', '');
+            metaInp.value = ''; metaInp.setAttribute('value', '');
+            coordsLbl.textContent = 'Tocá el mapa para fijar un pin';
+            guardar();
+        });
+    });
+    formGroup.append(lbl, inp, metaInp, toggleBtn, mapWrap);
+    formGroup.insertAdjacentHTML('beforeend', deleteButton);
+    formGroup.style.gridColumn = '1 / -1';
+
+    let mapRef = null, marker = null, pinLL = null, recenterT = null;
+    let moverPin = false;
+    function configurarPin(m) {
+        m.dragging.disable();              /* arrastre SOLO con Mover Pin activo */
+        m.on('click', () => {
+            let meta = {};
+            try { meta = JSON.parse(metaInp.value || '{}'); } catch (e) {}
+            viajeInfoPin(meta, () => {
+                viajeModalPin(meta, nm => {
+                    metaInp.value = JSON.stringify(nm);
+                    actualizarEtiqueta(marker);
+                    guardar();
+                });
+            });
+        });
+        m.on('dragend', () => {
+            const ll = m.getLatLng();
+            pinLL = ll;
+            inp.value = ll.lat.toFixed(6) + ',' + ll.lng.toFixed(6) + (metaInp.value ? '|' + metaInp.value : '');
+            inp.setAttribute('value', inp.value);
+            coordsLbl.textContent = 'Ubicación: ' + ll.lat.toFixed(6) + ',' + ll.lng.toFixed(6);
+            guardar();
+        });
+    }
+    function coordStr() { return (inp.value.split('|')[0] || '').trim(); }
+    function actualizarEtiqueta(m) {
+        if (!m) return;
+        let meta = {};
+        try { meta = JSON.parse(metaInp.value || '{}'); } catch (e) {}
+        const txt = meta.nombre || '';
+        if (txt) {
+            m.bindTooltip(txt, { permanent: true, direction: 'top', offset: [0, -26], className: 'mapa-pin-label', interactive: true });
+            const tt = m.getTooltip();
+            if (tt && !tt._viajeClick) { tt._viajeClick = true; tt.on('click', () => m.fire('click')); }
+        } else if (m.getTooltip()) {
+            m.unbindTooltip();
+        }
+    }
+    function guardar() {
+        const base = coordStr();
+        inp.value = metaInp.value ? base + '|' + metaInp.value : base;
+        inp.setAttribute('value', inp.value);
+        metaInp.setAttribute('value', metaInp.value);
+        if (typeof saveDraft === 'function') saveDraft();
+    }
+    function ponerPin(lat, lng, abrirModal) {
+        pinLL = L.latLng(lat, lng);
+        if (marker) marker.setLatLng(pinLL); else { marker = L.marker(pinLL, {draggable:true}).addTo(mapRef); configurarPin(marker); }
+        const prevMeta = inp.value.split('|')[1] || '';
+        inp.value = lat.toFixed(6) + ',' + lng.toFixed(6) + (prevMeta ? '|' + prevMeta : '');
+        coordsLbl.textContent = 'Ubicación: ' + lat.toFixed(6) + ',' + lng.toFixed(6);
+        mapRef.setView(pinLL, 15);
+        guardar();
+        if (abrirModal) {
+            let meta = {};
+            try { meta = JSON.parse(metaInp.value || '{}'); } catch (e) {}
+            viajeModalPin(meta, m => {
+                metaInp.value = JSON.stringify(m);
+                actualizarEtiqueta(marker);
+                guardar();
+            });
+        }
+    }
+    toggleBtn.addEventListener('click', () => {
+        const abierto = mapWrap.style.display !== 'none';
+        mapWrap.style.display = abierto ? 'none' : '';
+        toggleBtn.textContent = abierto ? 'Mostrar Mapa' : 'Ocultar Mapa';
+        if (!abierto && mapRef) mapRef.invalidateSize();
+    });
+    gpsBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) { coordsLbl.textContent = 'GPS no disponible'; return; }
+        coordsLbl.textContent = 'Obteniendo ubicación…';
+        navigator.geolocation.getCurrentPosition(pos => {
+            ponerPin(pos.coords.latitude, pos.coords.longitude, false);
+        }, () => {
+            coordsLbl.textContent = 'Sin permiso/GPS apagado — activá la ubicación';
+        }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+    let fsOv = null;
+    function abrirFS() {
+        if (!mapRef || fsOv) return;
+        fsOv = document.createElement('div');
+        fsOv.style.cssText = 'position:fixed;inset:0;z-index:99998;background:#000;';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.textContent = '✕ Cerrar';
+        close.style.cssText = 'position:absolute;top:10px;right:10px;z-index:2000;padding:8px 12px;';
+        const parent = mapWrap.parentNode, next = mapWrap.nextSibling;
+        const css = mapDiv.style.cssText;
+        fsOv.append(mapWrap, close);
+        mapWrap.style.cssText = 'position:absolute;inset:0;display:block;';
+        mapZone.style.cssText = 'position:absolute;inset:0;';
+        mapDiv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+        toolbar.style.display = 'none'; coordsLbl.style.display = 'none'; btns.style.display = 'none';
+        document.body.appendChild(fsOv);
+        mapRef.invalidateSize();
+        fsToolBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        close.addEventListener('click', () => {
+            parent.insertBefore(mapWrap, next);
+            mapWrap.style.cssText = 'display:none;';
+            mapZone.style.cssText = 'position:relative;';
+            mapDiv.style.cssText = css;
+            toolbar.style.display = ''; coordsLbl.style.display = ''; btns.style.display = '';
+            toggleBtn.textContent = 'Mostrar Mapa';
+            fsToolBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            fsOv.remove(); fsOv = null;
+            mapRef.invalidateSize();
+        });
+    }
+    fsBtn.addEventListener('click', () => { if (!fsOv) abrirFS(); });
+    fsToolBtn.addEventListener('click', () => {
+        if (fsOv) { const c = fsOv.querySelector('button'); if (c) c.click(); } else { abrirFS(); }
+    });
+
+    setTimeout(() => {
+        if (typeof L === 'undefined' || mapDiv._leaflet) return;
+        const centroIni = (typeof VIAJE_CAPITALES !== 'undefined' && _v('viaje-pais') && VIAJE_CAPITALES[_v('viaje-pais').value]) ? VIAJE_CAPITALES[_v('viaje-pais').value] : [9.9347, -84.0875];
+        mapRef = L.map(mapDiv.id, { center: centroIni, zoom: VIAJE_CAPITALES && _v('viaje-pais') && VIAJE_CAPITALES[_v('viaje-pais').value] ? 5 : 8 });
+        /* bloqueado por defecto: no se mueve al hacer scroll — "Desbloquear" lo libera */
+        mapRef.dragging.disable(); mapRef.touchZoom.disable(); mapRef.doubleClickZoom.disable();
+        mapRef.scrollWheelZoom.disable(); mapRef.boxZoom.disable();
+        window._viajeMapas = window._viajeMapas || [];
+        window._viajeMapas.push(mapRef);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(mapRef);
+        mapRef.on('click', e => {
+            if (!colocarPinMode) return;
+            ponerPin(e.latlng.lat, e.latlng.lng, true);
+            colocarPinMode = false;
+            pintar(colocarBtn, false);
+        });
+        /* el mapa regresa suavemente al pin tras arrastrarlo */
+        mapRef.on('dragend', () => {
+            clearTimeout(recenterT);
+            recenterT = setTimeout(() => { if (pinLL) mapRef.panTo(pinLL, { animate: true, duration: 0.9 }); }, 1200);
+        });
+        /* restaurar pin + meta guardados */
+        const v0 = inp.value;
+        if (v0) {
+            const seg = v0.split('|');
+            const pp = seg[0].split(',');
+            if (seg[1]) metaInp.value = seg[1];
+            const la = parseFloat(pp[0]), ln = parseFloat(pp[1]);
+            if (!isNaN(la) && !isNaN(ln)) {
+                pinLL = L.latLng(la, ln);
+                marker = L.marker(pinLL, {draggable:true}).addTo(mapRef);
+                configurarPin(marker);
+                coordsLbl.textContent = 'Ubicación: ' + seg[0];
+                actualizarEtiqueta(marker);
+                mapRef.setView(pinLL, 13);
+            }
+        }
+        setTimeout(() => mapRef.invalidateSize(), 400);
+    }, 350);
+    return formGroup;
+}
+
+/* Modal del pin: nombre + categoría + detalles con mini-WYSIWYG */
+function viajeModalPin(meta, cb) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;padding:14px;width:100%;max-width:420px;color:#333;max-height:90vh;overflow-y:auto;';
+    const h = document.createElement('h4');
+    h.style.margin = '0 0 8px';
+    h.textContent = 'Detalles del Pin';
+    const nom = document.createElement('input');
+    nom.type = 'text';
+    nom.placeholder = 'Nombre del lugar';
+    nom.value = meta.nombre || '';
+    nom.style.cssText = 'width:100%;padding:0.6rem;margin-bottom:8px;box-sizing:border-box;text-transform:uppercase;';
+    const cat = document.createElement('select');
+    cat.style.cssText = 'width:100%;padding:0.6rem;margin-bottom:8px;';
+    const o0 = document.createElement('option');
+    o0.value = ''; o0.textContent = '— Categoría —';
+    cat.appendChild(o0);
+    VIAJE_MAPA_CATS.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c; o.textContent = c;
+        if (meta.categoria === c) o.selected = true;
+        cat.appendChild(o);
+    });
+    const tools = document.createElement('div');
+    tools.style.cssText = 'display:flex;gap:4px;margin-bottom:4px;flex-wrap:wrap;';
+    const det = document.createElement('div');
+    det.contentEditable = 'true';
+    det.className = 'pin-det-editor';
+    det.style.cssText = 'min-height:80px;border:1px solid #ccc;border-radius:8px;padding:8px;text-align:left;';
+    det.innerHTML = meta.detalles || '';
+    [['B','bold','Negrita'],['U','underline','Subrayado'],['S','strikeThrough','Tachado'],
+     ['• Lista','insertUnorderedList','Viñetas'],['1. Lista','insertOrderedList','Lista ordenada'],
+     ['⯇','justifyLeft','Izquierda'],['≡','justifyCenter','Centrado'],['⯈','justifyRight','Derecha']
+    ].forEach(t => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = t[0];
+        b.title = t[2];
+        b.style.cssText = 'padding:4px 8px;border:1px solid #ccc;border-radius:6px;background:#f4f4f4;';
+        b.addEventListener('click', () => { det.focus(); document.execCommand(t[1], false, null); });
+        tools.appendChild(b);
+    });
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;margin-top:10px;';
+    const ok = document.createElement('button');
+    ok.className = 'btn btn-exito'; ok.textContent = 'Guardar'; ok.style.flex = '1';
+    const ca = document.createElement('button');
+    ca.className = 'btn btn-secondary'; ca.textContent = 'Cancelar'; ca.style.flex = '1';
+    row.append(ok, ca);
+    box.append(h, nom, cat, tools, det, row);
+    ov.appendChild(box);
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    ca.addEventListener('click', () => ov.remove());
+    ok.addEventListener('click', () => {
+        cb({ nombre: nom.value.trim().toUpperCase(), categoria: cat.value, detalles: det.innerHTML });
+        ov.remove();
+    });
+    document.body.appendChild(ov);
+    nom.focus();
+}
+
+/* Campo Enlace (Google Maps / Waze): BOTÓN con la ruta guardada
+   (input oculto guarda el link en dynamicFields y pagosHTML) */
+function viajeCampoEnlace(fieldName, fieldId, formGroup, deleteButton) {
+    const nombre = fieldName === 'gmaps' ? 'Google Maps' : 'Waze';
+    const inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.id = fieldId;
+    inp.className = 'enlace-url';
+    const abBtn = document.createElement('button');
+    abBtn.type = 'button';
+    abBtn.className = 'btn btn-exito btn-abrir-enlace';
+    abBtn.textContent = nombre;
+    abBtn.style.width = '100%';
+    formGroup.append(inp, abBtn);
+    formGroup.insertAdjacentHTML('beforeend', deleteButton);
+    return formGroup;
+}
+/* Click delegado: funciona también en campos restaurados sin listener */
+document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.btn-abrir-enlace');
+    if (!b) return;
+    const fg = b.closest('.form-group');
+    const u = fg ? fg.querySelector('.enlace-url') : null;
+    const v = u ? (u.value || '').trim() : '';
+    if (v) window.open(v, '_blank');
+});
+
+/* Mini-modal para pegar el enlace al elegir Google Maps / Waze */
+function viajeModalEnlace(titulo, cb) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;padding:16px;width:100%;max-width:400px;color:#333;';
+    const h = document.createElement('h4');
+    h.style.margin = '0 0 8px';
+    h.textContent = titulo;
+    const inp = document.createElement('input');
+    inp.type = 'url';
+    inp.placeholder = 'Pegar enlace o dirección';
+    inp.style.cssText = 'width:100%;padding:0.6rem;box-sizing:border-box;';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;margin-top:10px;';
+    const ok = document.createElement('button');
+    ok.className = 'btn btn-exito'; ok.textContent = 'Guardar'; ok.style.flex = '1';
+    const ca = document.createElement('button');
+    ca.className = 'btn btn-secondary'; ca.textContent = 'Cancelar'; ca.style.flex = '1';
+    row.append(ok, ca);
+    box.append(h, inp, row);
+    ov.appendChild(box);
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    ca.addEventListener('click', () => ov.remove());
+    ok.addEventListener('click', () => { cb(inp.value.trim()); ov.remove(); });
+    document.body.appendChild(ov);
+    inp.focus();
+}
+
+
+/* Selectores restaurados desde pagosHTML viejo: inyectar opciones nuevas */
+function viajeSincronizarSelectoresCampos() {
+    document.querySelectorAll('.field-selector').forEach(sel => {
+        [['gmaps','Google Maps'],['waze','Waze'],['mapa','Mapa']].forEach(par => {
+            if (!sel.querySelector('option[value="' + par[0] + '"]')) {
+                const o = document.createElement('option');
+                o.value = par[0]; o.textContent = par[1];
+                sel.appendChild(o);
+            }
+        });
+        const card = sel.closest('.item-card');
+        if (card && card.querySelector('[data-field-name="mapa"]')) {
+            const om = sel.querySelector('option[value="mapa"]');
+            if (om) om.disabled = true;
+        }
+    });
+}
+
+/* Campos Mapa restaurados desde pagosHTML viejo: rehacerlos vivos
+   (toggle + Leaflet + pin desde coords guardadas) */
+function rehidratarCamposMapa() {
+    document.querySelectorAll('[data-field-name="mapa"]').forEach(fg => {
+        if (fg.querySelector('.mapa-titulo')) return;
+        const card = fg.closest('.item-card');
+        const oldInp = fg.querySelector('input');
+        const coords = oldInp ? oldInp.value : '';
+        const nuevo = createFieldElement('mapa', card ? card.id : 'card');
+        if (!nuevo) return;
+        const ni = nuevo.querySelector('input');
+        if (ni && coords) ni.value = coords;
+        fg.replaceWith(nuevo);
+    });
+}
+
+
+/* Confirmación genérica (eliminar pin, etc.) */
+function viajeModalConfirm(msg, cb) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;padding:16px;width:100%;max-width:340px;color:#333;text-align:center;';
+    const t = document.createElement('p');
+    t.textContent = msg;
+    t.style.margin = '0 0 12px';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;';
+    const si = document.createElement('button');
+    si.className = 'btn btn-secondary'; si.textContent = 'Sí, eliminar'; si.style.cssText = 'flex:1;background:var(--color-error,#c62828);color:#fff;';
+    const no = document.createElement('button');
+    no.className = 'btn btn-exito'; no.textContent = 'Cancelar'; no.style.flex = '1';
+    row.append(si, no);
+    box.append(t, row);
+    ov.appendChild(box);
+    si.addEventListener('click', () => { cb(); ov.remove(); });
+    no.addEventListener('click', () => ov.remove());
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    document.body.appendChild(ov);
+}
+
+
+/* Capitales: al elegir país del viaje el mapa vuela ahí (orden del usuario) */
+const VIAJE_CAPITALES = {
+    'Guatemala': [14.6349, -90.5069], 'Belice': [17.2510, -88.7590],
+    'El Salvador': [13.6929, -89.2182], 'Honduras': [14.0723, -87.1921],
+    'Nicaragua': [12.1150, -86.2362], 'Costa Rica': [9.9347, -84.0875],
+    'Panamá': [8.9824, -79.5199], 'México': [19.4326, -99.1332],
+    'Estados Unidos': [38.9072, -77.0369], 'Colombia': [4.7110, -74.0721],
+    'Ecuador': [-0.1807, -78.4678], 'Perú': [-12.0464, -77.0428],
+    'Chile': [-33.4489, -70.6693], 'España': [40.4168, -3.7038],
+    'Argentina': [-34.6037, -58.3816]
+};
+function viajeMapaACapital() {
+    const p = _v('viaje-pais');
+    const cap = (p && VIAJE_CAPITALES[p.value]) ? VIAJE_CAPITALES[p.value] : null;
+    if (cap && window._viajeMapas) window._viajeMapas.forEach(m => m.setView(cap, 5));
+}
+
+
+/* Modal bonito de info del pin + botón Editar */
+function viajeInfoPin(meta, onEditar) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:14px;padding:16px;width:100%;max-width:380px;color:#333;max-height:85vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.3);';
+    if (meta.categoria) {
+        const chip = document.createElement('div');
+        chip.style.cssText = 'display:inline-block;background:var(--color-primario,#f97316);color:#fff;padding:4px 10px;border-radius:20px;font-size:0.8rem;margin-bottom:8px;';
+        chip.textContent = meta.categoria;
+        box.appendChild(chip);
+    }
+    const h = document.createElement('h3');
+    h.style.cssText = 'margin:4px 0 10px;font-size:1.2rem;';
+    h.textContent = meta.nombre || 'Pin sin nombre';
+    box.appendChild(h);
+    if (meta.detalles) {
+        const det = document.createElement('div');
+        det.className = 'pin-det-editor';
+        det.style.cssText = 'border-top:1px solid #eee;padding-top:10px;font-size:0.95rem;line-height:1.5;padding-left:10px;';
+        det.innerHTML = meta.detalles;
+        box.appendChild(det);
+    }
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;margin-top:14px;';
+    const ed = document.createElement('button');
+    ed.className = 'btn btn-exito'; ed.textContent = 'Editar'; ed.style.flex = '1';
+    const ce = document.createElement('button');
+    ce.className = 'btn btn-secondary'; ce.textContent = 'Cerrar'; ce.style.flex = '1';
+    row.append(ed, ce);
+    box.appendChild(row);
+    ov.appendChild(box);
+    ed.addEventListener('click', () => { ov.remove(); onEditar(); });
+    ce.addEventListener('click', () => ov.remove());
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    document.body.appendChild(ov);
+}
+
+
+/* Proveedores: campos de contacto de los pagos → directorio global (padre) */
+function viajeGuardarProveedores(evento) {
+    try {
+        const par = window.parent;
+        if (!par || !Array.isArray(par.directorioPersonas)) return;
+        const lista = par.directorioPersonas;
+        const norm = v => String(v || '').trim();
+        let agregados = 0;
+        (evento.pagos || []).forEach(pg => {
+            const d = (pg && pg.dynamicFields) || {};
+            const nombre = norm(d.nombre_encargado) || norm(d.nombre_empresa);
+            const telefono = norm(d.telefono_encargado) || norm(d.whatsapp) || norm(d.telefono);
+            if (!nombre && !telefono) return;
+            const ya = lista.some(x =>
+                (telefono && norm(x.telefono) === telefono) ||
+                (nombre && norm(x.nombre).toLowerCase() === nombre.toLowerCase() && x.tipo === 'Proveedores')
+            );
+            if (ya) return;
+            lista.push({
+                id: 'prov_' + Date.now() + '_' + Math.floor(Math.random() * 99999),
+                nombre: nombre || 'Proveedor',
+                cedula: '', pasaporte: '', telefono,
+                correo: norm(d.email),
+                notas: norm(d.nombre_empresa) ? 'Empresa: ' + norm(d.nombre_empresa) : '',
+                tipo: 'Proveedores', esProveedor: true,
+                pais: (evento.viaje && evento.viaje.pais) || '', lugar: '',
+                origen: 'Tabla Mágica'
+            });
+            agregados++;
+        });
+        if (agregados > 0) {
+            if (typeof par.saveData === 'function') par.saveData();
+            if (typeof par.renderDirectorioList === 'function') { try { par.renderDirectorioList(''); } catch (e) {} }
+        }
+    } catch (e) { console.warn('proveedores', e); }
+}
