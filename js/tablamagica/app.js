@@ -66,6 +66,7 @@
         const reconocimientosGuardadosList = document.getElementById('reconocimientos-guardados-list');
         const cotizacionesGuardadosList = document.getElementById('cotizaciones-guardados-list');
         const cotizadosGuardadosList = document.getElementById('cotizados-guardados-list');
+        const transporteGuardadosList = document.getElementById('transporte-guardados-list');
         const lossWarningModal = document.getElementById('loss-warning-modal');
         const lossWarningCloseBtn = document.getElementById('loss-warning-close-btn');
         const backupBtn = document.getElementById('backup-btn');
@@ -525,7 +526,7 @@
             let airlineOptionHTML = (currentCurrency === 'USD') ? `<option value="aerolinea">Aerolínea</option>` : '';
             let localAlertDisplay = alertaPerdidaHabilitada ? 'none' : 'block';
             
-            return `<div class="item-card" id="${uniqueId}"><button class="btn-collapse-item" aria-label="Colapsar pago">Ocultar</button><select class="card-dia-select viaje-dia-select" title="Día del viaje" style="position:absolute;top:11px;left:50%;transform:translateX(-50%);font-weight:bold;color:var(--color-primario,#f97316);text-align:center;text-align-last:center;border:none;background:transparent;font-size:1.1rem;z-index:2;display:${viajeInternacional?'':'none'}">${viajeDiasOptionsHTML()}</select><button class="btn-delete-item" aria-label="Eliminar pago"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><div class="collapsed-summary"></div><div class="collapsible-content"><div class="card-top-row"><div class="form-group"><label for="tipo-gasto-${uniqueId}">Tipo de Gasto</label><select id="tipo-gasto-${uniqueId}" class="item-tipo-gasto" onchange="var n=this.parentElement.querySelector('.item-nombre');if(this.value==='Otros'){n.style.display='';n.value='';n.focus();}else{n.value=this.value;n.style.display='none';}"><option value="">— Seleccionar —</option><option value="Transporte">Transporte</option><option value="Estadía">Estadía</option><option value="AirBnB">AirBnB</option><option value="Agencia de Viajes">Agencia de Viajes</option><option value="Tour Operadora">Tour Operadora</option><option value="Almuerzo">Almuerzo</option><option value="Desayuno">Desayuno</option><option value="Puntos">Puntos</option><option value="Café">Café</option><option value="Fiesta">Fiesta</option><option value="Lanchas">Lanchas</option><option value="Aéreo">Aéreo</option><option value="Acarreo">Acarreo</option><option value="Guía">Guía</option><option value="4x4">4x4</option><option value="Camping">Camping</option><option value="Scouting">Scouting</option><option value="Refrigerio">Refrigerio</option><option value="Entrada">Entrada</option><option value="Uber/Didi/Taxi">Uber/Didi/Taxi</option><option value="Bus">Bus</option><option value="Donación">Donación</option><option value="Lancha">Lancha</option><option value="Cena">Cena</option><option value="Guías">Guías</option><option value="Pasaporte">Pasaporte</option><option value="Rifas">Rifas</option><option value="Ducha">Ducha</option><option value="Servicios Sanitarios">Servicios Sanitarios</option><option value="Impuestos">Impuestos</option><option value="Tiquetes Aereos">Tiquetes Aereos</option><option value="ZonaDeCamping">ZonaDeCamping</option><option value="PolizaDeViajero">PolizaDeViajero</option><option value="TaxiUberOtro">TaxiUberOtro</option><option value="GuiasCertificados">GuiasCertificados</option><option value="Otros">Otros</option></select><input type="text" id="nombre-${uniqueId}" class="item-nombre" placeholder="Descripción" style="display:none"></div><div class="form-group"><label for="tipo-precio-${uniqueId}">Tipo de Precio</label><select id="tipo-precio-${uniqueId}" class="price-type-selector"><option value="persona">Precio por Persona</option><option value="grupal">Precio Grupal</option></select></div><div class="form-group"><label for="field-selector-${uniqueId}">Añadir Campo</label><select id="field-selector-${uniqueId}" class="field-selector" data-card-id="${uniqueId}"><option value="">Seleccionar...</option>${airlineOptionHTML}<option value="descripcion">Descripción</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="fecha">Fecha</option><option value="hora_inicio">Hora de Inicio</option><option value="hora_final">Hora Final</option><option value="cantidad">Cantidad</option><option value="tipo_pago">Tipo de Pago</option><option value="guias">Guías</option><option value="nombre_encargado">Nombre Encargado</option><option value="nombre_empresa">Nombre de Empresa</option><option value="telefono_encargado">Teléfono Encargado</option><option value="nota">Nota</option><option value="informacion">Información</option><option value="reconocimiento">Reconocimiento</option><option value="cotizador">Cotizador</option><option value="gmaps">Google Maps</option><option value="waze">Waze</option><option value="mapa">Mapa</option></select></div><div class="form-group local-alert-container" style="display: ${localAlertDisplay};"><label>Alerta Individual</label><button type="button" class="btn local-alert-btn btn-secondary" data-alert="false" style="width: 100%; margin-top: 0; padding: 0.8rem 0;">Desactivada</button></div></div><div class="dynamic-fields-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem"></div><div class="price-section" style="border-top:1px solid var(--color-secundario);margin-top:1rem;padding-top:1rem"><div class="price-details-container"><div class="form-group"><label for="precio-persona-${uniqueId}">Precio p/p</label><input type="number" id="precio-persona-${uniqueId}" class="item-price-per-person" min="0" value="0"></div><div class="total-display"><strong>TOTAL:</strong> <span class="total-amount">0</span></div></div></div><button class="btn btn-secondary export-pago-btn" style="margin-top:1rem;width:100%">Exportar Pago (JSON)</button></div></div>`;
+            return `<div class="item-card" id="${uniqueId}"><button class="btn-collapse-item" aria-label="Colapsar pago">Ocultar</button><select class="card-dia-select viaje-dia-select" title="Día del viaje" style="position:absolute;top:11px;left:50%;transform:translateX(-50%);font-weight:bold;color:var(--color-primario,#f97316);text-align:center;text-align-last:center;border:none;background:transparent;font-size:1.1rem;z-index:2;display:${viajeInternacional?'':'none'}">${viajeDiasOptionsHTML()}</select><button class="btn-delete-item" aria-label="Eliminar pago"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><div class="collapsed-summary"></div><div class="collapsible-content"><div class="card-top-row"><div class="form-group"><label for="tipo-gasto-${uniqueId}">Tipo de Gasto</label><select id="tipo-gasto-${uniqueId}" class="item-tipo-gasto" onchange="var n=this.parentElement.querySelector('.item-nombre');if(this.value==='Otros'){n.style.display='';n.value='';n.focus();}else{n.value=this.value;n.style.display='none';}"><option value="">— Seleccionar —</option><option value="Transporte">Transporte</option><option value="Estadía">Estadía</option><option value="AirBnB">AirBnB</option><option value="Agencia de Viajes">Agencia de Viajes</option><option value="Tour Operadora">Tour Operadora</option><option value="Almuerzo">Almuerzo</option><option value="Desayuno">Desayuno</option><option value="Puntos">Puntos</option><option value="Café">Café</option><option value="Fiesta">Fiesta</option><option value="Lanchas">Lanchas</option><option value="Aéreo">Aéreo</option><option value="Acarreo">Acarreo</option><option value="Guía">Guía</option><option value="4x4">4x4</option><option value="Camping">Camping</option><option value="Scouting">Scouting</option><option value="Refrigerio">Refrigerio</option><option value="Entrada">Entrada</option><option value="Uber/Didi/Taxi">Uber/Didi/Taxi</option><option value="Bus">Bus</option><option value="Donación">Donación</option><option value="Lancha">Lancha</option><option value="Cena">Cena</option><option value="Guías">Guías</option><option value="Pasaporte">Pasaporte</option><option value="Rifas">Rifas</option><option value="Ducha">Ducha</option><option value="Servicios Sanitarios">Servicios Sanitarios</option><option value="Impuestos">Impuestos</option><option value="Tiquetes Aereos">Tiquetes Aereos</option><option value="ZonaDeCamping">ZonaDeCamping</option><option value="PolizaDeViajero">PolizaDeViajero</option><option value="TaxiUberOtro">TaxiUberOtro</option><option value="GuiasCertificados">GuiasCertificados</option><option value="Recuerdos">Recuerdos</option><option value="Premios">Premios</option><option value="Otros">Otros</option></select><input type="text" id="nombre-${uniqueId}" class="item-nombre" placeholder="Descripción" style="display:none"></div><div class="form-group"><label for="tipo-precio-${uniqueId}">Tipo de Precio</label><select id="tipo-precio-${uniqueId}" class="price-type-selector"><option value="persona">Precio por Persona</option><option value="grupal">Precio Grupal</option></select></div><div class="form-group"><label for="field-selector-${uniqueId}">Añadir Campo</label><select id="field-selector-${uniqueId}" class="field-selector" data-card-id="${uniqueId}"><option value="">Seleccionar...</option>${airlineOptionHTML}<option value="descripcion">Descripción</option><option value="telefono">Teléfono</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="fecha">Fecha</option><option value="hora_inicio">Hora de Inicio</option><option value="hora_final">Hora Final</option><option value="cantidad">Cantidad</option><option value="tipo_pago">Tipo de Pago</option><option value="guias">Guías</option><option value="nombre_encargado">Nombre Encargado</option><option value="nombre_empresa">Nombre de Empresa</option><option value="telefono_encargado">Teléfono Encargado</option><option value="nota">Nota</option><option value="informacion">Información</option><option value="reconocimiento">Reconocimiento</option><option value="cotizador">Cotizador</option><option value="gmaps">Google Maps</option><option value="waze">Waze</option><option value="mapa">Mapa</option></select></div><div class="form-group local-alert-container" style="display: ${localAlertDisplay};"><label>Alerta Individual</label><button type="button" class="btn local-alert-btn btn-secondary" data-alert="false" style="width: 100%; margin-top: 0; padding: 0.8rem 0;">Desactivada</button></div></div><div class="dynamic-fields-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem"></div><div class="price-section" style="border-top:1px solid var(--color-secundario);margin-top:1rem;padding-top:1rem"><div class="price-details-container"><div class="form-group"><label for="precio-persona-${uniqueId}">Precio p/p</label><input type="number" id="precio-persona-${uniqueId}" class="item-price-per-person" min="0" value="0"></div><div class="total-display"><strong>TOTAL:</strong> <span class="total-amount">0</span></div></div></div><button class="btn btn-secondary export-pago-btn" style="margin-top:1rem;width:100%">Exportar Pago (JSON)</button></div></div>`;
         }
         
         // Función para crear un elemento de campo de forma programática
@@ -1603,11 +1604,7 @@
                 useCORS: true,
                 backgroundColor: null 
             }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `tarjeta_viaje_${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showNotification('Tarjeta de Viaje exportada exitosamente');
+                compartirPNGWhatsApp(canvas, `tarjeta_viaje_${Date.now()}.png`, currentWhatsAppText || 'Tarjeta de Viaje');
             }).catch(error => {
                 console.error('Error al exportar la tarjeta:', error);
                 showNotification('Hubo un error al exportar la tarjeta. Inténtalo de nuevo.');
@@ -1843,11 +1840,7 @@
                     useCORS: true,
                     backgroundColor: null 
                 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `resumen_global_${Date.now()}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    showNotification('Resumen exportado exitosamente');
+                    compartirPNGWhatsApp(canvas, `resumen_global_${Date.now()}.png`, 'Resumen Global de Eventos');
                 }).catch(error => {
                     console.error('Error al exportar el resumen:', error);
                     showNotification('Hubo un error al exportar la tarjeta. Inténtalo de nuevo.');
@@ -2444,14 +2437,23 @@
         
         function renderEventosGuardados(events) {
             eventosGuardadosList.innerHTML = '';
+            const smEv = document.querySelector('#eventos-guardados-accordion > summary');
+            if (smEv) smEv.textContent = 'Eventos Guardados (' + events.length + ')';
 
             if (events.length === 0) {
                 eventosGuardadosList.innerHTML = '<p style="color:var(--color-texto); width:100%; text-align:center;">No se encontraron eventos.</p>';
                 return;
             }
 
-            // lista plana numerada — sin provincias (nunca se asignan en Tabla Mágica)
-            events.forEach((evento, idx) => {
+            // lista plana numerada — sin provincias, orden alfabetico, 10 por pagina
+            events = events.slice().sort((a, b) => String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es'));
+            const PAGE_G = 10;
+            const totalPag = Math.max(1, Math.ceil(events.length / PAGE_G));
+            window._guardadosPage = Math.min(Math.max(1, window._guardadosPage || 1), totalPag);
+            const pag = window._guardadosPage;
+            const slice = events.slice((pag - 1) * PAGE_G, pag * PAGE_G);
+            slice.forEach((evento, idxS) => {
+                    const idx = (pag - 1) * PAGE_G + idxS;
                     const capacidadCG = parseFloat(evento.capacidadCG) || 0;
                     const capacidadSG = parseFloat(evento.capacidadSG) || 1;
                     const precioDelEvento = parseFloat(evento.precio) || 0;
@@ -2511,6 +2513,238 @@
                     eventosGuardadosList.appendChild(btn);
                 });
 
+            if (totalPag > 1) {
+                const pager = document.createElement('div');
+                pager.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;';
+                const mkP = (txt, dis, fn) => {
+                    const b = document.createElement('button');
+                    b.textContent = txt;
+                    b.disabled = dis;
+                    b.style.cssText = 'padding:7px 14px;border-radius:8px;border:1px solid var(--color-secundario);background:#fff;color:var(--color-texto);cursor:pointer;font-size:.85rem;' + (dis ? 'opacity:.4;cursor:default;' : '');
+                    b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
+                    return b;
+                };
+                pager.appendChild(mkP('‹ Anterior', pag <= 1, () => { window._guardadosPage = pag - 1; renderEventosGuardados(events); }));
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'font-size:.85rem;color:var(--color-texto);font-weight:600;';
+                lbl.textContent = 'Página ' + pag + ' de ' + totalPag;
+                pager.appendChild(lbl);
+                pager.appendChild(mkP('Siguiente ›', pag >= totalPag, () => { window._guardadosPage = pag + 1; renderEventosGuardados(events); }));
+                eventosGuardadosList.appendChild(pager);
+            }
+
+        }
+
+        /* Transporte: lista eventos con pagos tipo Transporte + total global */
+        function renderTransporteGuardados(events) {
+            if (!transporteGuardadosList) return;
+            transporteGuardadosList.innerHTML = '';
+            let granTotal = 0, filas = 0;
+            const pngFilas = [];
+            const monedaRef = (events[0] && events[0].moneda) || 'CRC';
+            events.forEach(evento => {
+                const capCG = parseFloat(evento.capacidadCG) || 0;
+                const capSG = parseFloat(evento.capacidadSG) || 1;
+                let totEv = 0;
+                (evento.pagos || []).forEach(pago => {
+                    const tipo = (pago.tipoGasto || pago.nombre || '').trim();
+                    if (!/^(transporte|transavi|buseta|transavi\s+buseta)$/i.test(tipo)) return;
+                    let base = pago.tipoPrecio === 'persona'
+                        ? (parseFloat(pago.precioPersona) || 0) * capCG / capSG
+                        : (parseFloat(pago.precioGrupal) || 0) / capSG;
+                    const cant = (pago.dynamicFields && pago.dynamicFields.cantidad) ? parseFloat(pago.dynamicFields.cantidad) : 1;
+                    totEv += base * cant;
+                });
+                if (totEv <= 0) return;
+                filas++;
+                granTotal += totEv;
+                pngFilas.push({ nombre: evento.nombre || 'Evento', monto: formatCurrency(totEv, evento.moneda || monedaRef) });
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #f0f0f0;font-size:.9rem;';
+                row.innerHTML = `<span>${filas}. <strong>${evento.nombre || 'Evento'}</strong></span><strong style="color:var(--color-primario);">${formatCurrency(totEv, evento.moneda || monedaRef)}</strong>`;
+                row.addEventListener('click', () => loadEventData(evento.id));
+                row.style.cursor = 'pointer';
+                transporteGuardadosList.appendChild(row);
+            });
+            window._transportePNG = { filas: pngFilas, total: formatCurrency(granTotal, monedaRef) };
+            const smT = document.querySelector('#transporte-accordion > summary');
+            if (smT) smT.textContent = 'Transporte (' + filas + ')';
+            if (!filas) {
+                transporteGuardadosList.innerHTML = '<p style="color:var(--color-texto); width:100%; text-align:center;">No hay transportes registrados.</p>';
+                return;
+            }
+            const tot = document.createElement('div');
+            tot.style.cssText = 'display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:2px solid var(--color-primario);font-weight:800;';
+            tot.innerHTML = `<span>TOTAL TRANSPORTE</span><span style="color:var(--color-primario);">${formatCurrency(granTotal, monedaRef)}</span>`;
+            transporteGuardadosList.appendChild(tot);
+
+            // botones PNG: tarjeta de la lista en 9:16 (vertical) y 16:9 (horizontal)
+            const pngBar = document.createElement('div');
+            pngBar.style.cssText = 'display:flex;gap:8px;margin-top:10px;';
+            const mkPng = (txt, asp) => {
+                const b = document.createElement('button');
+                b.textContent = txt;
+                b.style.cssText = 'flex:1;padding:10px;border:none;border-radius:10px;background:var(--color-acento);color:#fff;font-weight:700;cursor:pointer;font-size:.85rem;';
+                b.addEventListener('click', (e) => { e.stopPropagation(); descargarTransportePNG(asp); });
+                return b;
+            };
+            pngBar.appendChild(mkPng('🖼 PNG 9:16', '9:16'));
+            pngBar.appendChild(mkPng('🖼 PNG 16:9', '16:9'));
+            transporteGuardadosList.appendChild(pngBar);
+        }
+
+        /* consola de depuracion en Configuracion General */
+        function tribuLog(msg) {
+            const el = document.getElementById('consola-debug');
+            const t = new Date().toLocaleTimeString('es-CR');
+            const line = '[' + t + '] ' + msg;
+            if (el) {
+                if (el.textContent === '— consola lista —') el.textContent = '';
+                el.textContent += line + '\n';
+                el.scrollTop = el.scrollHeight;
+            }
+            console.log(line);
+        }
+        const _btnLimpiarConsola = document.getElementById('consola-limpiar-btn');
+        if (_btnLimpiarConsola) _btnLimpiarConsola.addEventListener('click', () => {
+            const el = document.getElementById('consola-debug');
+            if (el) el.textContent = '— consola lista —';
+        });
+
+        /* compartir PNG: 1) plugins nativos Capacitor (Filesystem+Share) ->
+           imagen adjunta real en el menu compartir (WhatsApp la recibe);
+           2) Web Share API con archivo; 3) descarga + wa.me con texto */
+        function compartirPNGWhatsApp(canvas, fileName, texto) {
+            tribuLog('PNG share iniciado: ' + fileName + ' (' + canvas.width + 'x' + canvas.height + ')');
+            const abrirWa = () => window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+            canvas.toBlob(async (blob) => {
+                if (!blob) { tribuLog('ERROR: canvas.toBlob devolvio null'); abrirWa(); return; }
+                tribuLog('blob OK: ' + Math.round(blob.size / 1024) + ' KB');
+                /* 1) puente nativo TribuShare del APK: escribe el PNG a cache
+                   y lanza ACTION_SEND con la imagen (WhatsApp la adjunta) */
+                tribuLog('TribuShare nativo: ' + (window.TribuShare ? 'PRESENTE' : 'ausente'));
+                if (window.TribuShare && typeof window.TribuShare.sharePng === 'function') {
+                    try {
+                        const b64 = await new Promise(res => {
+                            const r = new FileReader();
+                            r.onloadend = () => res(String(r.result).split(',')[1]);
+                            r.readAsDataURL(blob);
+                        });
+                        try {
+                            window.TribuShare.sharePng(b64, fileName, texto);
+                        } catch (e2) {
+                            window.TribuShare.sharePng(b64, fileName);
+                        }
+                        tribuLog('OK: entregado a TribuShare nativo (' + Math.round(b64.length / 1024) + ' KB base64)');
+                        return;
+                    } catch (e) {
+                        tribuLog('ERROR TribuShare: ' + (e && e.message ? e.message : e));
+                        if (typeof showNotification === 'function') showNotification('Share nativo fallo: ' + (e && e.message ? e.message : e));
+                    }
+                }
+                /* 2) plugins Capacitor Share/Filesystem */
+                const Cap = window.Capacitor;
+                if (Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Filesystem && Cap.Plugins.Share) {
+                    try {
+                        const b64 = await new Promise(res => {
+                            const r = new FileReader();
+                            r.onloadend = () => res(String(r.result).split(',')[1]);
+                            r.readAsDataURL(blob);
+                        });
+                        const wr = await Cap.Plugins.Filesystem.writeFile({
+                            path: fileName, data: b64,
+                            directory: 'CACHE',
+                            recursive: true
+                        });
+                        await Cap.Plugins.Share.share({
+                            title: fileName, text: texto,
+                            url: wr.uri, dialogTitle: 'Compartir ' + fileName
+                        });
+                        tribuLog('OK: compartido via plugin Capacitor Share');
+                        return;
+                    } catch (e) {
+                        if (e && (e.name === 'AbortError' || /cancel/i.test(e.message || ''))) { tribuLog('share cancelado por el usuario'); return; }
+                        tribuLog('ERROR plugin Share: ' + (e && e.message ? e.message : e));
+                        if (typeof showNotification === 'function') showNotification('Share nativo fallo: ' + (e && e.message ? e.message : e));
+                    }
+                }
+                const file = new File([blob], fileName, { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({ files: [file], title: fileName, text: texto });
+                        tribuLog('OK: compartido via navigator.share');
+                        return;
+                    } catch (e) {
+                        if (e && e.name === 'AbortError') return;
+                    }
+                }
+                tribuLog('fallback: descarga local + wa.me con texto');
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = fileName; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                abrirWa();
+            }, 'image/png');
+        }
+
+        /* tarjeta PNG de la lista de transporte */
+        function descargarTransportePNG(aspecto) {
+            const d = window._transportePNG;
+            if (!d || !d.filas.length) {
+                if (typeof showNotification === 'function') showNotification('No hay transportes para exportar.');
+                return;
+            }
+            const W = aspecto === '9:16' ? 1080 : 1920;
+            const H = aspecto === '9:16' ? 1920 : 1080;
+            const cv = document.createElement('canvas');
+            cv.width = W; cv.height = H;
+            const x = cv.getContext('2d');
+            x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
+            // header
+            x.fillStyle = '#f97316'; x.fillRect(0, 0, W, 150);
+            x.fillStyle = '#ffffff';
+            x.font = '800 58px Segoe UI, sans-serif';
+            x.textBaseline = 'middle';
+            x.fillText('TRANSPORTE', 48, 78);
+            x.font = '400 26px Segoe UI, sans-serif';
+            x.textAlign = 'right';
+            x.fillText('Agenda Tribu · ' + new Date().toLocaleDateString('es-CR'), W - 48, 78);
+            x.textAlign = 'left';
+            // filas en columnas
+            const n = d.filas.length;
+            const rowsPerCol = aspecto === '9:16' ? (n <= 40 ? n : Math.ceil(n / 2)) : 12;
+            const cols = Math.max(1, Math.ceil(n / rowsPerCol));
+            const colW = (W - 96) / cols;
+            const top = 190;
+            const rowH = aspecto === '9:16' ? Math.min(38, (H - top - 160) / rowsPerCol) : Math.min(56, (H - top - 140) / rowsPerCol);
+            const fs = Math.max(18, rowH * 0.52);
+            x.font = '600 ' + fs + 'px Segoe UI, sans-serif';
+            d.filas.forEach((f, i) => {
+                const col = Math.floor(i / rowsPerCol), row = i % rowsPerCol;
+                const px = 48 + col * colW, py = top + row * rowH + rowH / 2;
+                x.fillStyle = i % 2 ? '#f8fafc' : '#eef2f7';
+                x.fillRect(px - 8, py - rowH / 2 - 2, colW - 16, rowH - 4);
+                x.fillStyle = '#1f2937';
+                let nombre = f.nombre || 'Evento';
+                while (x.measureText((i + 1) + '. ' + nombre).width > colW * 0.62 && nombre.length > 3) nombre = nombre.slice(0, -1);
+                x.fillText((i + 1) + '. ' + nombre, px, py);
+                x.fillStyle = '#f97316';
+                x.textAlign = 'right';
+                x.fillText(f.monto, px + colW - 24, py);
+                x.textAlign = 'left';
+            });
+            // total
+            const fy = H - 120;
+            x.fillStyle = '#1f2937'; x.fillRect(48, fy - 30, W - 96, 3);
+            x.font = '800 ' + (aspecto === '9:16' ? 44 : 40) + 'px Segoe UI, sans-serif';
+            x.fillStyle = '#1f2937';
+            x.fillText('TOTAL TRANSPORTE', 48, fy + 40);
+            x.textAlign = 'right';
+            x.fillStyle = '#f97316';
+            x.fillText(d.total, W - 48, fy + 40);
+            x.textAlign = 'left';
+            compartirPNGWhatsApp(cv, 'transporte-' + aspecto.replace(':', 'x') + '.png',
+                'TRANSPORTE — ' + d.filas.length + ' eventos · TOTAL ' + d.total);
         }
 
         function renderReconocimientosGuardados(events) {
@@ -2789,6 +3023,7 @@
                         guardarEventosEnDB();
                         renderCotizacionesGuardadas(allEventsCache);
                         renderCotizadosGuardados(allEventsCache);
+                renderTransporteGuardados(allEventsCache);
                     });
 
                     content.appendChild(item);
@@ -3102,6 +3337,7 @@
             renderReconocimientosGuardados(allEventsCache);
             renderCotizacionesGuardadas(allEventsCache);
             renderCotizadosGuardados(allEventsCache);
+                renderTransporteGuardados(allEventsCache);
         }
 
         // Listener de Búsqueda
@@ -3113,6 +3349,7 @@
                 renderReconocimientosGuardados(allEventsCache);
                 renderCotizacionesGuardadas(allEventsCache);
                 renderCotizadosGuardados(allEventsCache);
+                renderTransporteGuardados(allEventsCache);
                 eventosGuardadosWrapper.style.display = 'block';
                 if (toggleEventosListBtn) toggleEventosListBtn.textContent = 'Mostrar Lista';
                 return;
@@ -3146,6 +3383,7 @@
             renderReconocimientosGuardados(allEventsCache);
             renderCotizacionesGuardadas(allEventsCache);
             renderCotizadosGuardados(allEventsCache);
+                renderTransporteGuardados(allEventsCache);
             eventosGuardadosWrapper.style.display = 'block';
             toggleEventosListBtn.textContent = 'Ocultar Lista';
         });
@@ -3158,6 +3396,7 @@
                 renderReconocimientosGuardados(allEventsCache);
                 renderCotizacionesGuardadas(allEventsCache);
                 renderCotizadosGuardados(allEventsCache);
+                renderTransporteGuardados(allEventsCache);
                 eventosGuardadosWrapper.style.display = 'block';
                 toggleEventosListBtn.textContent = 'Ocultar Lista';
             } else {
@@ -3175,6 +3414,7 @@
                 renderReconocimientosGuardados(allEventsCache);
                 renderCotizacionesGuardadas(allEventsCache);
                 renderCotizadosGuardados(allEventsCache);
+                renderTransporteGuardados(allEventsCache);
                 eventosGuardadosWrapper.style.display = 'block';
                 if (toggleEventosListBtn) toggleEventosListBtn.textContent = 'Mostrar Lista';
                 searchInput.value = ''; 
@@ -3196,7 +3436,17 @@
                 tipoCambioInput.value = evento.tipoCambio;
                 currencySelector.value = evento.moneda;
                 currencySelector.dispatchEvent(new Event('change'));
-                if (evento.viaje && typeof viajeCargarDatos === 'function') viajeCargarDatos(evento.viaje);
+                // modo internacional segun lo que se guardo: eventos nacionales
+                // no deben abrir con la UI de viaje internacional activa
+                if (typeof evento.viajeActivo === 'boolean') {
+                    viajeInternacional = evento.viajeActivo;
+                } else {
+                    const vj = evento.viaje;
+                    viajeInternacional = !!(vj && (vj.pais || vj.fechaIda || vj.fechaRegreso || vj.vuelo || vj.aerolinea || vj.aerolineaOtra || vj.checkin));
+                }
+                localStorage.setItem('tmViajeInternacional', viajeInternacional);
+                if (viajeInternacional && evento.viaje && typeof viajeCargarDatos === 'function') viajeCargarDatos(evento.viaje);
+                aplicarViajeUI();
 
                 const pagosList = document.getElementById('transporte-nacional-list');
                 pagosList.innerHTML = '';
@@ -3208,7 +3458,7 @@
                         const cardElement = cardWrapper.firstElementChild;
                         
                         cardElement.querySelector('.item-nombre').value = pago.nombre;
-                        const selGasto = cardElement.querySelector('.item-tipo-gasto'); if (selGasto) { const nom = pago.nombre || ''; const tiene = Array.from(selGasto.options).some(o => o.value === nom); selGasto.value = tiene ? nom : (nom ? 'Otros' : ''); if (!tiene && nom) { const inp = cardElement.querySelector('.item-nombre'); inp.style.display = ''; inp.value = nom; } }
+                        const selGasto = cardElement.querySelector('.item-tipo-gasto'); if (selGasto) { const nom = /^(transavi|buseta|transavi\s+buseta)$/i.test(pago.nombre || '') ? 'Transporte' : (pago.nombre || ''); const tiene = Array.from(selGasto.options).some(o => o.value === nom); selGasto.value = tiene ? nom : (nom ? 'Otros' : ''); if (!tiene && nom) { const inp = cardElement.querySelector('.item-nombre'); inp.style.display = ''; inp.value = nom; } }
                         const priceSelector = cardElement.querySelector('.price-type-selector');
                         priceSelector.value = pago.tipoPrecio;
                         updatePriceFields(priceSelector, false);
@@ -3887,11 +4137,7 @@
                 useCORS: true,
                 backgroundColor: null 
             }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `tarjeta_reconocimientos_${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showNotification('Tarjeta exportada exitosamente');
+                compartirPNGWhatsApp(canvas, `tarjeta_reconocimientos_${Date.now()}.png`, 'Tarjeta de Reconocimientos');
             }).catch(error => {
                 console.error('Error al exportar la tarjeta:', error);
                 showNotification('Hubo un error al exportar la tarjeta. Inténtalo de nuevo.');
@@ -3908,7 +4154,8 @@
                 capacidadSG: eventoCapacidadSG.value,
                 tipoCambio: tipoCambioInput.value,
                 moneda: currentCurrency,
-                viaje: typeof viajeDraftDatos === 'function' ? viajeDraftDatos() : null
+                viaje: typeof viajeDraftDatos === 'function' ? viajeDraftDatos() : null,
+                viajeActivo: viajeInternacional
             };
             const draft = {
                 currentEventId,
@@ -3932,11 +4179,20 @@
             currencySelector.dispatchEvent(new Event('change'));
             document.getElementById('transporte-nacional-list').innerHTML = draft.pagosHTML || '';
             quitarOpcionTodoPegado();
+            sincronizarOpcionesTipoGasto();
+            normalizarTransAVI();
             ordenarPagosPorDia();
             viajeAplicarPrefijosTel();
             viajeSincronizarSelectoresCampos();
             rehidratarCamposMapa();
-            if (draft.evento && draft.evento.viaje && typeof viajeCargarDatos === 'function') viajeCargarDatos(draft.evento.viaje);
+            if (draft.evento) {
+                if (typeof draft.evento.viajeActivo === 'boolean') {
+                    viajeInternacional = draft.evento.viajeActivo;
+                    localStorage.setItem('tmViajeInternacional', viajeInternacional);
+                }
+                if (viajeInternacional && draft.evento.viaje && typeof viajeCargarDatos === 'function') viajeCargarDatos(draft.evento.viaje);
+                aplicarViajeUI();
+            }
             updateAllTotals();
         }
 
@@ -4444,7 +4700,48 @@ function quitarOpcionTodoPegado() {
         if (o.value === 'Todo pegado al mismo lugar') o.remove();
     });
 }
-document.addEventListener('DOMContentLoaded', () => setTimeout(quitarOpcionTodoPegado, 800));
+/* opciones nuevas: inyectar en selectores restaurados de borradores viejos */
+function sincronizarOpcionesTipoGasto() {
+    document.querySelectorAll('.item-tipo-gasto').forEach(sel => {
+        const otros = Array.from(sel.options).find(o => o.value === 'Otros');
+        if (!otros) return;
+        ['Recuerdos', 'Premios'].forEach(v => {
+            if (!Array.from(sel.options).some(o => o.value === v)) {
+                sel.insertBefore(new Option(v, v), otros);
+            }
+        });
+    });
+}
+/* motorcito: texto del campo de abajo que coincide con una opcion del
+   selector (o "TransAVI") se vuelve ESA OPCION del selector y el campo
+   duplicado de abajo se oculta — "Transporte" queda solo en la pestana */
+function normalizarTransAVI() {
+    document.querySelectorAll('.item-card').forEach(card => {
+        const sel = card.querySelector('.item-tipo-gasto');
+        const nom = card.querySelector('.item-nombre');
+        if (!sel || !nom) return;
+        const txt = (nom.value || '').trim();
+        let destino = null;
+        if (/^(transavi|buseta|transavi\s+buseta)$/i.test(txt)) destino = 'Transporte';
+        else {
+            const op = Array.from(sel.options).find(o => o.value && o.value !== 'Otros' && o.value.toLowerCase() === txt.toLowerCase());
+            if (op) destino = op.value;
+        }
+        if (destino) {
+            sel.value = destino;
+            nom.value = destino;
+            nom.style.display = 'none';
+        } else if (sel.value && sel.value !== 'Otros' && /^transavi$/i.test(sel.value)) {
+            sel.value = 'Transporte';
+            nom.value = 'Transporte';
+            nom.style.display = 'none';
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => { quitarOpcionTodoPegado(); sincronizarOpcionesTipoGasto(); normalizarTransAVI(); }, 800));
+document.addEventListener('change', e => {
+    if (e.target && (e.target.classList.contains('item-nombre') || e.target.classList.contains('item-tipo-gasto'))) normalizarTransAVI();
+});
 
 
 /* Prefijos telefónicos por país del viaje (orden del usuario) */

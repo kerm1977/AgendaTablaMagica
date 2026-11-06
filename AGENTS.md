@@ -364,3 +364,26 @@ con los "+" cuadrados reintegrados (`.fab-listas`/`.fab-dir`/`.fab-notas`/
 - Sirve `ota_out/bundle.zip` + `ota_out/stamp.json` (persistidos por `rebuild()`) — el checksum del push coincide byte a byte con lo servido.
 - `ota_push.py` y el watcher usan `ExclusiveHTTPServer` y detectan al guard: si :8789 ya esta poseido, solo POSTean el OTA y salen (causa anterior de "OTA fallo": servidores duplicados con sello viejo).
 - Cualquier app nueva que necesite puerto LAN debe elegir otro automaticamente; :8789 es propiedad permanente de Agenda Tribu.
+
+## ⛔ BLINDADO — COMPARTIR PNG A WHATSAPP (verificado por el usuario 2026-11-06 — PROHIBIDO TOCAR)
+
+Funcionando en el teléfono. Cualquier cambio a esta cadena requiere orden explícita.
+
+**Cadena completa:**
+
+1. `compartirPNGWhatsApp(canvas, fileName, texto)` en `js/tablamagica/app.js`:
+   - `canvas.toBlob` → FileReader → base64
+   - **Camino 1 (nativo)**: `window.TribuShare.sharePng(b64, fileName, texto)` con fallback a 2 args para APKs viejas
+   - **Camino 2**: plugins `@capacitor/filesystem` (`directory:'CACHE'`) + `@capacitor/share`
+   - **Camino 3**: `navigator.share` con File → descarga local + `wa.me/?text=`
+   - Log en cada paso via `tribuLog()` a `#consola-debug`
+2. `TribuShareBridge` en `MainActivity.java` (JavascriptInterface `window.TribuShare`):
+   - DOS firmas: `sharePng(base64, fileName)` y `sharePng(base64, fileName, texto)` — ambas deben existir (compatibilidad)
+   - `runOnUiThread` OBLIGATORIO para lanzar el Intent (los @JavascriptInterface corren en hilo de fondo)
+   - Escribe PNG a `getCacheDir()`, `FileProvider.getUriForFile(..., "com.tribu.tablamagica.fileprovider", file)`, `ACTION_SEND` + `EXTRA_STREAM` + `EXTRA_TEXT` + `FLAG_GRANT_READ_URI_PERMISSION`
+   - Errores visibles con `Toast` — nunca catch silencioso
+3. `AndroidManifest.xml`: FileProvider `androidx.core.content.FileProvider` con authorities `com.tribu.tablamagica.fileprovider` y `@xml/file_paths` con `cache-path` (OBLIGATORIO para compartir archivos)
+4. Consumidores: botones PNG 9:16/16:9 de Transporte, Tarjeta de Viaje, Resumen Global, Reconocimientos
+5. Consola `#consola-debug` en tab-configuracion + `tribuLog()` — diagnóstico del flujo share
+
+**Errores conocidos ya resueltos (no reintroducir):** "method not found" = firma sin overload; "entregado pero nada pasa" = falta runOnUiThread; share sin texto = firma vieja de 2 args; WebView no soporta navigator.share con archivos → siempre usar el puente nativo primero.

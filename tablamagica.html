@@ -291,9 +291,7 @@
                 
         <div id="tab-guardados" class="tab-content">
             <div class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">Guardados</h3>
-                </div>
+                <div class="section-header" style="display:none;"></div>
                 <!-- Controles de búsqueda y orden arriba de los acordeones -->
                 <div id="eventos-sort-container" style="margin-bottom: 1rem; display: flex; gap: 10px; align-items: center;">
                     <select id="sort-pagos" class="input bulma-like" style="padding: 0.6rem; border-radius: 4px; border: 1px solid var(--color-secundario); background-color: var(--color-fondo); color: var(--color-texto); min-width: 160px;">
@@ -325,6 +323,10 @@
                     <details id="cotizados-accordion" class="saved-accordion">
                         <summary>Cotizados</summary>
                         <div id="cotizados-guardados-list"></div>
+                    </details>
+                    <details id="transporte-accordion" class="saved-accordion">
+                        <summary>Transporte</summary>
+                        <div id="transporte-guardados-list"></div>
                     </details>
                 </div>
                 <!-- Fin Sección -->
@@ -393,6 +395,14 @@
                     <p style="text-align: center; font-size: 0.9rem; margin-bottom: 1rem; color: var(--color-texto);">Convierte la tabla en un administrador de viajes: país, fechas, vuelo y aerolínea con su enlace de check-in.</p>
                     <div style="display: flex; justify-content: center;">
                         <button id="toggle-viaje-btn" class="btn btn-secondary">Viaje Internacional: DESACTIVADO</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>Consola de Depuración</h4>
+                    <pre id="consola-debug" style="background:#111827;color:#34d399;font-size:.72rem;line-height:1.5;padding:10px;border-radius:10px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin:0;">— consola lista —</pre>
+                    <div style="display:flex;justify-content:center;margin-top:8px;">
+                        <button id="consola-limpiar-btn" class="btn btn-secondary" style="font-size:.8rem;">Limpiar consola</button>
                     </div>
                 </div>
 
